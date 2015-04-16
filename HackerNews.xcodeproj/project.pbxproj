@@ -14,6 +14,7 @@
 		0CD3C8961AD781DF005CC6C1 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 0CD3C8941AD781DF005CC6C1 /* LaunchScreen.xib */; };
 		0CD3C8A21AD781DF005CC6C1 /* HackerNewsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CD3C8A11AD781DF005CC6C1 /* HackerNewsTests.swift */; };
 		0CD3C8AC1AD786BC005CC6C1 /* HNAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CD3C8AB1AD786BC005CC6C1 /* HNAPIClient.swift */; };
+		0CFB9C181ADF502C009D3C04 /* Model.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CFB9C171ADF502C009D3C04 /* Model.swift */; };
 		8D904113588597FF9685D5CB /* Pods.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 96BFE55567A6A1DA056DBE61 /* Pods.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 /* End PBXBuildFile section */
 
@@ -39,6 +40,7 @@
 		0CD3C8A01AD781DF005CC6C1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		0CD3C8A11AD781DF005CC6C1 /* HackerNewsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HackerNewsTests.swift; sourceTree = "<group>"; };
 		0CD3C8AB1AD786BC005CC6C1 /* HNAPIClient.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HNAPIClient.swift; sourceTree = "<group>"; };
+		0CFB9C171ADF502C009D3C04 /* Model.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Model.swift; sourceTree = "<group>"; };
 		31673111D9B6682A226FA4A9 /* Pods.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.debug.xcconfig; path = "Pods/Target Support Files/Pods/Pods.debug.xcconfig"; sourceTree = "<group>"; };
 		96BFE55567A6A1DA056DBE61 /* Pods.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D85C380C1DB698E049FC7102 /* Pods.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.release.xcconfig; path = "Pods/Target Support Files/Pods/Pods.release.xcconfig"; sourceTree = "<group>"; };
@@ -89,6 +91,7 @@
 				0CD3C88B1AD781DF005CC6C1 /* AppDelegate.swift */,
 				0CD3C88D1AD781DF005CC6C1 /* ViewController.swift */,
 				0CD3C8AB1AD786BC005CC6C1 /* HNAPIClient.swift */,
+				0CFB9C171ADF502C009D3C04 /* Model.swift */,
 				0CD3C88F1AD781DF005CC6C1 /* Main.storyboard */,
 				0CD3C8921AD781DF005CC6C1 /* Images.xcassets */,
 				0CD3C8941AD781DF005CC6C1 /* LaunchScreen.xib */,
@@ -293,6 +296,7 @@
 				0CD3C88E1AD781DF005CC6C1 /* ViewController.swift in Sources */,
 				0CD3C88C1AD781DF005CC6C1 /* AppDelegate.swift in Sources */,
 				0CD3C8AC1AD786BC005CC6C1 /* HNAPIClient.swift in Sources */,
+				0CFB9C181ADF502C009D3C04 /* Model.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

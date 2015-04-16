@@ -1,10 +1,34 @@
 PODS:
   - Alamofire (1.2.0)
+  - Colours (5.6.2)
+  - Dollar (3.0.0-alpha)
+  - SwiftyJSON (2.2.0)
 
 DEPENDENCIES:
   - Alamofire
+  - Colours
+  - Dollar (from `https://github.com/ankurp/Dollar.swift.git`, branch `xcode-6.3-beta-swift-1.2`)
+  - SwiftyJSON (from `https://github.com/SwiftyJSON/SwiftyJSON.git`)
+
+EXTERNAL SOURCES:
+  Dollar:
+    :branch: xcode-6.3-beta-swift-1.2
+    :git: https://github.com/ankurp/Dollar.swift.git
+  SwiftyJSON:
+    :git: https://github.com/SwiftyJSON/SwiftyJSON.git
+
+CHECKOUT OPTIONS:
+  Dollar:
+    :commit: a75ebc9ded0ba37d0b4397665482957e1c39fa2e
+    :git: https://github.com/ankurp/Dollar.swift.git
+  SwiftyJSON:
+    :commit: 87fa9e2432187629aae80cf89027f2a615af2c31
+    :git: https://github.com/SwiftyJSON/SwiftyJSON.git
 
 SPEC CHECKSUMS:
   Alamofire: d765c5c1713aa64106b0228aaa600a1e6851f68d
+  Colours: 0afd4c3429656880fd4cff350ca3bf0ab86ca348
+  Dollar: 934d5407e956f4c3b312dcdcefe0cc6eae8733b1
+  SwiftyJSON: 0b3e6c07af17ff745e77e8e9984097b55c956e5c
 
 COCOAPODS: 0.36.3

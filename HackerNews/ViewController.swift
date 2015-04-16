@@ -9,22 +9,23 @@
 import UIKit
 
 class ViewController: UIViewController {
-
+    
+    let apiClient = HNAPIClient()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
-        
-        HNAPIClient.sharedClient.getTopStories { (stories, error) -> Void in
-            
-
+        apiClient.getTopStories([Int](0...9)) { (stories, error) -> Void in
+            println("stories: \(stories)")
+            println("error \(error)")
         }
     }
-
+    
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
-
-
+    
+    
 }
 
