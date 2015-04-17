@@ -53,7 +53,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
     
     func setAppearances() {
-
+        UINavigationBar.appearance().backgroundColor = UIColor.backgroundColor()
+        UINavigationBar.appearance().tintColor = UIColor.textColor()
     }
 
 }

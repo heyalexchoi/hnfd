@@ -7,7 +7,6 @@
 //
 
 import UIKit
-import Dollar
 
 class StoriesViewController: UIViewController {
     

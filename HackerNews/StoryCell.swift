@@ -124,8 +124,12 @@ class StoryCell: UICollectionViewCell {
             timeLabel.text = String(story.time)
             URLLabel.text = story.URL.absoluteString
         } else {
-            apiClient.getStory(storyItem.id, completion: { (story, error) -> Void in
-                ///
+            storyItem.getData({ [weak self] (success, error) -> Void in
+                if let strong_self = self {
+                    if success && storyItem === strong_self.storyItem {
+                        strong_self.prepare(storyItem)
+                    }
+                }
             })
         }
     }
