@@ -3,12 +3,15 @@ PODS:
   - Colours (5.6.2)
   - Dollar (3.0.0-alpha)
   - SwiftyJSON (2.2.0)
+  - TWTToast/UIKit/AutoLayout (0.15)
 
 DEPENDENCIES:
   - Alamofire
   - Colours
   - Dollar (from `https://github.com/ankurp/Dollar.swift.git`, branch `xcode-6.3-beta-swift-1.2`)
   - SwiftyJSON (from `https://github.com/SwiftyJSON/SwiftyJSON.git`)
+  - TWTToast/UIKit/AutoLayout (from `https://github.com/twotoasters/Toast.git`, branch
+    `master`)
 
 EXTERNAL SOURCES:
   Dollar:
@@ -16,6 +19,9 @@ EXTERNAL SOURCES:
     :git: https://github.com/ankurp/Dollar.swift.git
   SwiftyJSON:
     :git: https://github.com/SwiftyJSON/SwiftyJSON.git
+  TWTToast:
+    :branch: master
+    :git: https://github.com/twotoasters/Toast.git
 
 CHECKOUT OPTIONS:
   Dollar:
@@ -24,11 +30,15 @@ CHECKOUT OPTIONS:
   SwiftyJSON:
     :commit: 87fa9e2432187629aae80cf89027f2a615af2c31
     :git: https://github.com/SwiftyJSON/SwiftyJSON.git
+  TWTToast:
+    :commit: 5d1ec37e523a6c4959fbff02404b59a154c5958f
+    :git: https://github.com/twotoasters/Toast.git
 
 SPEC CHECKSUMS:
   Alamofire: d765c5c1713aa64106b0228aaa600a1e6851f68d
   Colours: 0afd4c3429656880fd4cff350ca3bf0ab86ca348
   Dollar: 934d5407e956f4c3b312dcdcefe0cc6eae8733b1
   SwiftyJSON: 0b3e6c07af17ff745e77e8e9984097b55c956e5c
+  TWTToast: 0da7f209a5f2410332ac84b0e0d6f63964c1ff2a
 
 COCOAPODS: 0.36.3

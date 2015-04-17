@@ -8,7 +8,7 @@
 
 import SwiftyJSON
 
-class Story {
+struct Story {
     let by: String
     let descendants: Int
     let id: Int
