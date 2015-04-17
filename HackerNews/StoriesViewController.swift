@@ -9,13 +9,8 @@
 import UIKit
 import Dollar
 
-
 class StoriesViewController: UIViewController {
     
-    struct StoryItem {
-        let id: Int
-        var story: Story?
-    }
     var stories = [StoryItem]()
     let apiClient = HNAPIClient()
     
@@ -55,12 +50,15 @@ class StoriesViewController: UIViewController {
     }
     
     func getTopStories() {
-        apiClient.getTopStories { [weak self] (ids, error) -> Void in
-            if let ids = ids {
-                $.each(ids) { self?.stories.append(StoryItem(id: $0, story: nil)) }
+        apiClient.getTopStories { [weak self] (stories, error) -> Void in
+            if let stories = stories {
+                self?.stories += stories
                 self?.collectionView.reloadData()
             } else {
-                println("error getting top story ids")
+                UIAlertView(title: "Error getting top stories",
+                    message: error?.localizedDescription,
+                    delegate: nil,
+                    cancelButtonTitle: "OK")
             }
         }
     }
@@ -80,16 +78,7 @@ extension StoriesViewController: UICollectionViewDataSource {
     func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCellWithReuseIdentifier(StoryCell.identifier, forIndexPath: indexPath) as!   StoryCell
         cell.delegate = self
-        let storyItem = storyItemForIndexPath(indexPath)
-        
-        if let story = storyItem.story {
-            cell.prepare(story)
-        } else {
-            apiClient.getStory(storyItem.id, completion: { [weak self] (story, error) -> Void in
-                self?.stories[indexPath.item] = StoryItem(id: storyItem.id, story: story)
-                self?.collectionView.reloadItemsAtIndexPaths([indexPath])
-                })
-        }
+        cell.prepare(storyItemForIndexPath(indexPath))
         
         return cell
     }
@@ -98,7 +87,7 @@ extension StoriesViewController: UICollectionViewDataSource {
 extension StoriesViewController: StoryCellDelegate {
 
     func cellDidSelectStoryArticle(cell: StoryCell, story: Story) {
-        navigationController?.pushViewController(ArticleViewController(articleURL: story.URL), animated: true)
+        navigationController?.pushViewController(ReadabilityViewContoller(articleURL: story.URL), animated: true)
     }
     
     func cellDidSelectStoryComments(cell: StoryCell, story: Story) {

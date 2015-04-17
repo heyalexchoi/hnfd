@@ -15,7 +15,8 @@ protocol StoryCellDelegate: class {
 
 class StoryCell: UICollectionViewCell {
     
-    var story: Story?
+    let apiClient = HNAPIClient()
+    var storyItem = StoryItem(id: -999, story: nil)
     weak var delegate: StoryCellDelegate?
     class var identifier: String {
         return "StoryCellIdentifier"
@@ -24,12 +25,12 @@ class StoryCell: UICollectionViewCell {
     let articleContainer = UIView()
     let commentsContainer = UIView()
     
-    let titleLabel = UILabel()
-    let scoreLabel = UILabel()
-    let byLabel = UILabel()
-    let timeLabel = UILabel()
-    let URLLabel = UILabel()
-    let commentsLabel = UILabel()
+    let titleLabel = Label()
+    let scoreLabel = Label()
+    let byLabel = Label()
+    let timeLabel = Label()
+    let URLLabel = Label()
+    let commentsLabel = Label()
     
     let scoreBySpace = UIView()
     let byTimeSpace = UIView()
@@ -44,7 +45,6 @@ class StoryCell: UICollectionViewCell {
         titleLabel.lineBreakMode = .ByWordWrapping
         
         for label in [titleLabel, byLabel, scoreLabel, timeLabel, URLLabel] {
-            label.textColor = UIColor.textColor()
             label.setTranslatesAutoresizingMaskIntoConstraints(false)
             articleContainer.addSubview(label)
         }
@@ -54,7 +54,6 @@ class StoryCell: UICollectionViewCell {
         byTimeSpace.setTranslatesAutoresizingMaskIntoConstraints(false)
         articleContainer.addSubview(byTimeSpace)
         
-        commentsLabel.textColor = UIColor.textColor()
         commentsLabel.setTranslatesAutoresizingMaskIntoConstraints(false)
         commentsContainer.addSubview(commentsLabel)
         
@@ -113,27 +112,32 @@ class StoryCell: UICollectionViewCell {
         for label in [titleLabel, byLabel, commentsLabel, scoreLabel, timeLabel, URLLabel] {
             label.text = nil
         }
-        story = nil
     }
     
-    func prepare(story: Story) {
-        titleLabel.text = story.title
-        byLabel.text = story.by
-        commentsLabel.text = String(story.kids.count)
-        scoreLabel.text = String(story.score)
-        timeLabel.text = String(story.time)
-        URLLabel.text = story.URL.absoluteString
-        self.story = story
+    func prepare(storyItem: StoryItem) {
+        self.storyItem = storyItem
+        if let story = storyItem.story {
+            titleLabel.text = story.title
+            byLabel.text = story.by
+            commentsLabel.text = String(story.kids.count)
+            scoreLabel.text = String(story.score)
+            timeLabel.text = String(story.time)
+            URLLabel.text = story.URL.absoluteString
+        } else {
+            apiClient.getStory(storyItem.id, completion: { (story, error) -> Void in
+                ///
+            })
+        }
     }
     
     func articleButtonDidPress() {
-        if let story = story {
+        if let story = storyItem.story {
             delegate?.cellDidSelectStoryArticle(self, story: story)
         }
     }
     
     func commentsButtonDidPress() {
-        if let story = story {
+        if let story = storyItem.story {
             delegate?.cellDidSelectStoryComments(self, story: story)
         }
     }

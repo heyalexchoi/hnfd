@@ -9,22 +9,23 @@
 import Foundation
 import Alamofire
 import SwiftyJSON
-import Dollar
+
 
 
 class HNAPIClient {
     
-    static let sharedClient = HNAPIClient()
     let baseURLString = "https://hacker-news.firebaseio.com"
+    static let sharedClient = HNAPIClient()
     
-    func getTopStories(completion: (ids: [Int]?, error: NSError?) -> Void) -> Request {
+    func getTopStories(completion: (storyItems: [StoryItem]?, error: NSError?) -> Void) -> Request {
         return Alamofire
             .request(.GET, baseURLString + "/v0/topstories.json")
             .responseJSON { (_, _, json, error) -> Void in
                 if let error = error {
-                    completion(ids: nil, error: error)
-                } else if let stories = json as? [Int] {
-                    completion(ids: stories, error: nil)
+                    completion(storyItems: nil, error: error)
+                } else if let json: AnyObject = json {
+                    let storyItems = JSON(json).arrayValue.map { StoryItem(json: $0) }
+                    completion(storyItems: storyItems, error: nil)
                 }
         }
     }
@@ -35,10 +36,9 @@ class HNAPIClient {
             .responseJSON { (_, _, json, error) -> Void in
                 if let error = error {
                     completion(story: nil, error: error)
-                } else {
-                    completion(story: Story(json: JSON(json!)), error: nil)
+                } else if let json: AnyObject = json {
+                    completion(story: Story(json: JSON(json)), error: nil)
                 }
         }
     }
-    
 }

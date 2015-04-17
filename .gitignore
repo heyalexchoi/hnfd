@@ -17,4 +17,5 @@ DerivedData
 *.ipa
 *.xcuserstate
 
-Pods/
+Pods
+/HackerNews/PrivateKeys.swift
