@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		0C1EE00F1AE0B3E8009BD94E /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C1EE00E1AE0B3E8009BD94E /* Extensions.swift */; };
+		0C1EE0111AE0C0B4009BD94E /* ArticleViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C1EE0101AE0C0B4009BD94E /* ArticleViewController.swift */; };
 		0CD3C88C1AD781DF005CC6C1 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CD3C88B1AD781DF005CC6C1 /* AppDelegate.swift */; };
 		0CD3C88E1AD781DF005CC6C1 /* StoriesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CD3C88D1AD781DF005CC6C1 /* StoriesViewController.swift */; };
 		0CD3C8931AD781DF005CC6C1 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0CD3C8921AD781DF005CC6C1 /* Images.xcassets */; };
@@ -31,6 +32,7 @@
 
 /* Begin PBXFileReference section */
 		0C1EE00E1AE0B3E8009BD94E /* Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
+		0C1EE0101AE0C0B4009BD94E /* ArticleViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ArticleViewController.swift; sourceTree = "<group>"; };
 		0CD3C8861AD781DF005CC6C1 /* HackerNews.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HackerNews.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		0CD3C88A1AD781DF005CC6C1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		0CD3C88B1AD781DF005CC6C1 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -93,6 +95,7 @@
 			children = (
 				0CD3C88B1AD781DF005CC6C1 /* AppDelegate.swift */,
 				0CD3C88D1AD781DF005CC6C1 /* StoriesViewController.swift */,
+				0C1EE0101AE0C0B4009BD94E /* ArticleViewController.swift */,
 				176654A61AE08B7500B97098 /* StoryCell.swift */,
 				0CD3C8AB1AD786BC005CC6C1 /* HNAPIClient.swift */,
 				0CFB9C171ADF502C009D3C04 /* Models.swift */,
@@ -302,6 +305,7 @@
 				0C1EE00F1AE0B3E8009BD94E /* Extensions.swift in Sources */,
 				176654A71AE08B7500B97098 /* StoryCell.swift in Sources */,
 				0CD3C88C1AD781DF005CC6C1 /* AppDelegate.swift in Sources */,
+				0C1EE0111AE0C0B4009BD94E /* ArticleViewController.swift in Sources */,
 				0CD3C8AC1AD786BC005CC6C1 /* HNAPIClient.swift in Sources */,
 				0CFB9C181ADF502C009D3C04 /* Models.swift in Sources */,
 			);

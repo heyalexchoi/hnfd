@@ -122,7 +122,7 @@ class StoryCell: UICollectionViewCell {
         commentsLabel.text = String(story.kids.count)
         scoreLabel.text = String(story.score)
         timeLabel.text = String(story.time)
-        URLLabel.text = story.url.absoluteString
+        URLLabel.text = story.URL.absoluteString
         self.story = story
     }
     

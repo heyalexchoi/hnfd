@@ -98,7 +98,7 @@ extension StoriesViewController: UICollectionViewDataSource {
 extension StoriesViewController: StoryCellDelegate {
 
     func cellDidSelectStoryArticle(cell: StoryCell, story: Story) {
-        //
+        navigationController?.pushViewController(ArticleViewController(articleURL: story.URL), animated: true)
     }
     
     func cellDidSelectStoryComments(cell: StoryCell, story: Story) {
