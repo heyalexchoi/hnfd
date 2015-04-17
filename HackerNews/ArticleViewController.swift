@@ -26,7 +26,7 @@ class ArticleViewController: UIViewController {
             "V:|[webView]|"], views: [
             "webView": webView])
         
-        let request = NSURLRequest(URL: articleURL)
+        let request = NSURLRequest(URL: articleURL, cachePolicy: .ReturnCacheDataElseLoad, timeoutInterval: 3)
         webView.loadRequest(request)
     }
 

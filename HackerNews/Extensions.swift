@@ -9,15 +9,15 @@
 extension UIColor {
 
     class func textColor() -> UIColor {
-        return UIColor.eggshellColor()
+        return UIColor.icebergColor()
     }
     
     class func backgroundColor() -> UIColor {
-        return UIColor.chocolateColor()
+        return UIColor.charcoalColor()
     }
         
     class func separatorColor() -> UIColor {
-        return UIColor.creamColor()
+        return UIColor.coolGrayColor()
     }
 
 }
