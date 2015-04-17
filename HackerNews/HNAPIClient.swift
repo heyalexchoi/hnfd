@@ -30,7 +30,7 @@ class HNAPIClient {
     }
     
     func getStory(id: Int, completion: (story: Story?, error: NSError?) -> Void) -> Request {
-        let request =  Alamofire
+        return Alamofire
             .request(.GET, baseURLString + "/v0/item/\(id).json")
             .responseJSON { (_, _, json, error) -> Void in
                 if let error = error {
@@ -39,8 +39,6 @@ class HNAPIClient {
                     completion(story: Story(json: JSON(json!)), error: nil)
                 }
         }
-        request.request.cachePolicy
-        return request
     }
     
 }

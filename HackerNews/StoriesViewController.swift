@@ -10,7 +10,7 @@ import UIKit
 import Dollar
 
 
-class TopStoriesViewController: UIViewController {
+class StoriesViewController: UIViewController {
     
     struct StoryItem {
         let id: Int
@@ -21,14 +21,14 @@ class TopStoriesViewController: UIViewController {
     
     let collectionView: UICollectionView
     let layout: UICollectionViewFlowLayout
-    let cellIdentifier = "identifier"
     
     init() {
         layout = UICollectionViewFlowLayout()
         collectionView = UICollectionView(frame: CGRectZero, collectionViewLayout: layout)
         super.init(nibName:nil, bundle: nil)
         layout.itemSize = CGSize(width: view.bounds.size.width, height: 100)
-        layout.minimumInteritemSpacing = 1
+        layout.minimumInteritemSpacing = 0.5
+        layout.minimumLineSpacing = 0.5
     }
     
     required init(coder aDecoder: NSCoder) {
@@ -40,9 +40,9 @@ class TopStoriesViewController: UIViewController {
         
         title = "Top Stories"
         
-        collectionView.registerClass(TopStoriesCell.self, forCellWithReuseIdentifier: cellIdentifier)
+        collectionView.backgroundColor = UIColor.separatorColor()
+        collectionView.registerClass(StoryCell.self, forCellWithReuseIdentifier: StoryCell.identifier)
         collectionView.dataSource = self
-        collectionView.delegate = self
         collectionView.setTranslatesAutoresizingMaskIntoConstraints(false)
         view.addSubview(collectionView)
         
@@ -71,18 +71,15 @@ class TopStoriesViewController: UIViewController {
     
 }
 
-extension TopStoriesViewController: UICollectionViewDelegate {
-    
-}
-
-extension TopStoriesViewController: UICollectionViewDataSource {
+extension StoriesViewController: UICollectionViewDataSource {
     
     func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return stories.count
     }
     
     func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCellWithReuseIdentifier(cellIdentifier, forIndexPath: indexPath) as! TopStoriesCell
+        let cell = collectionView.dequeueReusableCellWithReuseIdentifier(StoryCell.identifier, forIndexPath: indexPath) as!   StoryCell
+        cell.delegate = self
         let storyItem = storyItemForIndexPath(indexPath)
         
         if let story = storyItem.story {
@@ -95,6 +92,17 @@ extension TopStoriesViewController: UICollectionViewDataSource {
         }
         
         return cell
+    }
+}
+
+extension StoriesViewController: StoryCellDelegate {
+
+    func cellDidSelectStoryArticle(cell: StoryCell, story: Story) {
+        //
+    }
+    
+    func cellDidSelectStoryComments(cell: StoryCell, story: Story) {
+        //
     }
 }
 

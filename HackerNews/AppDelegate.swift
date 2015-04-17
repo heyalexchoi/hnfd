@@ -18,7 +18,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         window = UIWindow(frame: UIScreen.mainScreen().bounds)
         if let window = window {
-            window.rootViewController = UINavigationController(rootViewController: TopStoriesViewController())
+            window.rootViewController = UINavigationController(rootViewController: StoriesViewController())
             window.makeKeyAndVisible()
         }
         
