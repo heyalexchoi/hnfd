@@ -38,8 +38,6 @@ class CommentsViewController: UIViewController {
         
         treeView.rowHeight = UITableViewAutomaticDimension
         treeView.estimatedRowHeight = 200
-        
-        treeView.layoutMargins = UIEdgeInsetsZero
         treeView.separatorInset = UIEdgeInsetsZero
         treeView.separatorColor = UIColor.separatorColor()
         treeView.backgroundColor = UIColor.backgroundColor()

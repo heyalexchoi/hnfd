@@ -23,8 +23,11 @@ class CommentCell: UITableViewCell {
         indentationWidthConstraint = indentation.twt_addWidthConstraintWithConstant(15)
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         
+        backgroundColor = UIColor.backgroundColor()
         selectionStyle = .None
-        contentView.backgroundColor = UIColor.backgroundColor()
+        separatorInset = UIEdgeInsetsZero
+        layoutMargins = UIEdgeInsetsZero
+        preservesSuperviewLayoutMargins = false
         
         for view in [indentation, byLabel, timeLabel, textView] {
             view.setTranslatesAutoresizingMaskIntoConstraints(false)
