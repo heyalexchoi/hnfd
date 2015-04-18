@@ -42,7 +42,9 @@ class ReadabilityViewContoller: UIViewController {
     }
     
     func getReadabilityArticle() {
+        ProgressHUD.showHUDAddedTo(view, animated: true)
         apiClient.getParsedArticleForURL(articleURL, completion: { [weak self] (article, error) -> Void in
+            ProgressHUD.hideHUDForView(self?.view, animated: true)
             self?.article = article
             if let article = article,
                 strong_self = self {

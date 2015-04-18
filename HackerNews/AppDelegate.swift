@@ -25,7 +25,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let URLCache = NSURLCache(memoryCapacity: 20 * 1024 * 1024, diskCapacity: 20 * 1024 * 1024, diskPath: nil)
         NSURLCache.setSharedURLCache(URLCache)
         
-        setAppearances()
+        Appearance.setAppearances()
         
         return true
     }
@@ -52,10 +52,4 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
     }
     
-    func setAppearances() {
-        UINavigationBar.appearance().backgroundColor = UIColor.backgroundColor()
-        UINavigationBar.appearance().tintColor = UIColor.textColor()
-    }
-
 }
-

@@ -49,7 +49,9 @@ class StoriesViewController: UIViewController {
     }
     
     func getTopStories() {
+        ProgressHUD.showHUDAddedTo(view, animated: true)
         apiClient.getTopStories { [weak self] (stories, error) -> Void in
+            ProgressHUD.hideHUDForView(self?.view, animated: true)
             if let stories = stories {
                 self?.stories += stories
                 self?.collectionView.reloadData()

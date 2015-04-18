@@ -6,4 +6,8 @@
 //  Copyright (c) 2015 Alex Choi. All rights reserved.
 //
 
-import Foundation
+import MBProgressHUD
+
+class ProgressHUD: MBProgressHUD {
+    
+}
