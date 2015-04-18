@@ -25,7 +25,15 @@ extension UIColor {
 extension UIFont {
 
     class func textFont() -> UIFont {
-        return UIFont(name: "Avenir-Medium", size: 14)!
+        return UIFont(name: "Avenir-Medium", size: 16)!
+    }
+    
+    class func textReaderFont() -> UIFont {
+        return UIFont(name: "Avenir-Medium", size: 18)!
+    }
+    
+    class func titleFont() -> UIFont {
+        return UIFont(name: "Avenir-Heavy", size: 20)!
     }
 
 }

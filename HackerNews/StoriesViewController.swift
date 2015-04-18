@@ -100,9 +100,12 @@ extension StoriesViewController: StoryCellDelegate {
     
     func cellDidSelectStoryArticle(cell: StoryCell) {
         let indexPath = tableView.indexPathForCell(cell)!
-        let story = storyItemForIndexPath(indexPath).story
-        if let URL = story?.URL {
-            navigationController?.pushViewController(ReadabilityViewContoller(articleURL:URL), animated: true)
+        if let story = storyItemForIndexPath(indexPath).story {
+            if story.type == .Story && !story.URL.absoluteString!.isEmpty {
+                navigationController?.pushViewController(ReadabilityViewContoller(articleURL:story.URL), animated: true)
+            } else {
+                navigationController?.pushViewController(CommentsViewController(story: story), animated: true)
+            }
         }
     }
     

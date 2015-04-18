@@ -23,6 +23,14 @@ class StoryItem {
 
 struct Story {
     
+    enum Type: String {
+        case Job = "job",
+        Story = "story",
+        Comment = "comment",
+        Poll = "poll",
+        PollOpt = "pollopt"
+    }
+    
     let by: String
     let descendants: Int
     let id: Int
@@ -31,6 +39,7 @@ struct Story {
     let time: Int
     let title: String
     let URL: NSURL
+    let type: Type
     
     init(json: JSON) {
         self.by = json["by"].stringValue
@@ -41,6 +50,7 @@ struct Story {
         self.time = json["time"].intValue
         self.title = json["title"].stringValue
         self.URL = json["url"].URL ?? NSURL(string: "https://www.google.com")!
+        self.type = Type(rawValue: json["type"].stringValue)!
     }
 }
 

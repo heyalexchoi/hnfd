@@ -16,12 +16,14 @@ class ReadabilityViewContoller: UIViewController {
     
     let textView = UITextView()
     
-    let textAttributes = TextAttributes.textAttributes
+    let textAttributes = TextAttributes.textReaderAttributes
     
     init(articleURL: NSURL) {
         self.articleURL = articleURL
         super.init(nibName: nil, bundle: nil)
         
+        let inset: CGFloat = 20
+        textView.textContainerInset = UIEdgeInsets(top: inset, left: inset, bottom: inset, right: inset)
         textView.backgroundColor = UIColor.backgroundColor()
         for view in [textView] {
             view.setTranslatesAutoresizingMaskIntoConstraints(false)
