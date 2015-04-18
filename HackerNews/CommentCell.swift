@@ -51,7 +51,9 @@ class CommentCell: UITableViewCell {
         if let comment = commentItem.comment {
             byLabel.text = comment.by
             timeLabel.text = String(comment.time)
-            textView.text = comment.text
+            let attributedText = NSMutableAttributedString(attributedString: comment.attributedText)
+            attributedText.addAttributes(TextAttributes.textAttributes, range: NSRange(location: 0, length: attributedText.length))
+            textView.attributedText = attributedText
         }
     }
 }

@@ -116,6 +116,7 @@ struct Comment {
     let kids: [Int]
     let parent: Int
     let text: String
+    let attributedText: NSAttributedString
     let time: Int
     
     init(json: JSON) {
@@ -125,5 +126,6 @@ struct Comment {
         self.kids = json["kids"].arrayValue.map { $0.intValue }
         self.time = json["time"].intValue
         self.text = json["text"].stringValue
+        self.attributedText = NSAttributedString(htmlString: self.text)
     }
 }
