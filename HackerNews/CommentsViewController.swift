@@ -13,6 +13,9 @@ class CommentsViewController: UIViewController {
     
     let story: Story
     var comments = [CommentItem]() // top level comments
+    var commentsAllLoaded: Bool {
+        return comments.filter { $0.comment == nil }.count > 0
+    }
     let apiClient = HNAPIClient()
     
     let treeView = RATreeView()
@@ -66,9 +69,7 @@ class CommentsViewController: UIViewController {
                 strong_self = self {
                     commentItem.comment = comment
                     commentItem.kids = comment.kids.map { strong_self.commentItemForID($0) }
-                    dispatch_async(dispatch_get_main_queue(), { () -> Void in
-                        strong_self.treeView.reloadRowsForItems([commentItem], withRowAnimation: RATreeViewRowAnimationNone) // TO DO: make this look less shitty
-                    })
+                    if strong_self.commentsAllLoaded { strong_self.treeView.reloadData() }
             }
             })
         return commentItem

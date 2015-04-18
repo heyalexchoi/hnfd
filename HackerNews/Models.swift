@@ -22,7 +22,7 @@ class StoryItem {
 }
 
 struct Story {
-
+    
     let by: String
     let descendants: Int
     let id: Int
@@ -31,7 +31,7 @@ struct Story {
     let time: Int
     let title: String
     let URL: NSURL
-
+    
     init(json: JSON) {
         self.by = json["by"].stringValue
         self.descendants = json["descendants"].intValue
@@ -44,14 +44,8 @@ struct Story {
     }
 }
 
-extension Story: Printable {
-    var description: String {
-        return "\ntitle:\(title) \nurl:\(URL) \nby:\(by) id:\(id) \ndescendants:\(descendants) \nkids:\(kids)"
-    }
-}
-
 struct ReadabilityArticle {
-
+    
     let content: String
     let domain: String
     let author: String
@@ -63,7 +57,7 @@ struct ReadabilityArticle {
     let totalPages: Int
     let dek: String
     let leadImageURL: NSURL
-
+    
     init(json: JSON) {
         self.content = json["content"].stringValue
         self.domain = json["domain"].stringValue

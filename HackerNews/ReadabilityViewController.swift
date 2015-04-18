@@ -49,7 +49,8 @@ class ReadabilityViewContoller: UIViewController {
                 strong_self = self {
                     let attributedContent = NSMutableAttributedString(htmlString: article.content)
                     attributedContent.addAttributes(strong_self.textAttributes, range: NSRange(location: 0, length: count(attributedContent.string)))
-                    self?.textView.attributedText = attributedContent
+                    strong_self.textView.attributedText = attributedContent
+                    strong_self.title = article.title
             } else if let error = error {
                 UIAlertView(title: "Get Parsed Article Error",
                     message: error.localizedDescription,
