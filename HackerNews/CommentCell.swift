@@ -12,16 +12,21 @@ class CommentCell: UITableViewCell {
         return "CommentCellIdentifier"
     }
     
+    let indentation = UIView()
+    var indentationWidthConstraint: NSLayoutConstraint
+    
     let byLabel = Label()
     let timeLabel = Label()
     let textView = TextView()
     
     override init(style: UITableViewCellStyle, reuseIdentifier: String?) {
+        indentationWidthConstraint = indentation.twt_addWidthConstraintWithConstant(15)
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         
+        selectionStyle = .None
         contentView.backgroundColor = UIColor.backgroundColor()
         
-        for view in [byLabel, timeLabel, textView] {
+        for view in [indentation, byLabel, timeLabel, textView] {
             view.setTranslatesAutoresizingMaskIntoConstraints(false)
             contentView.addSubview(view)
         }
@@ -33,13 +38,15 @@ class CommentCell: UITableViewCell {
         textView.textContainer.lineFragmentPadding = 0
         
         contentView.twt_addConstraintsWithVisualFormatStrings([
-            "H:|-15-[byLabel]-30-[timeLabel]-(>=0)-|",
-            "H:|-15-[textView]-15-|",
+            "H:|[indentation][byLabel]-30-[timeLabel]-(>=0)-|",
+            "H:|[indentation][textView]-15-|",
             "V:|-15-[byLabel]-15-[textView]-15-|",
-            "V:[timeLabel]-15-[textView]"], views: [
+            "V:[timeLabel]-15-[textView]",
+            "V:|[indentation]|"], views: [
                 "byLabel": byLabel,
                 "timeLabel": timeLabel,
-                "textView": textView])
+                "textView": textView,
+            "indentation": indentation])
         
     }
     
@@ -47,7 +54,8 @@ class CommentCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func prepare(commentItem: CommentItem) {
+    func prepare(commentItem: CommentItem, level: Int) {
+        indentationWidthConstraint.constant = CGFloat((level + 2) * 15)
         if let comment = commentItem.comment {
             byLabel.text = comment.by
             timeLabel.text = String(comment.time)

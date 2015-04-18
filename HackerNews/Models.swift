@@ -83,7 +83,7 @@ class CommentItem {
     
     let id: Int
     var comment: Comment?
-    var children = [CommentItem]()
+    var kids = [CommentItem]()
     
     init(json: JSON) {
         self.id = json.intValue

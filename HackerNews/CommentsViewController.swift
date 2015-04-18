@@ -31,7 +31,7 @@ class CommentsViewController: UIViewController {
         
         title = story.title
         
-        treeView.allowsSelection = false
+        treeView.expandsChildRowsWhenRowExpands = true
         
         treeView.rowHeight = UITableViewAutomaticDimension
         treeView.estimatedRowHeight = 200
@@ -50,20 +50,38 @@ class CommentsViewController: UIViewController {
             "V:|[treeView]|"], views: [
                 "treeView": treeView])
         
-        getComments()
+        getAllData()
         
     }
     
-    func getComments() {
-        story.kids.map { [weak self] (id) -> Void in
-            let commentItem = CommentItem(id: id)
+    func getAllData() {
+        story.kids.map { [ weak self] (id) -> Void in
+            let commentItem = (CommentItem(id: id))
             self?.comments.append(commentItem)
             self?.apiClient.getComment(id, completion: { (comment, error) -> Void in
-                commentItem.comment = comment
-                self?.treeView.reloadRowsForItems([commentItem], withRowAnimation: RATreeViewRowAnimationNone)
+                if let comment = comment {
+                    commentItem.comment = comment
+                    self?.treeView.reloadRowsForItems([commentItem], withRowAnimation: RATreeViewRowAnimationNone)
+                    self?.getAllOfCommentItemsDescendants(commentItem)
+                }
             })
         }
-        treeView.reloadData()
+    }
+    
+    func getAllOfCommentItemsDescendants(commentItem: CommentItem) {
+        if let comment = commentItem.comment {
+            comment.kids.map { [weak self] (kidID: Int) -> Void in
+                self?.apiClient.getComment(kidID, completion: { (kid, error) -> Void in
+                    if let kid = kid {
+                        let kidItem = CommentItem(id: kid.id)
+                        kidItem.comment = kid
+                        commentItem.kids.append(kidItem)
+                        self?.getAllOfCommentItemsDescendants(kidItem)
+//                        self?.treeView.reloadRowsForItems([kidItem], withRowAnimation: RATreeViewRowAnimationNone)
+                    }
+                })
+            }
+        }
     }
 
 }
@@ -72,7 +90,7 @@ extension CommentsViewController: RATreeViewDataSource {
     
     func treeView(treeView: RATreeView!, numberOfChildrenOfItem item: AnyObject!) -> Int {
         if let item = item as? CommentItem {
-            return 0 // actually return something later
+            return item.kids.count
         }
         return comments.count
     }
@@ -80,7 +98,8 @@ extension CommentsViewController: RATreeViewDataSource {
     func treeView(treeView: RATreeView!, cellForItem item: AnyObject!) -> UITableViewCell! {
         let cell = treeView.dequeueReusableCellWithIdentifier(CommentCell.identifier) as! CommentCell
         if let item = item as? CommentItem {
-            cell.prepare(item)
+            let level = treeView.levelForCellForItem(item)
+            cell.prepare(item, level: level)
         }
         
         return cell
@@ -88,7 +107,7 @@ extension CommentsViewController: RATreeViewDataSource {
     
     func treeView(treeView: RATreeView!, child index: Int, ofItem item: AnyObject!) -> AnyObject! {
         if let item = item as? CommentItem {
-            return item.children[index]
+            return item.kids[index]
         }
         return comments[index]
     }
