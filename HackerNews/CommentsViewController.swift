@@ -31,8 +31,11 @@ class CommentsViewController: UIViewController {
         
         title = story.title
         
+        treeView.allowsSelection = false
+        
         treeView.rowHeight = UITableViewAutomaticDimension
         treeView.estimatedRowHeight = 200
+        
         treeView.layoutMargins = UIEdgeInsetsZero
         treeView.separatorInset = UIEdgeInsetsZero
         treeView.separatorColor = UIColor.separatorColor()
@@ -80,7 +83,6 @@ extension CommentsViewController: RATreeViewDataSource {
     
     func treeView(treeView: RATreeView!, cellForItem item: AnyObject!) -> UITableViewCell! {
         let cell = treeView.dequeueReusableCellWithIdentifier(CommentCell.identifier) as! CommentCell
-        cell.selectionStyle = .None
         if let item = item as? CommentItem {
             cell.prepare(item)
         }

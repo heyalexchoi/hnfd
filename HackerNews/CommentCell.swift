@@ -28,6 +28,7 @@ class CommentCell: UITableViewCell {
         
         textView.backgroundColor = UIColor.backgroundColor()
         textView.userInteractionEnabled = false
+        textView.scrollEnabled = false
         textView.textContainerInset = UIEdgeInsetsZero
         textView.textContainer.lineFragmentPadding = 0
         
