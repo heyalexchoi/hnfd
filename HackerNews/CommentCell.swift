@@ -54,6 +54,13 @@ class CommentCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        byLabel.text = nil
+        timeLabel.text = nil
+        textView.text = nil
+    }
+    
     func prepare(commentItem: CommentItem, level: Int) {
         indentationWidthConstraint.constant = CGFloat((level + 2) * 15)
         if let comment = commentItem.comment {
