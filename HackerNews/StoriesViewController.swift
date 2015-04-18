@@ -14,6 +14,7 @@ class StoriesViewController: UIViewController {
     let apiClient = HNAPIClient()
     
     let tableView = UITableView(frame: CGRectZero, style: .Plain)
+    let refreshControl = UIRefreshControl()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -27,21 +28,30 @@ class StoriesViewController: UIViewController {
         tableView.setTranslatesAutoresizingMaskIntoConstraints(false)
         view.addSubview(tableView)
         
+        tableView.addSubview(refreshControl)
+        refreshControl.addTarget(self, action: "refresh", forControlEvents: .ValueChanged)
+        
         view.twt_addConstraintsWithVisualFormatStrings([
             "H:|[tableView]|",
             "V:|[tableView]|"], views: [
                 "tableView": tableView])
         
-        getTopStories()
+        getTopStories(false)
     }
     
-    func getTopStories() {
-        ProgressHUD.showHUDAddedTo(view, animated: true)
+    func refresh() {
+        getTopStories(true)
+    }
+    
+    func getTopStories(refresh: Bool) {
+        if !refresh { ProgressHUD.showHUDAddedTo(view, animated: true) }
         apiClient.getTopStories { [weak self] (stories, error) -> Void in
             ProgressHUD.hideHUDForView(self?.view, animated: true)
+            self?.refreshControl.endRefreshing()
             if let stories = stories {
-                self?.stories += stories
+                self?.stories = stories
                 self?.tableView.reloadData()
+                self?.prefetchStories()
             } else {
                 UIAlertView(title: "Error getting top stories",
                     message: error?.localizedDescription,
@@ -61,6 +71,24 @@ class StoriesViewController: UIViewController {
     
     func setStoryForIndexPath(story: Story, indexPath: NSIndexPath) {
         stories[indexPath.item].story = story
+    }
+    
+    func prefetchStories() {
+        var count = 0
+        stories.map { [weak self] (item) -> Void in
+            if item.story == nil {
+                self?.apiClient.getStory(item.id, completion: { (story, error) -> Void in
+                    if let story = story {
+                        item.story = story
+                        count += 1
+                        if count >= 10 {
+                            count = 0
+                            self?.tableView.reloadData()
+                        }
+                    }
+                })
+            }
+        }
     }
     
 }
