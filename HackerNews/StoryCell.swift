@@ -11,7 +11,7 @@ protocol StoryCellDelegate: class {
     func cellDidSelectStoryComments(cell: StoryCell)
 }
 
-class StoryCell: UICollectionViewCell {
+class StoryCell: UITableViewCell {
     
     weak var delegate: StoryCellDelegate?
     class var identifier: String {
@@ -34,10 +34,16 @@ class StoryCell: UICollectionViewCell {
     let articleButton = UIButton()
     let commentsButton = UIButton()
     
-    override init(frame: CGRect) {
-        super.init(frame: frame)
+    override init(style: UITableViewCellStyle, reuseIdentifier: String?) {
+        super.init(style: style, reuseIdentifier: reuseIdentifier)
         
-        titleLabel.numberOfLines = 2
+        backgroundColor = UIColor.backgroundColor()
+        selectionStyle = .None
+        separatorInset = UIEdgeInsetsZero
+        layoutMargins = UIEdgeInsetsZero
+        preservesSuperviewLayoutMargins = false
+        
+        titleLabel.numberOfLines = 0
         titleLabel.lineBreakMode = .ByWordWrapping
         
         for label in [titleLabel, byLabel, scoreLabel, timeLabel, URLLabel] {
@@ -71,7 +77,7 @@ class StoryCell: UICollectionViewCell {
             "H:|[titleLabel]|",
             "H:|[scoreLabel][scoreBySpace(==byTimeSpace)][byLabel][byTimeSpace][timeLabel]|",
             "H:|[URLLabel]|",
-            "V:|[titleLabel]-5-[scoreLabel]-5-[URLLabel]|",
+            "V:|-15-[titleLabel]-5-[scoreLabel]-5-[URLLabel]-15-|",
             "V:[titleLabel]-5-[byLabel]",
             "V:[titleLabel]-5-[timeLabel]"], views: [
                 "titleLabel": titleLabel,
@@ -91,6 +97,7 @@ class StoryCell: UICollectionViewCell {
             "H:|-15-[articleContainer]-5-[commentsContainer(==40)]|",
             "V:|[commentsContainer]|",
             "H:|[articleButton][commentsButton(==commentsContainer)]|",
+            "V:|[articleContainer]|",
             "V:|[articleButton]|",
             "V:|[commentsButton]|"], views: [
                 "commentsContainer": commentsContainer,

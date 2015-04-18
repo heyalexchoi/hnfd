@@ -13,37 +13,24 @@ class StoriesViewController: UIViewController {
     var stories = [StoryItem]()
     let apiClient = HNAPIClient()
     
-    let collectionView: UICollectionView
-    let layout: UICollectionViewFlowLayout
-    
-    init() {
-        layout = UICollectionViewFlowLayout()
-        collectionView = UICollectionView(frame: CGRectZero, collectionViewLayout: layout)
-        super.init(nibName:nil, bundle: nil)
-        layout.itemSize = CGSize(width: view.bounds.size.width, height: 100)
-        layout.minimumInteritemSpacing = 0.5
-        layout.minimumLineSpacing = 0.5
-    }
-    
-    required init(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
+    let tableView = UITableView(frame: CGRectZero, style: .Plain)
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         title = "Top Stories"
-        
-        collectionView.backgroundColor = UIColor.separatorColor()
-        collectionView.registerClass(StoryCell.self, forCellWithReuseIdentifier: StoryCell.identifier)
-        collectionView.dataSource = self
-        collectionView.setTranslatesAutoresizingMaskIntoConstraints(false)
-        view.addSubview(collectionView)
+        tableView.backgroundColor = UIColor.backgroundColor()
+        tableView.rowHeight = UITableViewAutomaticDimension
+        tableView.estimatedRowHeight = 100
+        tableView.registerClass(StoryCell.self, forCellReuseIdentifier: StoryCell.identifier)
+        tableView.dataSource = self
+        tableView.setTranslatesAutoresizingMaskIntoConstraints(false)
+        view.addSubview(tableView)
         
         view.twt_addConstraintsWithVisualFormatStrings([
-            "H:|[collectionView]|",
-            "V:|[collectionView]|"], views: [
-                "collectionView": collectionView])
+            "H:|[tableView]|",
+            "V:|[tableView]|"], views: [
+                "tableView": tableView])
         
         getTopStories()
     }
@@ -54,7 +41,7 @@ class StoriesViewController: UIViewController {
             ProgressHUD.hideHUDForView(self?.view, animated: true)
             if let stories = stories {
                 self?.stories += stories
-                self?.collectionView.reloadData()
+                self?.tableView.reloadData()
             } else {
                 UIAlertView(title: "Error getting top stories",
                     message: error?.localizedDescription,
@@ -78,14 +65,18 @@ class StoriesViewController: UIViewController {
     
 }
 
-extension StoriesViewController: UICollectionViewDataSource {
+extension StoriesViewController: UITableViewDataSource {
     
-    func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+    func numberOfSectionsInTableView(tableView: UITableView) -> Int {
+        return 1
+    }
+    
+    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return stories.count
     }
     
-    func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCellWithReuseIdentifier(StoryCell.identifier, forIndexPath: indexPath) as!   StoryCell
+    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCellWithIdentifier(StoryCell.identifier, forIndexPath: indexPath) as! StoryCell
         cell.delegate = self
         let storyItem = storyItemForIndexPath(indexPath)
         
@@ -95,21 +86,20 @@ extension StoriesViewController: UICollectionViewDataSource {
             apiClient.getStory(storyItem.id, completion: { [weak self] (story, error) -> Void in
                 if let story = story {
                     self?.setStoryForIndexPath(story, indexPath: indexPath)
-                    UIView.performWithoutAnimation({ () -> Void in
-                        self?.collectionView.reloadItemsAtIndexPaths([indexPath])
-                    })
+                    self?.tableView.reloadRowsAtIndexPaths([indexPath], withRowAnimation: .None)
                 }
                 })
         }
         
         return cell
     }
+
 }
 
 extension StoriesViewController: StoryCellDelegate {
     
     func cellDidSelectStoryArticle(cell: StoryCell) {
-        let indexPath = collectionView.indexPathForCell(cell)!
+        let indexPath = tableView.indexPathForCell(cell)!
         let story = storyItemForIndexPath(indexPath).story
         if let URL = story?.URL {
             navigationController?.pushViewController(ReadabilityViewContoller(articleURL:URL), animated: true)
@@ -117,7 +107,7 @@ extension StoriesViewController: StoryCellDelegate {
     }
     
     func cellDidSelectStoryComments(cell: StoryCell) {
-        let indexPath = collectionView.indexPathForCell(cell)!
+        let indexPath = tableView.indexPathForCell(cell)!
         if let story = storyItemForIndexPath(indexPath).story {
             navigationController?.pushViewController(CommentsViewController(story: story), animated: true)
         }
