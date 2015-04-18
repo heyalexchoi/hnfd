@@ -50,40 +50,28 @@ class CommentsViewController: UIViewController {
             "V:|[treeView]|"], views: [
                 "treeView": treeView])
         
-        getAllData()
+        getComments()
         
     }
     
-    func getAllData() {
-        story.kids.map { [ weak self] (id) -> Void in
-            let commentItem = (CommentItem(id: id))
-            self?.comments.append(commentItem)
-            self?.apiClient.getComment(id, completion: { (comment, error) -> Void in
-                if let comment = comment {
-                    commentItem.comment = comment
-                    self?.treeView.reloadRowsForItems([commentItem], withRowAnimation: RATreeViewRowAnimationNone)
-                    self?.getAllOfCommentItemsDescendants(commentItem)
-                }
-            })
-        }
+    func getComments() {
+        comments = story.kids.map { self.commentItemForID($0) }
+        treeView.reloadData()
     }
     
-    func getAllOfCommentItemsDescendants(commentItem: CommentItem) {
-        if let comment = commentItem.comment {
-            comment.kids.map { [weak self] (kidID: Int) -> Void in
-                self?.apiClient.getComment(kidID, completion: { (kid, error) -> Void in
-                    if let kid = kid {
-                        let kidItem = CommentItem(id: kid.id)
-                        kidItem.comment = kid
-                        commentItem.kids.append(kidItem)
-                        self?.getAllOfCommentItemsDescendants(kidItem)
-//                        self?.treeView.reloadRowsForItems([kidItem], withRowAnimation: RATreeViewRowAnimationNone)
-                    }
-                })
+    func commentItemForID(id: Int) -> CommentItem {
+        let commentItem = CommentItem(id: id)
+        apiClient.getComment(id, completion: { [weak self] (comment, error) -> Void in
+            if let comment = comment,
+                strong_self = self {
+                    commentItem.comment = comment
+                    strong_self.treeView.reloadRowsForItems([commentItem], withRowAnimation: RATreeViewRowAnimationNone) // TO DO: make this look less shitty
+                    commentItem.kids = comment.kids.map { strong_self.commentItemForID($0) }
             }
-        }
+            })
+        return commentItem
     }
-
+    
 }
 
 extension CommentsViewController: RATreeViewDataSource {
