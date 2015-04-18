@@ -41,4 +41,17 @@ class HNAPIClient {
                 }
         }
     }
+    
+    func getComment(id: Int, completion: (comment: Comment?, error: NSError?) -> Void) -> Request {
+        return Alamofire
+            .request(.GET, baseURLString + "/v0/item/\(id).json")
+            .responseJSON { (_, _, json, error) -> Void in
+                if let error = error {
+                    completion(comment: nil, error: error)
+                } else if let json: AnyObject = json {
+                    completion(comment: Comment(json: JSON(json)), error: nil)
+                }
+        }
+    }
+    
 }

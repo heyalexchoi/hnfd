@@ -16,8 +16,7 @@ class ReadabilityViewContoller: UIViewController {
     
     let textView = UITextView()
     
-    let textAttributes = [NSFontAttributeName: UIFont.textFont(),
-        NSForegroundColorAttributeName: UIColor.textColor()]
+    let textAttributes = TextAttributes.textAttributes
     
     init(articleURL: NSURL) {
         self.articleURL = articleURL

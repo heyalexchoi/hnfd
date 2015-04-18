@@ -92,7 +92,7 @@ extension StoriesViewController: StoryCellDelegate {
     }
     
     func cellDidSelectStoryComments(cell: StoryCell, story: Story) {
-        //
+        navigationController?.pushViewController(CommentsViewController(story: story), animated: true)
     }
 }
 

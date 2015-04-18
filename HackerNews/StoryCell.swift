@@ -6,8 +6,6 @@
 //  Copyright (c) 2015 Alex Choi. All rights reserved.
 //
 
-import Alamofire
-
 protocol StoryCellDelegate: class {
     func cellDidSelectStoryArticle(cell: StoryCell, story: Story)
     func cellDidSelectStoryComments(cell: StoryCell, story: Story)

@@ -84,3 +84,46 @@ struct ReadabilityArticle {
         self.leadImageURL = json["lead_image_url"].URL ?? NSURL(string: "https://www.google.com")!
     }
 }
+
+class CommentItem {
+    
+    let id: Int
+    var comment: Comment?
+    var children = [CommentItem]()
+    
+    init(json: JSON) {
+        self.id = json.intValue
+        self.comment = nil
+    }
+    
+    init(id: Int) {
+        self.id = id
+        self.comment = nil
+    }
+    
+    func getData(completion: (success: Bool, error: NSError?) -> Void) {
+        HNAPIClient.sharedClient.getComment(id, completion: { (comment, error) -> Void in
+            self.comment = comment
+            completion(success: comment != nil, error: error)
+        })
+    }
+}
+
+struct Comment {
+    
+    let by: String
+    let id: Int
+    let kids: [Int]
+    let parent: Int
+    let text: String
+    let time: Int
+    
+    init(json: JSON) {
+        self.by = json["by"].stringValue
+        self.id = json["id"].intValue
+        self.parent = json["parent"].intValue
+        self.kids = json["kids"].arrayValue.map { $0.intValue }
+        self.time = json["time"].intValue
+        self.text = json["text"].stringValue
+    }
+}
