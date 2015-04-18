@@ -55,21 +55,17 @@ class CommentsViewController: UIViewController {
     }
     
     func getComments() {
-        
         story.kids.map { [weak self] (id) -> Void in
-            
             let commentItem = CommentItem(id: id)
             self?.comments.append(commentItem)
-            
             self?.apiClient.getComment(id, completion: { (comment, error) -> Void in
                 commentItem.comment = comment
+                self?.treeView.reloadRowsForItems([commentItem], withRowAnimation: RATreeViewRowAnimationNone)
             })
         }
-        
         treeView.reloadData()
-        
     }
-    
+
 }
 
 extension CommentsViewController: RATreeViewDataSource {
