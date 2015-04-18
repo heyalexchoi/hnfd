@@ -68,6 +68,14 @@ class StoriesViewController: UIViewController {
         return stories[indexPath.item]
     }
     
+    func storyForIndexPath(indexPath: NSIndexPath) -> Story? {
+        return storyItemForIndexPath(indexPath).story
+    }
+    
+    func setStoryForIndexPath(story: Story, indexPath: NSIndexPath) {
+        stories[indexPath.item].story = story
+    }
+    
 }
 
 extension StoriesViewController: UICollectionViewDataSource {
@@ -79,20 +87,40 @@ extension StoriesViewController: UICollectionViewDataSource {
     func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCellWithReuseIdentifier(StoryCell.identifier, forIndexPath: indexPath) as!   StoryCell
         cell.delegate = self
-        cell.prepare(storyItemForIndexPath(indexPath))
+        let storyItem = storyItemForIndexPath(indexPath)
+        
+        if let story = storyItem.story {
+            cell.prepare(story)
+        } else {
+            apiClient.getStory(storyItem.id, completion: { [weak self] (story, error) -> Void in
+                if let story = story {
+                    self?.setStoryForIndexPath(story, indexPath: indexPath)
+                    UIView.performWithoutAnimation({ () -> Void in
+                        self?.collectionView.reloadItemsAtIndexPaths([indexPath])
+                    })
+                }
+                })
+        }
         
         return cell
     }
 }
 
 extension StoriesViewController: StoryCellDelegate {
-
-    func cellDidSelectStoryArticle(cell: StoryCell, story: Story) {
-        navigationController?.pushViewController(ReadabilityViewContoller(articleURL: story.URL), animated: true)
+    
+    func cellDidSelectStoryArticle(cell: StoryCell) {
+        let indexPath = collectionView.indexPathForCell(cell)!
+        let story = storyItemForIndexPath(indexPath).story
+        if let URL = story?.URL {
+            navigationController?.pushViewController(ReadabilityViewContoller(articleURL:URL), animated: true)
+        }
     }
     
-    func cellDidSelectStoryComments(cell: StoryCell, story: Story) {
-        navigationController?.pushViewController(CommentsViewController(story: story), animated: true)
+    func cellDidSelectStoryComments(cell: StoryCell) {
+        let indexPath = collectionView.indexPathForCell(cell)!
+        if let story = storyItemForIndexPath(indexPath).story {
+            navigationController?.pushViewController(CommentsViewController(story: story), animated: true)
+        }
     }
 }
 

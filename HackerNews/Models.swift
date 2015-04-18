@@ -19,12 +19,6 @@ class StoryItem {
         self.id = json.intValue
         self.story = nil
     }
-    func getData(completion: (success: Bool, error: NSError?) -> Void) {
-        HNAPIClient.sharedClient.getStory(id, completion: { (story, error) -> Void in
-            self.story = story
-            completion(success: story != nil, error: error)
-        })
-    }
 }
 
 struct Story {
@@ -89,7 +83,7 @@ class CommentItem {
     
     let id: Int
     var comment: Comment?
-    var children = [CommentItem]()
+    var kids = [CommentItem]()
     
     init(json: JSON) {
         self.id = json.intValue
@@ -101,12 +95,6 @@ class CommentItem {
         self.comment = nil
     }
     
-    func getData(completion: (success: Bool, error: NSError?) -> Void) {
-        HNAPIClient.sharedClient.getComment(id, completion: { (comment, error) -> Void in
-            self.comment = comment
-            completion(success: comment != nil, error: error)
-        })
-    }
 }
 
 struct Comment {

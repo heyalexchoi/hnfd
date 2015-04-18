@@ -7,14 +7,12 @@
 //
 
 protocol StoryCellDelegate: class {
-    func cellDidSelectStoryArticle(cell: StoryCell, story: Story)
-    func cellDidSelectStoryComments(cell: StoryCell, story: Story)
+    func cellDidSelectStoryArticle(cell: StoryCell)
+    func cellDidSelectStoryComments(cell: StoryCell)
 }
 
 class StoryCell: UICollectionViewCell {
     
-    let apiClient = HNAPIClient()
-    var storyItem = StoryItem(id: -999, story: nil)
     weak var delegate: StoryCellDelegate?
     class var identifier: String {
         return "StoryCellIdentifier"
@@ -97,8 +95,8 @@ class StoryCell: UICollectionViewCell {
             "V:|[commentsButton]|"], views: [
                 "commentsContainer": commentsContainer,
                 "articleContainer": articleContainer,
-            "articleButton": articleButton,
-            "commentsButton": commentsButton])
+                "articleButton": articleButton,
+                "commentsButton": commentsButton])
     }
     
     required init(coder aDecoder: NSCoder) {
@@ -112,35 +110,20 @@ class StoryCell: UICollectionViewCell {
         }
     }
     
-    func prepare(storyItem: StoryItem) {
-        self.storyItem = storyItem
-        if let story = storyItem.story {
-            titleLabel.text = story.title
-            byLabel.text = story.by
-            commentsLabel.text = String(story.kids.count)
-            scoreLabel.text = String(story.score)
-            timeLabel.text = String(story.time)
-            URLLabel.text = story.URL.absoluteString
-        } else {
-            storyItem.getData({ [weak self] (success, error) -> Void in
-                if let strong_self = self {
-                    if success && storyItem === strong_self.storyItem {
-                        strong_self.prepare(storyItem)
-                    }
-                }
-            })
-        }
+    func prepare(story: Story) {
+        titleLabel.text = story.title
+        byLabel.text = story.by
+        commentsLabel.text = String(story.kids.count)
+        scoreLabel.text = String(story.score)
+        timeLabel.text = String(story.time)
+        URLLabel.text = story.URL.absoluteString
     }
     
     func articleButtonDidPress() {
-        if let story = storyItem.story {
-            delegate?.cellDidSelectStoryArticle(self, story: story)
-        }
+        delegate?.cellDidSelectStoryArticle(self)
     }
     
     func commentsButtonDidPress() {
-        if let story = storyItem.story {
-            delegate?.cellDidSelectStoryComments(self, story: story)
-        }
+        delegate?.cellDidSelectStoryComments(self)
     }
 }
