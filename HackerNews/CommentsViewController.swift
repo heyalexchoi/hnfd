@@ -65,8 +65,10 @@ class CommentsViewController: UIViewController {
             if let comment = comment,
                 strong_self = self {
                     commentItem.comment = comment
-                    strong_self.treeView.reloadRowsForItems([commentItem], withRowAnimation: RATreeViewRowAnimationNone) // TO DO: make this look less shitty
                     commentItem.kids = comment.kids.map { strong_self.commentItemForID($0) }
+                    dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                        strong_self.treeView.reloadRowsForItems([commentItem], withRowAnimation: RATreeViewRowAnimationNone) // TO DO: make this look less shitty
+                    })
             }
             })
         return commentItem
