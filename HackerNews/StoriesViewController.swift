@@ -10,7 +10,7 @@ import UIKit
 
 class StoriesViewController: UIViewController {
     
-    var stories = [StoryItem]()
+    var stories = [Story]()
     let apiClient = HNAPIClient()
     
     let tableView = UITableView(frame: CGRectZero, style: .Plain)
@@ -45,13 +45,13 @@ class StoriesViewController: UIViewController {
     
     func getTopStories(refresh: Bool) {
         if !refresh { ProgressHUD.showHUDAddedTo(view, animated: true) }
-        apiClient.getTopStories { [weak self] (stories, error) -> Void in
+        println("\(NSDate()) making request")
+        apiClient.getTopStories(25, offset: 0) { [weak self] (stories, error) -> Void in
             ProgressHUD.hideHUDForView(self?.view, animated: true)
             self?.refreshControl.endRefreshing()
             if let stories = stories {
                 self?.stories = stories
                 self?.tableView.reloadData()
-                self?.prefetchStories()
             } else {
                 UIAlertView(title: "Error getting top stories",
                     message: error?.localizedDescription,
@@ -61,34 +61,8 @@ class StoriesViewController: UIViewController {
         }
     }
     
-    func storyItemForIndexPath(indexPath: NSIndexPath) -> StoryItem {
+    func storyForIndexPath(indexPath: NSIndexPath) -> Story {
         return stories[indexPath.item]
-    }
-    
-    func storyForIndexPath(indexPath: NSIndexPath) -> Story? {
-        return storyItemForIndexPath(indexPath).story
-    }
-    
-    func setStoryForIndexPath(story: Story, indexPath: NSIndexPath) {
-        stories[indexPath.item].story = story
-    }
-    
-    func prefetchStories() {
-        var count = 0
-        stories.map { [weak self] (item) -> Void in
-            if item.story == nil {
-                self?.apiClient.getStory(item.id, completion: { (story, error) -> Void in
-                    if let story = story {
-                        item.story = story
-                        count += 1
-                        if count >= 10 {
-                            count = 0
-                            self?.tableView.reloadData()
-                        }
-                    }
-                })
-            }
-        }
     }
     
 }
@@ -106,19 +80,7 @@ extension StoriesViewController: UITableViewDataSource {
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCellWithIdentifier(StoryCell.identifier, forIndexPath: indexPath) as! StoryCell
         cell.delegate = self
-        let storyItem = storyItemForIndexPath(indexPath)
-        
-        if let story = storyItem.story {
-            cell.prepare(story)
-        } else {
-            apiClient.getStory(storyItem.id, completion: { [weak self] (story, error) -> Void in
-                if let story = story {
-                    self?.setStoryForIndexPath(story, indexPath: indexPath)
-                    self?.tableView.reloadRowsAtIndexPaths([indexPath], withRowAnimation: .None)
-                }
-                })
-        }
-        
+        cell.prepare(storyForIndexPath(indexPath))
         return cell
     }
 
@@ -128,20 +90,19 @@ extension StoriesViewController: StoryCellDelegate {
     
     func cellDidSelectStoryArticle(cell: StoryCell) {
         let indexPath = tableView.indexPathForCell(cell)!
-        if let story = storyItemForIndexPath(indexPath).story {
-            if story.type == .Story && !story.URL.absoluteString!.isEmpty {
-                navigationController?.pushViewController(ReadabilityViewContoller(articleURL:story.URL), animated: true)
-            } else {
-                navigationController?.pushViewController(CommentsViewController(story: story), animated: true)
-            }
+        let story = storyForIndexPath(indexPath)
+        if story.type == .Story,
+        let URL = story.URL {
+            navigationController?.pushViewController(ReadabilityViewContoller(articleURL:URL), animated: true)
+        } else {
+            navigationController?.pushViewController(CommentsViewController(story: story), animated: true)
         }
     }
     
     func cellDidSelectStoryComments(cell: StoryCell) {
         let indexPath = tableView.indexPathForCell(cell)!
-        if let story = storyItemForIndexPath(indexPath).story {
-            navigationController?.pushViewController(CommentsViewController(story: story), animated: true)
-        }
+        let story = storyForIndexPath(indexPath)
+        navigationController?.pushViewController(CommentsViewController(story: story), animated: true)
     }
 }
 

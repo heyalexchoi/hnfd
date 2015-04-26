@@ -64,14 +64,12 @@ class CommentCell: UITableViewCell {
         textView.text = nil
     }
     
-    func prepare(commentItem: CommentItem, level: Int) {
+    func prepare(comment: Comment, level: Int) {
         indentationWidthConstraint.constant = CGFloat((level + 2) * 15)
-        if let comment = commentItem.comment {
             byLabel.text = comment.by
             timeLabel.text = String(comment.time)
             let attributedText = NSMutableAttributedString(attributedString: comment.attributedText)
             attributedText.addAttributes(TextAttributes.textAttributes, range: NSRange(location: 0, length: attributedText.length))
             textView.attributedText = attributedText
-        }
     }
 }

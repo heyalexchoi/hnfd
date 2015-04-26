@@ -11,11 +11,8 @@ import RATreeView
 
 class CommentsViewController: UIViewController {
     
-    let story: Story
-    var comments = [CommentItem]() // top level comments
-    var commentsAllLoaded: Bool {
-        return comments.filter { $0.comment == nil }.count > 0
-    }
+    var story: Story
+
     let apiClient = HNAPIClient()
     
     let treeView = RATreeView()
@@ -35,7 +32,6 @@ class CommentsViewController: UIViewController {
         title = story.title
         
         treeView.expandsChildRowsWhenRowExpands = true
-        
         treeView.rowHeight = UITableViewAutomaticDimension
         treeView.estimatedRowHeight = 200
         treeView.separatorInset = UIEdgeInsetsZero
@@ -51,54 +47,59 @@ class CommentsViewController: UIViewController {
             "V:|[treeView]|"], views: [
                 "treeView": treeView])
         
-        getComments()
+        getFullStory()
         
     }
     
-    func getComments() {
-        comments = story.kids.map { self.commentItemForID($0) }
-        treeView.reloadData()
-    }
-    
-    func commentItemForID(id: Int) -> CommentItem {
-        let commentItem = CommentItem(id: id)
-        apiClient.getComment(id, completion: { [weak self] (comment, error) -> Void in
-            if let comment = comment,
-                strong_self = self {
-                    commentItem.comment = comment
-                    commentItem.kids = comment.kids.map { strong_self.commentItemForID($0) }
-                    if strong_self.commentsAllLoaded { strong_self.treeView.reloadData() }
+    func getFullStory() {
+        ProgressHUD.showHUDAddedTo(view, animated: true)
+        apiClient.getStory(story.id, completion: { [weak self] (story, error) -> Void in
+            ProgressHUD.hideHUDForView(self?.view, animated: true)
+            if let error = error {
+                println(error)
+            } else if let story = story {
+                self?.story = story
+                self?.treeView.reloadData()
             }
-            })
-        return commentItem
+        })
     }
     
 }
 
 extension CommentsViewController: RATreeViewDataSource {
+    /*! Wrapper for interfacing between RATreeView and structs, since RATreeView won't take Swift structs */
+    class CommentWrapper: NSObject {
+        let comment: Comment
+        init(comment: Comment) {
+            self.comment = comment
+        }
+    }
     
     func treeView(treeView: RATreeView!, numberOfChildrenOfItem item: AnyObject!) -> Int {
-        if let item = item as? CommentItem {
-            return item.kids.count
+        if let comment = item as? Comment {
+            return comment.children.count
         }
-        return comments.count
+        return story.children.count
     }
     
     func treeView(treeView: RATreeView!, cellForItem item: AnyObject!) -> UITableViewCell! {
         let cell = treeView.dequeueReusableCellWithIdentifier(CommentCell.identifier) as! CommentCell
-        if let item = item as? CommentItem {
-            let level = treeView.levelForCellForItem(item)
-            cell.prepare(item, level: level)
+        if let wrappedComment = item as? CommentWrapper {
+            let level = treeView.levelForCellForItem(wrappedComment)
+            cell.prepare(wrappedComment.comment, level: level)
         }
         
         return cell
     }
     
     func treeView(treeView: RATreeView!, child index: Int, ofItem item: AnyObject!) -> AnyObject! {
-        if let item = item as? CommentItem {
-            return item.kids[index]
+        if let wrappedComment = item as? CommentWrapper {
+            let comment = wrappedComment.comment.children[index]
+            let wrapped = CommentWrapper(comment: comment)
+            return wrapped
         }
-        return comments[index]
+        let comment = story.children[index]
+        return CommentWrapper(comment: comment)
     }
     
 }

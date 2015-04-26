@@ -14,42 +14,35 @@ import SwiftyJSON
 
 class HNAPIClient {
     
-    let baseURLString = "https://hacker-news.firebaseio.com"
+    let baseURLString = Constants.HNAPIBaseURLString
     static let sharedClient = HNAPIClient()
+    let responseProcessingQueue = NSOperationQueue()
     
-    func getTopStories(completion: (storyItems: [StoryItem]?, error: NSError?) -> Void) -> Request {
+    func getTopStories(limit: Int, offset: Int, completion: (stories: [Story]?, error: NSError?) -> Void) -> Request {
         return Alamofire
-            .request(.GET, baseURLString + "/v0/topstories.json")
-            .responseJSON { (_, _, json, error) -> Void in
+            .request(.GET, baseURLString + "/topstories", parameters: ["limit": limit, "offset": offset])
+            .responseJSON { [weak self] (_, _, json, error) -> Void in
                 if let error = error {
-                    completion(storyItems: nil, error: error)
+                    completion(stories: nil, error: error)
                 } else if let json: AnyObject = json {
-                    let storyItems = JSON(json).arrayValue.map { StoryItem(json: $0) }
-                    completion(storyItems: storyItems, error: nil)
+                    self?.responseProcessingQueue.addOperationWithBlock({ () -> Void in
+                        let stories = JSON(json).arrayValue.map { Story(json: $0) }
+                        NSOperationQueue.mainQueue().addOperationWithBlock({ () -> Void in
+                            completion(stories: stories, error: nil)
+                        })
+                    })
                 }
         }
     }
     
     func getStory(id: Int, completion: (story: Story?, error: NSError?) -> Void) -> Request {
         return Alamofire
-            .request(.GET, baseURLString + "/v0/item/\(id).json")
+            .request(.GET, baseURLString + "/items/\(id)")
             .responseJSON { (_, _, json, error) -> Void in
                 if let error = error {
                     completion(story: nil, error: error)
                 } else if let json: AnyObject = json {
                     completion(story: Story(json: JSON(json)), error: nil)
-                }
-        }
-    }
-    
-    func getComment(id: Int, completion: (comment: Comment?, error: NSError?) -> Void) -> Request {
-        return Alamofire
-            .request(.GET, baseURLString + "/v0/item/\(id).json")
-            .responseJSON { (_, _, json, error) -> Void in
-                if let error = error {
-                    completion(comment: nil, error: error)
-                } else if let json: AnyObject = json {
-                    completion(comment: Comment(json: JSON(json)), error: nil)
                 }
         }
     }

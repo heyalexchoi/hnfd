@@ -123,7 +123,7 @@ class StoryCell: UITableViewCell {
         commentsLabel.text = String(story.kids.count)
         scoreLabel.text = String(story.score)
         timeLabel.text = String(story.time)
-        URLLabel.text = story.URL.absoluteString
+        URLLabel.text = story.URL?.absoluteString
     }
     
     func articleButtonDidPress() {

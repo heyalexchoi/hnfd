@@ -9,3 +9,4 @@ pod "TWTToast/UIKit/AutoLayout", :git => 'https://github.com/twotoasters/Toast.g
 pod 'MBProgressHUD'
 pod 'UIImage-Helpers'
 pod 'RATreeView'
+pod 'ObjectMapper', '~> 0.10'
