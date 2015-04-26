@@ -10,12 +10,21 @@ import UIKit
 import RATreeView
 
 class CommentsViewController: UIViewController {
+    /*! Wrapper for interfacing between RATreeView and structs, since RATreeView won't take Swift structs,
+    and relies on objective c == operator */
+    class CommentWrapper: NSObject {
+        let comment: Comment
+        let children: [CommentWrapper]
+        init(comment: Comment) {
+            self.comment = comment
+            self.children = comment.children.map { CommentWrapper(comment: $0) }
+        }
+    }
     
     var story: Story
-
     let apiClient = HNAPIClient()
-    
     let treeView = RATreeView()
+    var wrappedComments = [CommentWrapper]()
     
     init(story: Story) {
         self.story = story
@@ -59,7 +68,11 @@ class CommentsViewController: UIViewController {
                 println(error)
             } else if let story = story {
                 self?.story = story
+                self?.wrappedComments = story.children.map { CommentWrapper(comment: $0) }
                 self?.treeView.reloadData()
+                self?.wrappedComments.map { (wrappedComment) -> Void in
+                    self?.treeView.expandRowForItem(wrappedComment, expandChildren: true, withRowAnimation: RATreeViewRowAnimationNone)
+                }
             }
         })
     }
@@ -67,19 +80,16 @@ class CommentsViewController: UIViewController {
 }
 
 extension CommentsViewController: RATreeViewDataSource {
-    /*! Wrapper for interfacing between RATreeView and structs, since RATreeView won't take Swift structs */
-    class CommentWrapper: NSObject {
-        let comment: Comment
-        init(comment: Comment) {
-            self.comment = comment
-        }
-    }
     
     func treeView(treeView: RATreeView!, numberOfChildrenOfItem item: AnyObject!) -> Int {
-        if let comment = item as? Comment {
-            return comment.children.count
+        if item == nil {
+            return wrappedComments.count
+        } else if let wrappedComment = item as? CommentWrapper {
+            return wrappedComment.children.count
         }
-        return story.children.count
+        
+        println("this isnt supposed to happen. item: \(item)")
+        return 0
     }
     
     func treeView(treeView: RATreeView!, cellForItem item: AnyObject!) -> UITableViewCell! {
@@ -93,13 +103,21 @@ extension CommentsViewController: RATreeViewDataSource {
     }
     
     func treeView(treeView: RATreeView!, child index: Int, ofItem item: AnyObject!) -> AnyObject! {
-        if let wrappedComment = item as? CommentWrapper {
-            let comment = wrappedComment.comment.children[index]
-            let wrapped = CommentWrapper(comment: comment)
-            return wrapped
+        if item == nil {
+            return wrappedComments[index]
+        } else if let wrappedComment = item as? CommentWrapper {
+            return wrappedComment.children[index]
         }
-        let comment = story.children[index]
-        return CommentWrapper(comment: comment)
+        println("this isnt supposed to happen. item: \(item)")
+        return nil
+    }
+    
+}
+
+extension CommentsViewController: RATreeViewDelegate {
+    
+    func treeView(treeView: RATreeView!, didSelectRowForItem item: AnyObject!) {
+        treeView.deselectRowForItem(item, animated: false)
     }
     
 }

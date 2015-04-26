@@ -45,7 +45,6 @@ class StoriesViewController: UIViewController {
     
     func getTopStories(refresh: Bool) {
         if !refresh { ProgressHUD.showHUDAddedTo(view, animated: true) }
-        println("\(NSDate()) making request")
         apiClient.getTopStories(25, offset: 0) { [weak self] (stories, error) -> Void in
             ProgressHUD.hideHUDForView(self?.view, animated: true)
             self?.refreshControl.endRefreshing()
