@@ -10,21 +10,16 @@ import UIKit
 import RATreeView
 
 class CommentsViewController: UIViewController {
-    /*! Wrapper for interfacing between RATreeView and structs, since RATreeView won't take Swift structs,
-    and relies on objective c == operator */
-    class CommentWrapper: NSObject {
-        let comment: Comment
-        let children: [CommentWrapper]
-        init(comment: Comment) {
-            self.comment = comment
-            self.children = comment.children.map { CommentWrapper(comment: $0) }
+    
+    var story: Story {
+        didSet {
+            flattenedComments = flatten(story.children)
         }
     }
     
-    var story: Story
+    var flattenedComments = [Comment]()
     let apiClient = HNAPIClient()
-    let treeView = RATreeView()
-    var wrappedComments = [CommentWrapper]()
+    let treeView = UITableView(frame: CGRectZero, style: .Plain)
     
     init(story: Story) {
         self.story = story
@@ -40,7 +35,6 @@ class CommentsViewController: UIViewController {
         
         title = story.title
         
-        treeView.expandsChildRowsWhenRowExpands = true
         treeView.rowHeight = UITableViewAutomaticDimension
         treeView.estimatedRowHeight = 200
         treeView.separatorInset = UIEdgeInsetsZero
@@ -68,56 +62,37 @@ class CommentsViewController: UIViewController {
                 println(error)
             } else if let story = story {
                 self?.story = story
-                self?.wrappedComments = story.children.map { CommentWrapper(comment: $0) }
                 self?.treeView.reloadData()
-                self?.wrappedComments.map { (wrappedComment) -> Void in
-                    self?.treeView.expandRowForItem(wrappedComment, expandChildren: true, withRowAnimation: RATreeViewRowAnimationNone)
-                }
             }
-        })
+            })
+    }
+
+    func flatten(comments: [Comment]) -> [Comment] {
+        return comments.map { [ weak self] (comment) -> [Comment] in
+            if let strong_self = self {
+                return [comment] + strong_self.flatten(comment.children)
+            }
+                return [comment]
+            }
+            .flatMap { $0 }
     }
     
 }
 
-extension CommentsViewController: RATreeViewDataSource {
+extension CommentsViewController: UITableViewDataSource {
     
-    func treeView(treeView: RATreeView!, numberOfChildrenOfItem item: AnyObject!) -> Int {
-        if item == nil {
-            return wrappedComments.count
-        } else if let wrappedComment = item as? CommentWrapper {
-            return wrappedComment.children.count
-        }
-        
-        println("this isnt supposed to happen. item: \(item)")
-        return 0
+    func numberOfSectionsInTableView(tableView: UITableView) -> Int {
+        return 1
     }
     
-    func treeView(treeView: RATreeView!, cellForItem item: AnyObject!) -> UITableViewCell! {
-        let cell = treeView.dequeueReusableCellWithIdentifier(CommentCell.identifier) as! CommentCell
-        if let wrappedComment = item as? CommentWrapper {
-            let level = treeView.levelForCellForItem(wrappedComment)
-            cell.prepare(wrappedComment.comment, level: level)
-        }
-        
+    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return flattenedComments.count
+    }
+    
+    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCellWithIdentifier(CommentCell.identifier, forIndexPath: indexPath) as! CommentCell
+        let comment = flattenedComments[indexPath.row]
+        cell.prepare(comment, level: comment.level)
         return cell
     }
-    
-    func treeView(treeView: RATreeView!, child index: Int, ofItem item: AnyObject!) -> AnyObject! {
-        if item == nil {
-            return wrappedComments[index]
-        } else if let wrappedComment = item as? CommentWrapper {
-            return wrappedComment.children[index]
-        }
-        println("this isnt supposed to happen. item: \(item)")
-        return nil
-    }
-    
-}
-
-extension CommentsViewController: RATreeViewDelegate {
-    
-    func treeView(treeView: RATreeView!, didSelectRowForItem item: AnyObject!) {
-        treeView.deselectRowForItem(item, animated: false)
-    }
-    
 }

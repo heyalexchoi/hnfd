@@ -18,7 +18,7 @@ struct Story {
     }
     
     let by: String
-    let descendants: Int?
+    let descendants: Int
     let id: Int
     let kids: [Int]
     let score: Int
@@ -42,7 +42,7 @@ struct Story {
         self.type = Type(rawValue: json["type"].stringValue)!
         self.URL = json["url"].URL
         self.attributedText = NSAttributedString(htmlString: self.text)
-        self.children = json["children"].arrayValue.map { Comment(json: $0) }
+        self.children = json["children"].arrayValue.map { Comment(json: $0, level: 1) } .filter { !$0.deleted }
     }
 }
 
@@ -56,8 +56,10 @@ struct Comment {
     let attributedText: NSAttributedString
     let time: Int
     let children: [Comment]
+    let deleted: Bool
+    let level: Int
     
-    init(json: JSON) {
+    init(json: JSON, level: Int) {
         self.by = json["by"].stringValue
         self.id = json["_id"].intValue
         self.parent = json["parent"].intValue
@@ -65,7 +67,9 @@ struct Comment {
         self.time = json["time"].intValue
         self.text = json["text"].stringValue
         self.attributedText = NSAttributedString(htmlString: self.text)
-        self.children = json["children"].arrayValue.map { Comment(json: $0) }
+        self.deleted = json["deleted"].boolValue
+        self.children = json["children"].arrayValue.map { Comment(json: $0, level: level + 1) } .filter { !$0.deleted }
+        self.level = level
     }
 }
 
