@@ -23,6 +23,8 @@ class ReadabilityViewContoller: UIViewController {
         super.init(nibName: nil, bundle: nil)
         
         let inset: CGFloat = 20
+        textView.delegate = self
+        textView.editable = false
         textView.textContainerInset = UIEdgeInsets(top: inset, left: inset, bottom: inset, right: inset)
         textView.backgroundColor = UIColor.backgroundColor()
         for view in [textView] {
@@ -60,6 +62,15 @@ class ReadabilityViewContoller: UIViewController {
                     cancelButtonTitle: "OK").show()
             }
             })
+    }
+    
+}
+
+extension ReadabilityViewContoller: UITextViewDelegate {
+    
+    func textView(textView: UITextView, shouldInteractWithURL URL: NSURL, inRange characterRange: NSRange) -> Bool {
+        presentViewController(UINavigationController(rootViewController: WebViewController(url: URL)), animated: true, completion: nil)
+        return false
     }
     
 }
