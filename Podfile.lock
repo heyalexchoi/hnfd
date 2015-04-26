@@ -2,7 +2,6 @@ PODS:
   - Alamofire (1.2.0)
   - Colours (5.6.2)
   - MBProgressHUD (0.9.1)
-  - RATreeView (1.0.1)
   - SwiftyJSON (2.2.0)
   - TWTToast/UIKit/AutoLayout (0.15)
   - UIImage-Helpers (0.0.3)
@@ -11,7 +10,6 @@ DEPENDENCIES:
   - Alamofire
   - Colours
   - MBProgressHUD
-  - RATreeView
   - SwiftyJSON (from `https://github.com/SwiftyJSON/SwiftyJSON.git`)
   - TWTToast/UIKit/AutoLayout (from `https://github.com/twotoasters/Toast.git`, branch
     `master`)
@@ -36,9 +34,8 @@ SPEC CHECKSUMS:
   Alamofire: d765c5c1713aa64106b0228aaa600a1e6851f68d
   Colours: 0afd4c3429656880fd4cff350ca3bf0ab86ca348
   MBProgressHUD: c47f2c166c126cf2ce36498d80f33e754d4e93ad
-  RATreeView: 84be5d5ddc34d4874f707c02de8b70fed18bb834
   SwiftyJSON: 0b3e6c07af17ff745e77e8e9984097b55c956e5c
   TWTToast: 0da7f209a5f2410332ac84b0e0d6f63964c1ff2a
   UIImage-Helpers: 06b04a42bdd222844035602e87e936765c80f620
 
-COCOAPODS: 0.36.3
+COCOAPODS: 0.36.4

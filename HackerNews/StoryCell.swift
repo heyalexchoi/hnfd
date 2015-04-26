@@ -120,10 +120,10 @@ class StoryCell: UITableViewCell {
     func prepare(story: Story) {
         titleLabel.text = story.title
         byLabel.text = story.by
-        commentsLabel.text = String(story.kids.count)
+        commentsLabel.text = String(story.descendants)
         scoreLabel.text = String(story.score)
         timeLabel.text = String(story.time)
-        URLLabel.text = story.URL.absoluteString
+        URLLabel.text = story.URL?.absoluteString
     }
     
     func articleButtonDidPress() {

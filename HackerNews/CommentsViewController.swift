@@ -11,14 +11,15 @@ import RATreeView
 
 class CommentsViewController: UIViewController {
     
-    let story: Story
-    var comments = [CommentItem]() // top level comments
-    var commentsAllLoaded: Bool {
-        return comments.filter { $0.comment == nil }.count > 0
+    var story: Story {
+        didSet {
+            flattenedComments = flatten(story.children)
+        }
     }
-    let apiClient = HNAPIClient()
     
-    let treeView = RATreeView()
+    var flattenedComments = [Comment]()
+    let apiClient = HNAPIClient()
+    let treeView = UITableView(frame: CGRectZero, style: .Plain)
     
     init(story: Story) {
         self.story = story
@@ -33,8 +34,6 @@ class CommentsViewController: UIViewController {
         super.viewDidLoad()
         
         title = story.title
-        
-        treeView.expandsChildRowsWhenRowExpands = true
         
         treeView.rowHeight = UITableViewAutomaticDimension
         treeView.estimatedRowHeight = 200
@@ -51,54 +50,49 @@ class CommentsViewController: UIViewController {
             "V:|[treeView]|"], views: [
                 "treeView": treeView])
         
-        getComments()
+        getFullStory()
         
     }
     
-    func getComments() {
-        comments = story.kids.map { self.commentItemForID($0) }
-        treeView.reloadData()
-    }
-    
-    func commentItemForID(id: Int) -> CommentItem {
-        let commentItem = CommentItem(id: id)
-        apiClient.getComment(id, completion: { [weak self] (comment, error) -> Void in
-            if let comment = comment,
-                strong_self = self {
-                    commentItem.comment = comment
-                    commentItem.kids = comment.kids.map { strong_self.commentItemForID($0) }
-                    if strong_self.commentsAllLoaded { strong_self.treeView.reloadData() }
+    func getFullStory() {
+        ProgressHUD.showHUDAddedTo(view, animated: true)
+        apiClient.getStory(story.id, completion: { [weak self] (story, error) -> Void in
+            ProgressHUD.hideHUDForView(self?.view, animated: true)
+            if let error = error {
+                println(error)
+            } else if let story = story {
+                self?.story = story
+                self?.treeView.reloadData()
             }
             })
-        return commentItem
+    }
+
+    func flatten(comments: [Comment]) -> [Comment] {
+        return comments.map { [ weak self] (comment) -> [Comment] in
+            if let strong_self = self {
+                return [comment] + strong_self.flatten(comment.children)
+            }
+                return [comment]
+            }
+            .flatMap { $0 }
     }
     
 }
 
-extension CommentsViewController: RATreeViewDataSource {
+extension CommentsViewController: UITableViewDataSource {
     
-    func treeView(treeView: RATreeView!, numberOfChildrenOfItem item: AnyObject!) -> Int {
-        if let item = item as? CommentItem {
-            return item.kids.count
-        }
-        return comments.count
+    func numberOfSectionsInTableView(tableView: UITableView) -> Int {
+        return 1
     }
     
-    func treeView(treeView: RATreeView!, cellForItem item: AnyObject!) -> UITableViewCell! {
-        let cell = treeView.dequeueReusableCellWithIdentifier(CommentCell.identifier) as! CommentCell
-        if let item = item as? CommentItem {
-            let level = treeView.levelForCellForItem(item)
-            cell.prepare(item, level: level)
-        }
-        
+    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return flattenedComments.count
+    }
+    
+    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCellWithIdentifier(CommentCell.identifier, forIndexPath: indexPath) as! CommentCell
+        let comment = flattenedComments[indexPath.row]
+        cell.prepare(comment, level: comment.level)
         return cell
     }
-    
-    func treeView(treeView: RATreeView!, child index: Int, ofItem item: AnyObject!) -> AnyObject! {
-        if let item = item as? CommentItem {
-            return item.kids[index]
-        }
-        return comments[index]
-    }
-    
 }

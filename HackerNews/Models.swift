@@ -8,25 +8,11 @@
 
 import SwiftyJSON
 
-class StoryItem {
-    let id: Int
-    var story: Story?
-    init(id: Int, story: Story?) {
-        self.id = id
-        self.story = story
-    }
-    init(json: JSON) {
-        self.id = json.intValue
-        self.story = nil
-    }
-}
-
 struct Story {
     
     enum Type: String {
         case Job = "job",
         Story = "story",
-        Comment = "comment",
         Poll = "poll",
         PollOpt = "pollopt"
     }
@@ -36,21 +22,54 @@ struct Story {
     let id: Int
     let kids: [Int]
     let score: Int
+    let text: String
     let time: Int
     let title: String
-    let URL: NSURL
     let type: Type
+    let URL: NSURL?
+    let attributedText: NSAttributedString
+    let children: [Comment]
     
     init(json: JSON) {
         self.by = json["by"].stringValue
         self.descendants = json["descendants"].intValue
-        self.id = json["id"].intValue
+        self.id = json["_id"].intValue
         self.kids = json["kids"].arrayValue.map { $0.intValue }
         self.score = json["score"].intValue
+        self.text = json["text"].stringValue
         self.time = json["time"].intValue
         self.title = json["title"].stringValue
-        self.URL = json["url"].URL ?? NSURL(string: "https://www.google.com")!
         self.type = Type(rawValue: json["type"].stringValue)!
+        self.URL = json["url"].URL
+        self.attributedText = NSAttributedString(htmlString: self.text)
+        self.children = json["children"].arrayValue.map { Comment(json: $0, level: 1) } .filter { !$0.deleted }
+    }
+}
+
+struct Comment {
+    
+    let by: String
+    let id: Int
+    let kids: [Int]
+    let parent: Int
+    let text: String
+    let attributedText: NSAttributedString
+    let time: Int
+    let children: [Comment]
+    let deleted: Bool
+    let level: Int
+    
+    init(json: JSON, level: Int) {
+        self.by = json["by"].stringValue
+        self.id = json["_id"].intValue
+        self.parent = json["parent"].intValue
+        self.kids = json["kids"].arrayValue.map { $0.intValue }
+        self.time = json["time"].intValue
+        self.text = json["text"].stringValue
+        self.attributedText = NSAttributedString(htmlString: self.text)
+        self.deleted = json["deleted"].boolValue
+        self.children = json["children"].arrayValue.map { Comment(json: $0, level: level + 1) } .filter { !$0.deleted }
+        self.level = level
     }
 }
 
@@ -80,44 +99,5 @@ struct ReadabilityArticle {
         self.totalPages = json["total_pages"].intValue
         self.dek = json["dek"].stringValue
         self.leadImageURL = json["lead_image_url"].URL ?? NSURL(string: "https://www.google.com")!
-    }
-}
-
-class CommentItem {
-    
-    let id: Int
-    var comment: Comment?
-    var kids = [CommentItem]()
-    
-    init(json: JSON) {
-        self.id = json.intValue
-        self.comment = nil
-    }
-    
-    init(id: Int) {
-        self.id = id
-        self.comment = nil
-    }
-    
-}
-
-struct Comment {
-    
-    let by: String
-    let id: Int
-    let kids: [Int]
-    let parent: Int
-    let text: String
-    let attributedText: NSAttributedString
-    let time: Int
-    
-    init(json: JSON) {
-        self.by = json["by"].stringValue
-        self.id = json["id"].intValue
-        self.parent = json["parent"].intValue
-        self.kids = json["kids"].arrayValue.map { $0.intValue }
-        self.time = json["time"].intValue
-        self.text = json["text"].stringValue
-        self.attributedText = NSAttributedString(htmlString: self.text)
     }
 }
