@@ -57,17 +57,10 @@ class CommentCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
-    override func prepareForReuse() {
-        super.prepareForReuse()
-        byLabel.text = nil
-        timeLabel.text = nil
-        textView.text = nil
-    }
-    
     func prepare(comment: Comment, level: Int) {
         indentationWidthConstraint.constant = CGFloat((level + 2) * 15)
             byLabel.text = comment.by
-            timeLabel.text = String(comment.time)
+            timeLabel.text = comment.date.timeAgoSinceNow()
             let attributedText = NSMutableAttributedString(attributedString: comment.attributedText)
             attributedText.addAttributes(TextAttributes.textAttributes, range: NSRange(location: 0, length: attributedText.length))
             textView.attributedText = attributedText

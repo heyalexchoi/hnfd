@@ -8,9 +8,18 @@
 
 
 struct TextAttributes {
+    
     static let textAttributes = [NSFontAttributeName: UIFont.textFont(), NSForegroundColorAttributeName: UIColor.textColor()]
     static let textReaderAttributes = [NSFontAttributeName: UIFont.textReaderFont(), NSForegroundColorAttributeName: UIColor.textColor()]
     static let titleAttributes = [NSFontAttributeName: UIFont.titleFont(), NSForegroundColorAttributeName: UIColor.textColor()]
+    static let centerAlignment: [NSObject: AnyObject] = {
+        let paragraphStyle = NSMutableParagraphStyle()
+        paragraphStyle.alignment = .Center
+        return [NSParagraphStyleAttributeName: paragraphStyle]
+    }()
+    static func URLAttributes(URL: NSURL) -> [NSObject: AnyObject] {
+        return [NSLinkAttributeName: URL]
+    }
 }
 
 struct Appearance {

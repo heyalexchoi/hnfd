@@ -29,6 +29,7 @@ struct Story {
     let URL: NSURL?
     let attributedText: NSAttributedString
     let children: [Comment]
+    let date: NSDate
     
     init(json: JSON) {
         self.by = json["by"].stringValue
@@ -43,6 +44,7 @@ struct Story {
         self.URL = json["url"].URL
         self.attributedText = NSAttributedString(htmlString: self.text)
         self.children = json["children"].arrayValue.map { Comment(json: $0, level: 1) } .filter { !$0.deleted }
+        self.date = NSDate(timeIntervalSince1970: NSTimeInterval(self.time))
     }
 }
 
@@ -58,6 +60,7 @@ struct Comment {
     let children: [Comment]
     let deleted: Bool
     let level: Int
+    let date: NSDate
     
     init(json: JSON, level: Int) {
         self.by = json["by"].stringValue
@@ -70,6 +73,7 @@ struct Comment {
         self.deleted = json["deleted"].boolValue
         self.children = json["children"].arrayValue.map { Comment(json: $0, level: level + 1) } .filter { !$0.deleted }
         self.level = level
+        self.date = NSDate(timeIntervalSince1970: NSTimeInterval(self.time))
     }
 }
 
@@ -78,26 +82,28 @@ struct ReadabilityArticle {
     let content: String
     let domain: String
     let author: String
-    let URL: NSURL
-    let shortURL: NSURL
+    let URL: NSURL?
+    let shortURL: NSURL?
     let title : String
     let excerpt: String
     let wordCount: Int
     let totalPages: Int
     let dek: String
-    let leadImageURL: NSURL
+    let leadImageURL: NSURL?
+    let attributedContent: NSAttributedString
     
     init(json: JSON) {
         self.content = json["content"].stringValue
         self.domain = json["domain"].stringValue
         self.author = json["author"].stringValue
-        self.URL = json["url"].URL ?? NSURL(string: "https://www.google.com")!
-        self.shortURL = json["short_url"].URL ?? NSURL(string: "https://www.google.com")!
+        self.URL = json["url"].URL
+        self.shortURL = json["short_url"].URL
         self.title = json["title"].stringValue
         self.excerpt = json["excerpt"].stringValue
         self.wordCount = json["word_count"].intValue
         self.totalPages = json["total_pages"].intValue
         self.dek = json["dek"].stringValue
-        self.leadImageURL = json["lead_image_url"].URL ?? NSURL(string: "https://www.google.com")!
+        self.leadImageURL = json["lead_image_url"].URL
+        self.attributedContent = NSAttributedString(htmlString: self.content)
     }
 }

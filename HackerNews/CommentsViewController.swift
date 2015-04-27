@@ -42,6 +42,7 @@ class CommentsViewController: UIViewController {
         treeView.backgroundColor = UIColor.backgroundColor()
         treeView.registerClass(CommentCell.self, forCellReuseIdentifier: CommentCell.identifier)
         treeView.dataSource = self
+        treeView.tableFooterView = UIView() // avoid empty cells
         treeView.setTranslatesAutoresizingMaskIntoConstraints(false)
         view.addSubview(treeView)
         

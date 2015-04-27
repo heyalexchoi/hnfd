@@ -20,6 +20,7 @@
 		1722C0DD1AE17E1700DCA87C /* PrivateKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1722C0DC1AE17E1700DCA87C /* PrivateKeys.swift */; };
 		1722C0DF1AE17F8B00DCA87C /* ReadabilityAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1722C0DE1AE17F8B00DCA87C /* ReadabilityAPIClient.swift */; };
 		174A9A221AE19F05008CB6FC /* Label.swift in Sources */ = {isa = PBXBuildFile; fileRef = 174A9A211AE19F05008CB6FC /* Label.swift */; };
+		1751B5D01AEE0A4B000ADF55 /* DateTools.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 1751B5CF1AEE0A4B000ADF55 /* DateTools.bundle */; };
 		176654A71AE08B7500B97098 /* StoryCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 176654A61AE08B7500B97098 /* StoryCell.swift */; };
 		17E621151AED4C0B00FF84AC /* WebViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17E621141AED4C0B00FF84AC /* WebViewController.swift */; };
 		17FB84D91AE20B7500C87786 /* Appearance.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17FB84D81AE20B7500C87786 /* Appearance.swift */; };
@@ -56,6 +57,7 @@
 		1722C0DC1AE17E1700DCA87C /* PrivateKeys.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PrivateKeys.swift; sourceTree = "<group>"; };
 		1722C0DE1AE17F8B00DCA87C /* ReadabilityAPIClient.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReadabilityAPIClient.swift; sourceTree = "<group>"; };
 		174A9A211AE19F05008CB6FC /* Label.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Label.swift; sourceTree = "<group>"; };
+		1751B5CF1AEE0A4B000ADF55 /* DateTools.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = DateTools.bundle; sourceTree = "<group>"; };
 		176654A21AE077C800B97098 /* HackerNews-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "HackerNews-Bridging-Header.h"; sourceTree = "<group>"; };
 		176654A61AE08B7500B97098 /* StoryCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StoryCell.swift; sourceTree = "<group>"; };
 		17E621141AED4C0B00FF84AC /* WebViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WebViewController.swift; sourceTree = "<group>"; };
@@ -118,6 +120,7 @@
 				174A9A251AE1A00A008CB6FC /* APIClients */,
 				174A9A261AE1A017008CB6FC /* Models */,
 				0CD3C8921AD781DF005CC6C1 /* Images.xcassets */,
+				1751B5CF1AEE0A4B000ADF55 /* DateTools.bundle */,
 				0CD3C8941AD781DF005CC6C1 /* LaunchScreen.xib */,
 				0CD3C8891AD781DF005CC6C1 /* Supporting Files */,
 				176654A21AE077C800B97098 /* HackerNews-Bridging-Header.h */,
@@ -292,6 +295,7 @@
 			files = (
 				0CD3C8961AD781DF005CC6C1 /* LaunchScreen.xib in Resources */,
 				0CD3C8931AD781DF005CC6C1 /* Images.xcassets in Resources */,
+				1751B5D01AEE0A4B000ADF55 /* DateTools.bundle in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

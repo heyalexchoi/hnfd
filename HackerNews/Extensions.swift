@@ -29,7 +29,7 @@ extension UIFont {
     }
     
     class func textReaderFont() -> UIFont {
-        return UIFont(name: "Avenir-Medium", size: 18)!
+        return UIFont(name: "Avenir-Book", size: 18)!
     }
     
     class func titleFont() -> UIFont {
@@ -47,4 +47,14 @@ extension NSAttributedString {
         self.init(attributedString: attributedString)
     }
     
+}
+
+func merge<K,V>(dicts: [K: V]...) -> [K: V] {
+    var new = [K: V]()
+    for dict in dicts {
+        for (k,v) in dict {
+            new[k] = v
+        }
+    }
+    return new
 }

@@ -25,6 +25,7 @@ class StoriesViewController: UIViewController {
         tableView.estimatedRowHeight = 100
         tableView.registerClass(StoryCell.self, forCellReuseIdentifier: StoryCell.identifier)
         tableView.dataSource = self
+        tableView.tableFooterView = UIView() // avoid empty cells
         tableView.setTranslatesAutoresizingMaskIntoConstraints(false)
         view.addSubview(tableView)
         
@@ -90,9 +91,9 @@ extension StoriesViewController: StoryCellDelegate {
     func cellDidSelectStoryArticle(cell: StoryCell) {
         let indexPath = tableView.indexPathForCell(cell)!
         let story = storyForIndexPath(indexPath)
-        if story.type == .Story,
-        let URL = story.URL {
-            navigationController?.pushViewController(ReadabilityViewContoller(articleURL:URL), animated: true)
+        if story.type == .Story
+        && story.URL != nil {
+            navigationController?.pushViewController(ReadabilityViewContoller(story: story), animated: true)
         } else {
             navigationController?.pushViewController(CommentsViewController(story: story), animated: true)
         }
