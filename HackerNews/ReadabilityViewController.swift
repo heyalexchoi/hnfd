@@ -53,6 +53,16 @@ class ReadabilityViewContoller: UIViewController {
                 strong_self = self {
                     let attributedContent = NSMutableAttributedString(htmlString: article.content)
                     attributedContent.addAttributes(strong_self.textAttributes, range: NSRange(location: 0, length: count(attributedContent.string)))
+                    attributedContent.enumerateAttribute(NSAttachmentAttributeName, inRange: NSRange(location: 0, length: attributedContent.length), options: nil) { [weak self] (attribute, range, stop) -> Void in
+                        if let attachment = attribute as? NSTextAttachment,
+                        let strong_self = self {
+                            if attachment.bounds.size.width > strong_self.textView.textContainer.size.width {
+                                let resizeRatio = strong_self.textView.textContainer.size.width / attachment.bounds.size.width
+                                attachment.bounds = CGRect(x: 0, y: 0, width: attachment.bounds.size.width * resizeRatio, height: attachment.bounds.size.height * resizeRatio)
+                            }
+                        }
+                    }
+                    
                     strong_self.textView.attributedText = attributedContent
                     strong_self.title = article.title
             } else if let error = error {
