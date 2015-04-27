@@ -110,19 +110,12 @@ class StoryCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
-    override func prepareForReuse() {
-        super.prepareForReuse()
-        for label in [titleLabel, byLabel, commentsLabel, scoreLabel, timeLabel, URLLabel] {
-            label.text = nil
-        }
-    }
-    
     func prepare(story: Story) {
         titleLabel.text = story.title
         byLabel.text = story.by
         commentsLabel.text = String(story.descendants)
         scoreLabel.text = String(story.score)
-        timeLabel.text = String(story.time)
+        timeLabel.text = String(story.date.timeAgoSinceNow())
         URLLabel.text = story.URL?.absoluteString
     }
     

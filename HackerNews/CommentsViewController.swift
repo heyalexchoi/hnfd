@@ -42,6 +42,7 @@ class CommentsViewController: UIViewController {
         treeView.backgroundColor = UIColor.backgroundColor()
         treeView.registerClass(CommentCell.self, forCellReuseIdentifier: CommentCell.identifier)
         treeView.dataSource = self
+        treeView.tableFooterView = UIView() // avoid empty cells
         treeView.setTranslatesAutoresizingMaskIntoConstraints(false)
         view.addSubview(treeView)
         
@@ -92,7 +93,17 @@ extension CommentsViewController: UITableViewDataSource {
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCellWithIdentifier(CommentCell.identifier, forIndexPath: indexPath) as! CommentCell
         let comment = flattenedComments[indexPath.row]
+        cell.textView.delegate = self
         cell.prepare(comment, level: comment.level)
         return cell
     }
+}
+
+extension CommentsViewController: UITextViewDelegate {
+
+    func textView(textView: UITextView, shouldInteractWithURL URL: NSURL, inRange characterRange: NSRange) -> Bool {
+        presentViewController(UINavigationController(rootViewController: WebViewController(url: URL)), animated: true, completion: nil)
+        return false
+    }
+    
 }
