@@ -21,6 +21,9 @@ class ReadabilityViewContoller: UIViewController {
         self.story = story
         self.articleURL = story.URL!
         super.init(nibName: nil, bundle: nil)
+    
+        
+        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .Action, target: self, action: "actionButtonDidPress")
         
         let inset: CGFloat = 20
         textView.delegate = self
@@ -97,6 +100,10 @@ class ReadabilityViewContoller: UIViewController {
                     cancelButtonTitle: "OK").show()
             }
             })
+    }
+    
+    func actionButtonDidPress() {
+        presentViewController(UIActivityViewController(activityItems: [articleURL], applicationActivities: nil), animated: true, completion: nil)
     }
     
 }
