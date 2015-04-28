@@ -12,9 +12,10 @@ class StoriesViewController: UIViewController {
     
     var stories = [Story]()
     let apiClient = HNAPIClient()
-    
     let tableView = UITableView(frame: CGRectZero, style: .Plain)
-    let refreshControl = UIRefreshControl()
+    
+    let limit = 25
+    var offset = 0
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -29,8 +30,15 @@ class StoriesViewController: UIViewController {
         tableView.setTranslatesAutoresizingMaskIntoConstraints(false)
         view.addSubview(tableView)
         
-        tableView.addSubview(refreshControl)
-        refreshControl.addTarget(self, action: "refresh", forControlEvents: .ValueChanged)
+        tableView.addPullToRefreshWithActionHandler { [weak self] () -> Void in
+            self?.getTopStories(true)
+        }
+        tableView.pullToRefreshView.activityIndicatorViewStyle = .White
+        
+        tableView.addInfiniteScrollingWithActionHandler { [weak self] () -> Void in
+            self?.getTopStories(false)
+        }
+        tableView.infiniteScrollingView.activityIndicatorViewStyle = .White
         
         view.twt_addConstraintsWithVisualFormatStrings([
             "H:|[tableView]|",
@@ -45,12 +53,15 @@ class StoriesViewController: UIViewController {
     }
     
     func getTopStories(refresh: Bool) {
-        if !refresh { ProgressHUD.showHUDAddedTo(view, animated: true) }
-        apiClient.getTopStories(25, offset: 0) { [weak self] (stories, error) -> Void in
+        if stories.count < 1 { ProgressHUD.showHUDAddedTo(view, animated: true) }
+        if refresh { offset = 0 }
+        apiClient.getTopStories(limit, offset: offset) { [weak self] (stories, error) -> Void in
             ProgressHUD.hideHUDForView(self?.view, animated: true)
-            self?.refreshControl.endRefreshing()
+            self?.tableView.pullToRefreshView.stopAnimating()
+            self?.tableView.infiniteScrollingView.stopAnimating()
             if let stories = stories {
-                self?.stories = stories
+                self?.stories = refresh ? stories : self!.stories + stories
+                self?.offset = self!.offset + self!.limit
                 self?.tableView.reloadData()
             } else {
                 UIAlertView(title: "Error getting top stories",
