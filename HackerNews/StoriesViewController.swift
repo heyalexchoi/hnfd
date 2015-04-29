@@ -10,6 +10,7 @@ import UIKit
 
 class StoriesViewController: UIViewController {
     
+    var task: NSURLSessionTask?
     var stories = [Story]()
     let apiClient = HNAPIClient()
     let tableView = UITableView(frame: CGRectZero, style: .Plain)
@@ -55,7 +56,8 @@ class StoriesViewController: UIViewController {
     func getTopStories(refresh: Bool) {
         if stories.count < 1 { ProgressHUD.showHUDAddedTo(view, animated: true) }
         if refresh { offset = 0 }
-        apiClient.getTopStories(limit, offset: offset) { [weak self] (stories, error) -> Void in
+        task?.cancel()
+        task = apiClient.getTopStories(limit, offset: offset) { [weak self] (stories, error) -> Void in
             ProgressHUD.hideHUDForView(self?.view, animated: true)
             self?.tableView.pullToRefreshView.stopAnimating()
             self?.tableView.infiniteScrollingView.stopAnimating()
@@ -69,7 +71,7 @@ class StoriesViewController: UIViewController {
                     delegate: nil,
                     cancelButtonTitle: "OK")
             }
-        }
+        }.task
     }
     
     func storyForIndexPath(indexPath: NSIndexPath) -> Story {
