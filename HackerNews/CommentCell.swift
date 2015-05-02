@@ -39,6 +39,7 @@ class CommentCell: UITableViewCell {
         textView.scrollEnabled = false
         textView.textContainerInset = UIEdgeInsetsZero
         textView.textContainer.lineFragmentPadding = 0
+        textView.dataDetectorTypes = .All
         
         contentView.twt_addConstraintsWithVisualFormatStrings([
             "H:|[indentation][byLabel]-30-[timeLabel]-(>=0)-|",
@@ -61,8 +62,6 @@ class CommentCell: UITableViewCell {
         indentationWidthConstraint.constant = CGFloat((level + 2) * 15)
             byLabel.text = comment.by
             timeLabel.text = comment.date.timeAgoSinceNow()
-            let attributedText = NSMutableAttributedString(attributedString: comment.attributedText)
-            attributedText.addAttributes(TextAttributes.textAttributes, range: NSRange(location: 0, length: attributedText.length))
-            textView.attributedText = attributedText
+            textView.attributedText = NSMutableAttributedString(string: comment.text, attributes: TextAttributes.textAttributes)
     }
 }

@@ -27,7 +27,6 @@ struct Story {
     let title: String
     let type: Type
     let URL: NSURL?
-    let attributedText: NSAttributedString
     let children: [Comment]
     let date: NSDate
     
@@ -42,7 +41,6 @@ struct Story {
         self.title = json["title"].stringValue
         self.type = Type(rawValue: json["type"].stringValue)!
         self.URL = json["url"].URL
-        self.attributedText = NSAttributedString(htmlString: self.text)
         self.children = json["children"].arrayValue.map { Comment(json: $0, level: 1) } .filter { !$0.deleted }
         self.date = NSDate(timeIntervalSince1970: NSTimeInterval(self.time))
     }
@@ -55,7 +53,6 @@ struct Comment {
     let kids: [Int]
     let parent: Int
     let text: String
-    let attributedText: NSAttributedString
     let time: Int
     let children: [Comment]
     let deleted: Bool
@@ -69,7 +66,6 @@ struct Comment {
         self.kids = json["kids"].arrayValue.map { $0.intValue }
         self.time = json["time"].intValue
         self.text = json["text"].stringValue
-        self.attributedText = NSAttributedString(htmlString: self.text)
         self.deleted = json["deleted"].boolValue
         self.children = json["children"].arrayValue.map { Comment(json: $0, level: level + 1) } .filter { !$0.deleted }
         self.level = level
