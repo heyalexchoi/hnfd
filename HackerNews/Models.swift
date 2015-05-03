@@ -9,13 +9,16 @@
 import SwiftyJSON
 import DTCoreText
 
-struct Story {
+class Story: NSObject, NSCoding {
     
     enum Type: String {
         case Job = "job",
         Story = "story",
         Poll = "poll",
         PollOpt = "pollopt"
+        func toJSON() -> AnyObject {
+            return rawValue
+        }
     }
     
     let by: String
@@ -44,6 +47,31 @@ struct Story {
         self.URL = json["url"].URL
         self.children = json["children"].arrayValue.map { Comment(json: $0, level: 1) } .filter { !$0.deleted }
         self.date = NSDate(timeIntervalSince1970: NSTimeInterval(self.time))
+    }
+    
+    func toJSON() -> AnyObject {
+        return [
+            "by": by,
+            "descendants": descendants,
+            "_id": id,
+            "kids": kids,
+            "score": score,
+            "text": text,
+            "time": time,
+            "title": title,
+            "type": type.toJSON(),
+            "url": URL?.absoluteString ?? "",
+//            "children": children.map { $0.toJSON() }
+        ]
+    }
+    
+    required convenience init(coder decoder: NSCoder) {
+        let json: AnyObject = decoder.decodeObjectForKey("json")!
+        self.init(json:JSON(json))
+    }
+    
+    func encodeWithCoder(coder: NSCoder) {
+        coder.encodeObject(toJSON(), forKey: "json")
     }
 }
 
@@ -75,6 +103,10 @@ struct Comment {
         self.children = json["children"].arrayValue.map { Comment(json: $0, level: level + 1) } .filter { !$0.deleted }
         self.level = level
         self.date = NSDate(timeIntervalSince1970: NSTimeInterval(self.time))
+    }
+    
+    func toJSON() -> AnyObject {
+        assert(false, "toJSON not implemented")
     }
 }
 

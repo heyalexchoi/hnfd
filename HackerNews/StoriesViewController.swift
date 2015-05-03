@@ -65,6 +65,18 @@ class StoriesViewController: UIViewController {
                 self?.stories = refresh ? stories : self!.stories + stories
                 self?.offset = self!.offset + self!.limit
                 self?.tableView.reloadData()
+                
+                let data = NSKeyedArchiver.archivedDataWithRootObject(stories)
+                NSUserDefaults.standardUserDefaults().setObject(data, forKey: "stories")
+                
+                if let data = NSUserDefaults.standardUserDefaults().objectForKey("stories") as? NSData {
+                    if let loadedStories = NSKeyedUnarchiver.unarchiveObjectWithData(data) as? [Story] {
+                        println(loadedStories)
+                    }
+                    
+                }
+                
+                
             } else {
                 UIAlertView(title: "Error getting top stories",
                     message: error?.localizedDescription,
