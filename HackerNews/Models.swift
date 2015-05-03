@@ -7,6 +7,7 @@
 //
 
 import SwiftyJSON
+import DTCoreText
 
 struct Story {
     
@@ -53,6 +54,7 @@ struct Comment {
     let kids: [Int]
     let parent: Int
     let text: String
+    let attributedText: NSAttributedString
     let time: Int
     let children: [Comment]
     let deleted: Bool
@@ -65,7 +67,10 @@ struct Comment {
         self.parent = json["parent"].intValue
         self.kids = json["kids"].arrayValue.map { $0.intValue }
         self.time = json["time"].intValue
-        self.text = json["text"].stringValue
+        let text = json["text"].stringValue
+        self.text = text
+        let data = text.dataUsingEncoding(NSUTF8StringEncoding)!
+        self.attributedText = data.length > 0 ? NSAttributedString(HTMLData: data, options: [DTUseiOS6Attributes: true], documentAttributes: nil) : NSAttributedString(string: "")
         self.deleted = json["deleted"].boolValue
         self.children = json["children"].arrayValue.map { Comment(json: $0, level: level + 1) } .filter { !$0.deleted }
         self.level = level
