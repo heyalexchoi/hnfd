@@ -2,6 +2,17 @@ PODS:
   - Alamofire (1.2.0)
   - Colours (5.6.2)
   - DateTools (1.5.0)
+  - DTCoreText (1.6.15):
+    - DTFoundation/Core (~> 1.7.5)
+    - DTFoundation/DTAnimatedGIF (~> 1.7.5)
+    - DTFoundation/DTHTMLParser (~> 1.7.5)
+    - DTFoundation/UIKit (~> 1.7.5)
+  - DTFoundation/Core (1.7.5)
+  - DTFoundation/DTAnimatedGIF (1.7.5)
+  - DTFoundation/DTHTMLParser (1.7.5):
+    - DTFoundation/Core
+  - DTFoundation/UIKit (1.7.5):
+    - DTFoundation/Core
   - MBProgressHUD (0.9.1)
   - SnapKit (0.11.0)
   - SVPullToRefresh (0.4.1)
@@ -13,6 +24,7 @@ DEPENDENCIES:
   - Alamofire
   - Colours
   - DateTools
+  - DTCoreText (from `https://github.com/davbeck/DTCoreText.git`)
   - MBProgressHUD
   - SnapKit
   - SVPullToRefresh
@@ -22,6 +34,8 @@ DEPENDENCIES:
   - UIImage-Helpers
 
 EXTERNAL SOURCES:
+  DTCoreText:
+    :git: https://github.com/davbeck/DTCoreText.git
   SwiftyJSON:
     :git: https://github.com/SwiftyJSON/SwiftyJSON.git
   TWTToast:
@@ -29,6 +43,9 @@ EXTERNAL SOURCES:
     :git: https://github.com/twotoasters/Toast.git
 
 CHECKOUT OPTIONS:
+  DTCoreText:
+    :commit: f9a3d9cb72b305a298566f1093a8943367a8e782
+    :git: https://github.com/davbeck/DTCoreText.git
   SwiftyJSON:
     :commit: 87fa9e2432187629aae80cf89027f2a615af2c31
     :git: https://github.com/SwiftyJSON/SwiftyJSON.git
@@ -40,6 +57,8 @@ SPEC CHECKSUMS:
   Alamofire: d765c5c1713aa64106b0228aaa600a1e6851f68d
   Colours: 0afd4c3429656880fd4cff350ca3bf0ab86ca348
   DateTools: b93a2c2017747329c6077c7d7e8a75106e23d0d7
+  DTCoreText: f64c23e99805671621cc059e7502c8bb08aad14f
+  DTFoundation: 1d28080c20c3da041706545363f8238ab53a6204
   MBProgressHUD: c47f2c166c126cf2ce36498d80f33e754d4e93ad
   SnapKit: 5194d53cee209d337a989919ff66a70b7aa3dda3
   SVPullToRefresh: ba2e718695a43253d8bea6852d2960097dc15d8c
