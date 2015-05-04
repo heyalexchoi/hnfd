@@ -61,7 +61,7 @@ class Story: NSObject, NSCoding {
             "title": title,
             "type": type.toJSON(),
             "url": URL?.absoluteString ?? "",
-//            "children": children.map { $0.toJSON() }
+            "children": children.map { $0.toJSON() }
         ]
     }
     
@@ -75,7 +75,7 @@ class Story: NSObject, NSCoding {
     }
 }
 
-struct Comment {
+class Comment: NSObject, NSCoding {
     
     let by: String
     let id: Int
@@ -106,7 +106,25 @@ struct Comment {
     }
     
     func toJSON() -> AnyObject {
-        assert(false, "toJSON not implemented")
+        return [
+            "by": by,
+            "_id": id,
+            "parent": parent,
+            "kids": kids,
+            "time": time,
+            "text": text,
+            "deleted": deleted,
+            "children": children
+        ]
+    }
+    
+    required convenience init(coder decoder: NSCoder) {
+        let json: AnyObject = decoder.decodeObjectForKey("json")!
+        self.init(json:JSON(json))
+    }
+    
+    func encodeWithCoder(coder: NSCoder) {
+        coder.encodeObject(toJSON(), forKey: "json")
     }
 }
 
