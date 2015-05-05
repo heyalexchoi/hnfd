@@ -50,7 +50,7 @@ class CommentCell: UITableViewCell {
                 "byLabel": byLabel,
                 "timeLabel": timeLabel,
                 "textView": textView,
-            "indentation": indentation])
+                "indentation": indentation])
         
     }
     
@@ -60,10 +60,8 @@ class CommentCell: UITableViewCell {
     
     func prepare(comment: Comment, level: Int) {
         indentationWidthConstraint.constant = CGFloat((level + 2) * 15)
-            byLabel.text = comment.by
-            timeLabel.text = comment.date.timeAgoSinceNow()
-//            textView.attributedText = NSMutableAttributedString(string: comment.text, attributes: TextAttributes.textAttributes)
-
+        byLabel.text = comment.by
+        timeLabel.text = comment.date.timeAgoSinceNow()
         var attributedText = NSMutableAttributedString(attributedString: comment.attributedText)
         attributedText.addAttributes(TextAttributes.textAttributes, range: NSRange(location: 0, length: attributedText.length))
         textView.attributedText = attributedText

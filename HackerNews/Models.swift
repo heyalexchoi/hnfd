@@ -9,13 +9,16 @@
 import SwiftyJSON
 import DTCoreText
 
-struct Story {
+class Story: NSObject, NSCoding {
     
     enum Type: String {
         case Job = "job",
         Story = "story",
         Poll = "poll",
         PollOpt = "pollopt"
+        func toJSON() -> AnyObject {
+            return rawValue
+        }
     }
     
     let by: String
@@ -45,9 +48,34 @@ struct Story {
         self.children = json["children"].arrayValue.map { Comment(json: $0, level: 1) } .filter { !$0.deleted }
         self.date = NSDate(timeIntervalSince1970: NSTimeInterval(self.time))
     }
+    
+    func toJSON() -> AnyObject {
+        return [
+            "by": by,
+            "descendants": descendants,
+            "_id": id,
+            "kids": kids,
+            "score": score,
+            "text": text,
+            "time": time,
+            "title": title,
+            "type": type.toJSON(),
+            "url": URL?.absoluteString ?? "",
+            "children": children.map { $0.toJSON() }
+        ]
+    }
+    
+    required convenience init(coder decoder: NSCoder) {
+        let json: AnyObject = decoder.decodeObjectForKey("json")!
+        self.init(json:JSON(json))
+    }
+    
+    func encodeWithCoder(coder: NSCoder) {
+        coder.encodeObject(toJSON(), forKey: "json")
+    }
 }
 
-struct Comment {
+class Comment: NSObject, NSCoding {
     
     let by: String
     let id: Int
@@ -75,6 +103,30 @@ struct Comment {
         self.children = json["children"].arrayValue.map { Comment(json: $0, level: level + 1) } .filter { !$0.deleted }
         self.level = level
         self.date = NSDate(timeIntervalSince1970: NSTimeInterval(self.time))
+    }
+    
+    func toJSON() -> AnyObject {
+        return [
+            "by": by,
+            "_id": id,
+            "parent": parent,
+            "kids": kids,
+            "time": time,
+            "text": text,
+            "deleted": deleted,
+            "children": children,
+            "level": level
+        ]
+    }
+    
+    required convenience init(coder decoder: NSCoder) {
+        let json: AnyObject = decoder.decodeObjectForKey("json")!
+        let level = json["level"] as! Int
+        self.init(json:JSON(json), level:level)
+    }
+    
+    func encodeWithCoder(coder: NSCoder) {
+        coder.encodeObject(toJSON(), forKey: "json")
     }
 }
 
