@@ -7,6 +7,42 @@
 //
 
 import UIKit
+import REMenu
+
+class StoriesTitleView: UIView {
+    
+    var title: String? {
+        didSet {
+            label.attributedText = NSAttributedString(string: title ?? "", attributes: TextAttributes.titleAttributes)
+        }
+    }
+    let label = UILabel()
+    var tapHandler: (() -> Void)?
+    let tapRecognizer = UITapGestureRecognizer()
+    
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        
+        label.textAlignment = .Center
+        
+        tapRecognizer.addTarget(self, action: "handleTap")
+        addGestureRecognizer(tapRecognizer)
+        addSubview(label)
+
+        label.snp_makeConstraints { (make) -> Void in
+            make.edges.equalTo(self)
+        }
+    }
+
+    required init(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    func handleTap() {
+        tapHandler?()
+    }
+
+}
 
 class StoriesViewController: UIViewController {
     
@@ -19,10 +55,26 @@ class StoriesViewController: UIViewController {
     let limit = 25
     var offset = 0
     
+    let titleView = StoriesTitleView()
+    let menu = REMenu()
+    
+    override var title: String? {
+        didSet {
+            titleView.title = title
+        }
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        title = "Top Stories"
+        setupMenu()
+        
+        titleView.frame = view.bounds // navigation item title views will basically size and position themselves. trying to do it yourself fucking sucks
+        navigationItem.titleView = titleView
+        titleView.tapHandler = { [weak self] () -> Void in
+            self?.toggleMenu()
+        }
+        
         tableView.backgroundColor = UIColor.backgroundColor()
         tableView.rowHeight = UITableViewAutomaticDimension
         tableView.estimatedRowHeight = 100
@@ -33,12 +85,12 @@ class StoriesViewController: UIViewController {
         view.addSubview(tableView)
         
         tableView.addPullToRefreshWithActionHandler { [weak self] () -> Void in
-            self?.getTopStories(true)
+            self?.getStories(true)
         }
         tableView.pullToRefreshView.activityIndicatorViewStyle = .White
         
         tableView.addInfiniteScrollingWithActionHandler { [weak self] () -> Void in
-            self?.getTopStories(false)
+            self?.getStories(false)
         }
         tableView.infiniteScrollingView.activityIndicatorViewStyle = .White
         
@@ -47,15 +99,20 @@ class StoriesViewController: UIViewController {
             "V:|[tableView]|"], views: [
                 "tableView": tableView])
         
-        getTopStories(false)
+        getStories(false)
+        
+    }
+    
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
         
     }
     
     func refresh() {
-        getTopStories(true)
+        getStories(true)
     }
     
-    func getTopStories(refresh: Bool) {
+    func getStories(refresh: Bool) {
         if stories.count < 1 { ProgressHUD.showHUDAddedTo(view, animated: true) }
         if refresh { offset = 0 }
         task?.cancel()
@@ -63,21 +120,22 @@ class StoriesViewController: UIViewController {
             ProgressHUD.hideHUDForView(self?.view, animated: true)
             self?.tableView.pullToRefreshView.stopAnimating()
             self?.tableView.infiniteScrollingView.stopAnimating()
+            self?.title = self?.storiesType.title
             if let stories = stories {
                 self?.stories = refresh ? stories : self!.stories + stories
                 self?.offset = self!.offset + self!.limit
                 self?.tableView.reloadData()
-/*
+                /*
                 let data = NSKeyedArchiver.archivedDataWithRootObject(stories)
                 NSUserDefaults.standardUserDefaults().setObject(data, forKey: "stories")
                 
                 if let data = NSUserDefaults.standardUserDefaults().objectForKey("stories") as? NSData {
-                    if let loadedStories = NSKeyedUnarchiver.unarchiveObjectWithData(data) as? [Story] {
-                        self?.stories = loadedStories
-                        self?.tableView.reloadData()
-                    }
+                if let loadedStories = NSKeyedUnarchiver.unarchiveObjectWithData(data) as? [Story] {
+                self?.stories = loadedStories
+                self?.tableView.reloadData()
                 }
-*/
+                }
+                */
                 
             } else {
                 UIAlertView(title: "Error getting top stories",
@@ -85,11 +143,35 @@ class StoriesViewController: UIViewController {
                     delegate: nil,
                     cancelButtonTitle: "OK")
             }
-        }.task
+            }.task
     }
     
     func storyForIndexPath(indexPath: NSIndexPath) -> Story {
         return stories[indexPath.item]
+    }
+    
+    // MARK: - Menu
+    func setupMenu() {
+        menu.items = StoriesType.allValues.map { (type) -> REMenuItem in
+            return REMenuItem(title: type.title, image: nil, highlightedImage: nil, action: { [weak self] (_) -> Void in
+                self?.menuDidFinishSelection(type)
+                })
+        }
+    }
+    
+    func menuDidFinishSelection(type: StoriesType) {
+        storiesType = type
+        title = type.title
+        getStories(true)
+        menu.close()
+    }
+    
+    func toggleMenu() {
+        if menu.isOpen {
+            menu.close()
+        } else {
+            menu.showInView(view)
+        }
     }
     
 }
@@ -110,7 +192,7 @@ extension StoriesViewController: UITableViewDataSource {
         cell.prepare(storyForIndexPath(indexPath))
         return cell
     }
-
+    
 }
 
 extension StoriesViewController: StoryCellDelegate {
@@ -119,8 +201,8 @@ extension StoriesViewController: StoryCellDelegate {
         let indexPath = tableView.indexPathForCell(cell)!
         let story = storyForIndexPath(indexPath)
         if story.type == .Story
-        && story.URL != nil {
-            navigationController?.pushViewController(ReadabilityViewContoller(story: story), animated: true)
+            && story.URL != nil {
+                navigationController?.pushViewController(ReadabilityViewContoller(story: story), animated: true)
         } else {
             navigationController?.pushViewController(CommentsViewController(story: story), animated: true)
         }
@@ -132,4 +214,3 @@ extension StoriesViewController: StoryCellDelegate {
         navigationController?.pushViewController(CommentsViewController(story: story), animated: true)
     }
 }
-

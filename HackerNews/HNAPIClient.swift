@@ -17,6 +17,10 @@ enum StoriesType: String {
     Show = "showstories",
     Ask = "askstories",
     Job = "jobstories"
+    static var allValues = [Top, New, Show, Ask, Job]
+    var title: String {
+        return rawValue.stringByReplacingOccurrencesOfString("stories", withString: " stories").capitalizedString
+    }
 }
 
 class HNAPIClient {
