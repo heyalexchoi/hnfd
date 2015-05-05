@@ -12,6 +12,7 @@ class StoriesViewController: UIViewController {
     
     var task: NSURLSessionTask?
     var stories = [Story]()
+    var storiesType: StoriesType = .Top
     let apiClient = HNAPIClient()
     let tableView = UITableView(frame: CGRectZero, style: .Plain)
     
@@ -47,6 +48,7 @@ class StoriesViewController: UIViewController {
                 "tableView": tableView])
         
         getTopStories(false)
+        
     }
     
     func refresh() {
@@ -57,7 +59,7 @@ class StoriesViewController: UIViewController {
         if stories.count < 1 { ProgressHUD.showHUDAddedTo(view, animated: true) }
         if refresh { offset = 0 }
         task?.cancel()
-        task = apiClient.getTopStories(limit, offset: offset) { [weak self] (stories, error) -> Void in
+        task = apiClient.getStories(storiesType, limit:limit, offset: offset) { [weak self] (stories, error) -> Void in
             ProgressHUD.hideHUDForView(self?.view, animated: true)
             self?.tableView.pullToRefreshView.stopAnimating()
             self?.tableView.infiniteScrollingView.stopAnimating()
@@ -65,17 +67,17 @@ class StoriesViewController: UIViewController {
                 self?.stories = refresh ? stories : self!.stories + stories
                 self?.offset = self!.offset + self!.limit
                 self?.tableView.reloadData()
-                
+/*
                 let data = NSKeyedArchiver.archivedDataWithRootObject(stories)
                 NSUserDefaults.standardUserDefaults().setObject(data, forKey: "stories")
                 
                 if let data = NSUserDefaults.standardUserDefaults().objectForKey("stories") as? NSData {
                     if let loadedStories = NSKeyedUnarchiver.unarchiveObjectWithData(data) as? [Story] {
-                        println(loadedStories)
+                        self?.stories = loadedStories
+                        self?.tableView.reloadData()
                     }
-                    
                 }
-                
+*/
                 
             } else {
                 UIAlertView(title: "Error getting top stories",

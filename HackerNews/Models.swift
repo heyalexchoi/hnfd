@@ -114,13 +114,15 @@ class Comment: NSObject, NSCoding {
             "time": time,
             "text": text,
             "deleted": deleted,
-            "children": children
+            "children": children,
+            "level": level
         ]
     }
     
     required convenience init(coder decoder: NSCoder) {
         let json: AnyObject = decoder.decodeObjectForKey("json")!
-        self.init(json:JSON(json))
+        let level = json["level"] as! Int
+        self.init(json:JSON(json), level:level)
     }
     
     func encodeWithCoder(coder: NSCoder) {

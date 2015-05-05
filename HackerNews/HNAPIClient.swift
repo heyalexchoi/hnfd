@@ -10,7 +10,14 @@ import Foundation
 import Alamofire
 import SwiftyJSON
 
-
+enum StoriesType: String {
+    case
+    Top = "topstories",
+    New = "newstories",
+    Show = "showstories",
+    Ask = "askstories",
+    Job = "jobstories"
+}
 
 class HNAPIClient {
     
@@ -18,9 +25,9 @@ class HNAPIClient {
     static let sharedClient = HNAPIClient()
     let responseProcessingQueue = NSOperationQueue()
     
-    func getTopStories(limit: Int, offset: Int, completion: (stories: [Story]?, error: NSError?) -> Void) -> Request {
+    func getStories(type: StoriesType, limit: Int, offset: Int, completion: (stories: [Story]?, error: NSError?) -> Void) -> Request {
         return Alamofire
-            .request(.GET, baseURLString + "/topstories", parameters: ["limit": limit, "offset": offset])
+            .request(.GET, baseURLString + "/\(type.rawValue)", parameters: ["limit": limit, "offset": offset])
             .responseJSON { [weak self] (_, _, json, error) -> Void in
                 if let error = error {
                     completion(stories: nil, error: error)
