@@ -167,7 +167,8 @@ extension StoriesViewController: StoryCellDelegate {
         let indexPath = tableView.indexPathForCell(cell)!
         let story = storyForIndexPath(indexPath)
         if story.type == .Story
-            && story.URL != nil {
+            && story.URL != nil
+            && !story.URL!.absoluteString!.isEmpty {
                 navigationController?.pushViewController(ReadabilityViewContoller(story: story), animated: true)
         } else {
             navigationController?.pushViewController(CommentsViewController(story: story), animated: true)

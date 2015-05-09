@@ -112,11 +112,11 @@ class StoryCell: UITableViewCell {
     
     func prepare(story: Story) {
         titleLabel.text = story.title
-        byLabel.text = story.by
-        commentsLabel.text = String(story.descendants)
-        scoreLabel.text = String(story.score)
-        timeLabel.text = String(story.date.timeAgoSinceNow())
-        URLLabel.text = story.URL?.absoluteString
+        byLabel.setText(story.by, attributes: TextAttributes.detailAttributes)
+        commentsLabel.setText(String(story.descendants), attributes: TextAttributes.detailAttributes)
+        scoreLabel.setText(String(story.score), attributes: TextAttributes.detailAttributes)
+        timeLabel.setText(String(story.date.timeAgoSinceNow()), attributes: TextAttributes.detailAttributes)
+        URLLabel.setText(story.URL?.absoluteString, attributes: TextAttributes.detailAttributes)
     }
     
     func articleButtonDidPress() {

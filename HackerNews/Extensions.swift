@@ -28,6 +28,10 @@ extension UIFont {
         return UIFont(name: "Avenir-Medium", size: 16)!
     }
     
+    class func detailFont() -> UIFont {
+        return UIFont(name: "Avenir-Light", size: 14)!
+    }
+    
     class func textReaderFont() -> UIFont {
         return UIFont(name: "Avenir-Book", size: 18)!
     }

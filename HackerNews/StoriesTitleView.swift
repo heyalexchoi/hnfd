@@ -51,7 +51,9 @@ class StoriesTitleView: UIView {
     
     override func didMoveToSuperview() {
         super.didMoveToSuperview()
-        frame = superview!.frame
+        if let superview = superview {
+            frame = superview.frame
+        }
     }
     
 }

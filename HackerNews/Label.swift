@@ -21,7 +21,17 @@ class Label: UILabel {
             if let text = text {
                 let attributedString = NSAttributedString(string: text, attributes: TextAttributes.textAttributes)
                 attributedText = attributedString
+            } else {
+                text = nil
             }
+        }
+    }
+    
+    func setText(string: String?, attributes: [String: NSObject]) {
+        if let string = string {
+            attributedText = NSAttributedString(string: string, attributes: attributes)
+        } else {
+            text = nil
         }
     }
 }
