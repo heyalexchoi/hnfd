@@ -16,8 +16,9 @@ enum StoriesType: String {
     New = "newstories",
     Show = "showstories",
     Ask = "askstories",
-    Job = "jobstories"
-    static var allValues = [Top, New, Show, Ask, Job]
+    Job = "jobstories",
+    Saved = "savedstories"
+    static var allValues = [Top, New, Show, Ask, Job, Saved]
     var title: String {
         return rawValue.stringByReplacingOccurrencesOfString("stories", withString: " stories").capitalizedString
     }

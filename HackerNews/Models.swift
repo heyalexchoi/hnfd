@@ -9,6 +9,10 @@
 import SwiftyJSON
 import DTCoreText
 
+func ==(l: Story, r: Story) -> Bool {
+    return l.id == r.id
+}
+
 class Story: NSObject, NSCoding {
     
     enum Type: String {
@@ -33,6 +37,7 @@ class Story: NSObject, NSCoding {
     let URL: NSURL?
     let children: [Comment]
     let date: NSDate
+    var saved = false
     
     init(json: JSON) {
         self.by = json["by"].stringValue
@@ -68,6 +73,7 @@ class Story: NSObject, NSCoding {
     required convenience init(coder decoder: NSCoder) {
         let json: AnyObject = decoder.decodeObjectForKey("json")!
         self.init(json:JSON(json))
+        saved = true
     }
     
     func encodeWithCoder(coder: NSCoder) {

@@ -6,16 +6,14 @@
 //  Copyright (c) 2015 Alex Choi. All rights reserved.
 //
 
-import NYXImagesKit
-import UIImage_Additions
+
 
 class StoriesTitleView: UIView {
     
     var title: String? {
         didSet {
             let attachment = NSTextAttachment()
-            let downChevron = UIImage.add_imageNamed("down_chevron", tintColor: UIColor.textColor(), style: ADDImageTintStyleKeepingAlpha).scaleToFitSize(CGSize(width: 15, height: 15))
-            attachment.image = downChevron
+            attachment.image = UIImage.downChevron()
             let attributedTitle = NSMutableAttributedString(string: title ?? "", attributes: TextAttributes.titleAttributes)
             attributedTitle.appendAttributedString(NSAttributedString(string: "  "))
             attributedTitle.appendAttributedString(NSAttributedString(attachment: attachment))

@@ -79,6 +79,16 @@ class StoriesViewController: UIViewController {
     func getStories(refresh: Bool) {
         if stories.count < 1 { ProgressHUD.showHUDAddedTo(view, animated: true) }
         if refresh { offset = 0 }
+
+        if storiesType == .Saved {
+            stories = savedStories
+            tableView.reloadData()
+            ProgressHUD.hideHUDForView(view, animated: true)
+            tableView.pullToRefreshView.stopAnimating()
+            tableView.infiniteScrollingView.stopAnimating()
+            return
+        }
+        
         task?.cancel()
         task = apiClient.getStories(storiesType, limit:limit, offset: offset) { [weak self] (stories, error) -> Void in
             ProgressHUD.hideHUDForView(self?.view, animated: true)
@@ -89,18 +99,6 @@ class StoriesViewController: UIViewController {
                 self?.stories = refresh ? stories : self!.stories + stories
                 self?.offset = self!.offset + self!.limit
                 self?.tableView.reloadData()
-                /*
-                let data = NSKeyedArchiver.archivedDataWithRootObject(stories)
-                NSUserDefaults.standardUserDefaults().setObject(data, forKey: "stories")
-                
-                if let data = NSUserDefaults.standardUserDefaults().objectForKey("stories") as? NSData {
-                if let loadedStories = NSKeyedUnarchiver.unarchiveObjectWithData(data) as? [Story] {
-                self?.stories = loadedStories
-                self?.tableView.reloadData()
-                }
-                }
-                */
-                
             } else {
                 UIAlertView(title: "Error getting top stories",
                     message: error?.localizedDescription,
@@ -112,6 +110,10 @@ class StoriesViewController: UIViewController {
     
     func storyForIndexPath(indexPath: NSIndexPath) -> Story {
         return stories[indexPath.item]
+    }
+    
+    func indexPathForStory(story: Story) -> NSIndexPath {
+        return NSIndexPath(forRow: find(stories, story)!, inSection: 0)
     }
     
     // MARK: - Menu
@@ -140,6 +142,43 @@ class StoriesViewController: UIViewController {
         }
     }
     
+    // MARK: - SAVED STORIES
+    
+    var savedStories: [Story] = {
+        if let data = NSUserDefaults.standardUserDefaults().objectForKey(StoriesType.Saved.rawValue) as? NSData {
+            if let loadedStories = NSKeyedUnarchiver.unarchiveObjectWithData(data) as? [Story] {
+                return loadedStories
+            }
+        }
+            return [Story]()
+    }()
+    
+    func saveStory(story: Story) {
+        
+        // TO DO: enforce uniqueness and pre-fetch article and comments
+        
+        // to properly display whether story is saved on reload, would need to compare saved stories to incoming stories 
+        story.saved = true
+        savedStories.append(story)
+        syncSavedStories()
+        tableView.reloadRowsAtIndexPaths([indexPathForStory(story)], withRowAnimation: .None)
+    }
+    
+    func unsaveStory(story: Story) {
+        story.saved = false
+        savedStories = savedStories.filter { $0 != story }
+        syncSavedStories()
+        if storiesType == .Saved {
+            stories = savedStories
+        }
+        tableView.reloadRowsAtIndexPaths([indexPathForStory(story)], withRowAnimation: .None)
+    }
+    
+    func syncSavedStories() {
+        let data = NSKeyedArchiver.archivedDataWithRootObject(savedStories)
+        NSUserDefaults.standardUserDefaults().setObject(data, forKey: StoriesType.Saved.rawValue)
+    }
+    
 }
 
 extension StoriesViewController: UITableViewDataSource {
@@ -163,9 +202,13 @@ extension StoriesViewController: UITableViewDataSource {
 
 extension StoriesViewController: StoryCellDelegate {
     
-    func cellDidSelectStoryArticle(cell: StoryCell) {
+    func storyForCell(cell: StoryCell) -> Story {
         let indexPath = tableView.indexPathForCell(cell)!
-        let story = storyForIndexPath(indexPath)
+        return storyForIndexPath(indexPath)
+    }
+    
+    func cellDidSelectStoryArticle(cell: StoryCell) {
+        let story = storyForCell(cell)
         if story.type == .Story
             && story.URL != nil
             && !story.URL!.absoluteString!.isEmpty {
@@ -176,8 +219,14 @@ extension StoriesViewController: StoryCellDelegate {
     }
     
     func cellDidSelectStoryComments(cell: StoryCell) {
-        let indexPath = tableView.indexPathForCell(cell)!
-        let story = storyForIndexPath(indexPath)
-        navigationController?.pushViewController(CommentsViewController(story: story), animated: true)
+        navigationController?.pushViewController(CommentsViewController(story: storyForCell(cell)), animated: true)
+    }
+    
+    func cellDidSwipeLeft(cell: StoryCell) {
+        unsaveStory(storyForCell(cell))
+    }
+    
+    func cellDidSwipeRight(cell: StoryCell) {
+        saveStory(storyForCell(cell))
     }
 }
