@@ -8,6 +8,4 @@
 
 import MBProgressHUD
 
-class ProgressHUD: MBProgressHUD {
-    
-}
+class ProgressHUD: MBProgressHUD {}

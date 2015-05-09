@@ -1,15 +1,16 @@
 //
-//  HNLabel.swift
+//  TextView.swift
 //  HackerNews
 //
-//  Created by Alex Choi on 4/17/15.
+//  Created by Alex Choi on 5/9/15.
 //  Copyright (c) 2015 Alex Choi. All rights reserved.
 //
 
-class Label: UILabel {
+
+class TextView: UITextView {
     
-    override init(frame: CGRect) {
-        super.init(frame: frame)
+    override init(frame: CGRect, textContainer: NSTextContainer?) {
+        super.init(frame: frame, textContainer: nil)
     }
     
     required init(coder aDecoder: NSCoder) {

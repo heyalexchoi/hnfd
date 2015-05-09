@@ -9,41 +9,6 @@
 import UIKit
 import REMenu
 
-class StoriesTitleView: UIView {
-    
-    var title: String? {
-        didSet {
-            label.attributedText = NSAttributedString(string: title ?? "", attributes: TextAttributes.titleAttributes)
-        }
-    }
-    let label = UILabel()
-    var tapHandler: (() -> Void)?
-    let tapRecognizer = UITapGestureRecognizer()
-    
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        
-        label.textAlignment = .Center
-        
-        tapRecognizer.addTarget(self, action: "handleTap")
-        addGestureRecognizer(tapRecognizer)
-        addSubview(label)
-
-        label.snp_makeConstraints { (make) -> Void in
-            make.edges.equalTo(self)
-        }
-    }
-
-    required init(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
-    func handleTap() {
-        tapHandler?()
-    }
-
-}
-
 class StoriesViewController: UIViewController {
     
     var task: NSURLSessionTask?
@@ -68,8 +33,7 @@ class StoriesViewController: UIViewController {
         super.viewDidLoad()
         
         setupMenu()
-        
-        titleView.frame = view.bounds // navigation item title views will basically size and position themselves. trying to do it yourself fucking sucks
+
         navigationItem.titleView = titleView
         titleView.tapHandler = { [weak self] () -> Void in
             self?.toggleMenu()
@@ -151,7 +115,9 @@ class StoriesViewController: UIViewController {
     }
     
     // MARK: - Menu
+    
     func setupMenu() {
+        
         menu.items = StoriesType.allValues.map { (type) -> REMenuItem in
             return REMenuItem(title: type.title, image: nil, highlightedImage: nil, action: { [weak self] (_) -> Void in
                 self?.menuDidFinishSelection(type)
