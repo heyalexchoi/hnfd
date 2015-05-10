@@ -56,15 +56,24 @@ extension UIImage {
     }
 }
 
-extension NSAttributedString {
+extension String {
     
-    convenience init(htmlString: String) {
-        let attributedString = NSAttributedString(data: (htmlString as NSString).dataUsingEncoding(NSUTF8StringEncoding)!,
-            options: [NSDocumentTypeDocumentAttribute: NSHTMLTextDocumentType, NSCharacterEncodingDocumentAttribute: NSUTF8StringEncoding],
-            documentAttributes: nil, error: nil)!
-        self.init(attributedString: attributedString)
+    static func htmlStringHyperlink(URL: NSURL, text: String) -> String {
+        let string: String = URL.absoluteString ?? ""
+        let quotedString = "\"" + string + "\""
+        return "<a href=\(quotedString)>\(text)</a>"
+    }
+}
+
+extension NSURL {
+    
+    func hyperlinkWithText(text: String) -> String {
+        return String.htmlStringHyperlink(self, text: text)
     }
     
+    func hyperlink() -> String {
+        return self.hyperlinkWithText(self.absoluteString ?? "")
+    }
 }
 
 func merge<K,V>(dicts: [K: V]...) -> [K: V] {

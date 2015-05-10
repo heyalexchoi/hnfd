@@ -11,6 +11,7 @@ import DTCoreText
 class ReadabilityViewContoller: UIViewController {
     
     var article: ReadabilityArticle?
+    var task: NSURLSessionTask?
     
     let apiClient = ReadabilityAPIClient()
     let story: Story
@@ -31,7 +32,7 @@ class ReadabilityViewContoller: UIViewController {
             view.setTranslatesAutoresizingMaskIntoConstraints(false)
             self.view.addSubview(view)
         }
-        
+
         view.twt_addConstraintsWithVisualFormatStrings([
             "H:|[textView]|",
             "V:|[textView]|"], views: [
@@ -46,6 +47,17 @@ class ReadabilityViewContoller: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
     
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        
+        let inset: CGFloat = 20
+        textView.contentInset = UIEdgeInsets(top: inset, left: inset, bottom: inset, right: inset)
+    }
+    
+    deinit {
+        task?.cancel()
+    }
+    
     func populateArticleInfo() {
         let articleInfo = NSMutableAttributedString()
         
@@ -55,15 +67,19 @@ class ReadabilityViewContoller: UIViewController {
         let submitter = NSAttributedString(string: "\n\nsubmitted \(story.date.timeAgoSinceNow()) by \(story.by)", attributes: merge(TextAttributes.textReaderAttributes, TextAttributes.centerAlignment))
         articleInfo.appendAttributedString(submitter)
         
-        let link = NSAttributedString(string: "\n\n\(articleURL.absoluteString!)", attributes: merge(TextAttributes.textReaderAttributes, TextAttributes.centerAlignment, TextAttributes.URLAttributes(articleURL)))
+        let hyperlink = articleURL.hyperlink()
+        let linkData = hyperlink.dataUsingEncoding(NSUTF8StringEncoding)
+        let link = NSAttributedString(HTMLData: linkData, options: [DTDefaultFontName: UIFont.textReaderFont().fontName, DTDefaultFontSize: UIFont.textReaderFont().pointSize, DTDefaultTextColor: UIColor.textColor()], documentAttributes: nil)
+        articleInfo.appendAttributedString(NSAttributedString(string: "\n\n"))
         articleInfo.appendAttributedString(link)
         
         textView.attributedString = articleInfo
     }
     
     func getReadabilityArticle() {
+        task?.cancel()
         ProgressHUD.showHUDAddedTo(view, animated: true)
-        apiClient.getParsedArticleForURL(articleURL, completion: { [weak self] (article, error) -> Void in
+        task = apiClient.getParsedArticleForURL(articleURL, completion: { [weak self] (article, error) -> Void in
             ProgressHUD.hideHUDForView(self?.view, animated: true)
             self?.article = article
             if let article = article,
@@ -74,21 +90,21 @@ class ReadabilityViewContoller: UIViewController {
                     attributedText.appendAttributedString(NSAttributedString(string: "\n\n", attributes: TextAttributes.textReaderAttributes))
                     attributedText.appendAttributedString(attributedContent)
                     strong_self.textView.attributedString = attributedText
-                    strong_self.textView.attributedTextContentView.edgeInsets = UIEdgeInsetsMake(20, 20, 20, 20)
             } else if let error = error {
                 UIAlertView(title: "Get Parsed Article Error",
                     message: error.localizedDescription,
                     delegate: nil,
                     cancelButtonTitle: "OK").show()
             }
-            })
+            }).task
     }
     
     func actionButtonDidPress() {
         presentViewController(UIActivityViewController(activityItems: [articleURL], applicationActivities: nil), animated: true, completion: nil)
     }
-    
+
 }
+
 
 extension ReadabilityViewContoller: UITextViewDelegate {
     
@@ -99,7 +115,7 @@ extension ReadabilityViewContoller: UITextViewDelegate {
     
 }
 
-extension ReadabilityViewContoller: DTAttributedTextContentViewDelegate, DTLazyImageViewDelegate {
+extension ReadabilityViewContoller: DTAttributedTextContentViewDelegate, DTLazyImageViewDelegate, DTWebVideoViewDelegate {
     
     func attributedTextContentView(attributedTextContentView: DTAttributedTextContentView!, viewForAttachment attachment: DTTextAttachment!, frame: CGRect) -> UIView! {
         if attachment.isKindOfClass(DTImageTextAttachment.self) {
@@ -107,6 +123,14 @@ extension ReadabilityViewContoller: DTAttributedTextContentViewDelegate, DTLazyI
             imageView.delegate = self
             imageView.url = attachment.contentURL
             return imageView
+        } else if attachment.isKindOfClass(DTIframeTextAttachment.self) {
+            if attachment.displaySize.width > attributedTextContentView.bounds.size.width {
+                let scale = frame.size.width / attributedTextContentView.bounds.size.width
+                attachment.displaySize = CGSize(width: attachment.displaySize.width / scale, height: attachment.displaySize.height / scale)
+            }
+            let videoView = DTWebVideoView(frame: frame)
+            videoView.attachment = attachment
+            return videoView
         }
         return nil
     }
@@ -128,12 +152,9 @@ extension ReadabilityViewContoller: DTAttributedTextContentViewDelegate, DTLazyI
     
     func attributedTextContentView(attributedTextContentView: DTAttributedTextContentView!, viewForLink url: NSURL!, identifier: String!, frame: CGRect) -> UIView! {
         let linkButton = DTLinkButton(frame: frame)
-//        let normalImage = attributedTextContentView.contentImageWithBounds(frame, options: DTCoreTextLayoutFrameDrawingOptions.DrawLinksHighlighted)
-//        linkButton.setImage(normalImage, forState: .Normal)
         linkButton.URL = url
         linkButton.minimumHitSize = CGSize(width: 25, height: 25)
         linkButton.addTarget(self, action: "linkButtonDidPress:", forControlEvents: .TouchUpInside)
-        println("made link button for url \(url)")
         return linkButton
     }
     
