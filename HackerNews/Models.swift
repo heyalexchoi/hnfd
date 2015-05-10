@@ -13,6 +13,12 @@ func ==(l: Story, r: Story) -> Bool {
     return l.id == r.id
 }
 
+extension Story: Hashable {
+    override var hashValue: Int {
+        return id.hashValue
+    }
+}
+
 class Story: NSObject, NSCoding {
     
     enum Type: String {
@@ -78,6 +84,17 @@ class Story: NSObject, NSCoding {
     
     func encodeWithCoder(coder: NSCoder) {
         coder.encodeObject(toJSON(), forKey: "json")
+    }
+    
+    override var hash: Int {
+        return hashValue
+    }
+    
+    override func isEqual(object: AnyObject?) -> Bool {
+        if let object = object as? Story {
+            return id == object.id
+        }
+        return false
     }
 }
 

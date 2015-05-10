@@ -23,6 +23,16 @@ class StoriesViewController: UIViewController {
     let titleView = StoriesTitleView()
     let menu = REMenu()
     
+    var savedStories: [Story] = {
+        if let data = NSUserDefaults.standardUserDefaults().objectForKey(StoriesType.Saved.rawValue) as? NSData {
+            if var loadedStories = NSKeyedUnarchiver.unarchiveObjectWithData(data) as? [Story] {
+                loadedStories = NSOrderedSet(array: loadedStories).array as! [Story]
+                return loadedStories
+            }
+        }
+        return [Story]()
+        }()
+    
     override var title: String? {
         didSet {
             titleView.title = title
@@ -67,11 +77,6 @@ class StoriesViewController: UIViewController {
         
     }
     
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-        
-    }
-    
     func refresh() {
         getStories(true)
     }
@@ -88,14 +93,21 @@ class StoriesViewController: UIViewController {
             tableView.infiniteScrollingView.stopAnimating()
             return
         }
-        
+
         task?.cancel()
         task = apiClient.getStories(storiesType, limit:limit, offset: offset) { [weak self] (stories, error) -> Void in
             ProgressHUD.hideHUDForView(self?.view, animated: true)
             self?.tableView.pullToRefreshView.stopAnimating()
             self?.tableView.infiniteScrollingView.stopAnimating()
             self?.title = self?.storiesType.title
-            if let stories = stories {
+            if let stories = stories,
+            strong_self = self {
+                stories.map { (story) -> Void in
+                    if let index = find(strong_self.savedStories, story) {
+                        story.saved = true
+                        strong_self.savedStories[index] = story
+                    }
+                }
                 self?.stories = refresh ? stories : self!.stories + stories
                 self?.offset = self!.offset + self!.limit
                 self?.tableView.reloadData()
@@ -144,20 +156,9 @@ class StoriesViewController: UIViewController {
     
     // MARK: - SAVED STORIES
     
-    var savedStories: [Story] = {
-        if let data = NSUserDefaults.standardUserDefaults().objectForKey(StoriesType.Saved.rawValue) as? NSData {
-            if let loadedStories = NSKeyedUnarchiver.unarchiveObjectWithData(data) as? [Story] {
-                return loadedStories
-            }
-        }
-            return [Story]()
-    }()
-    
     func saveStory(story: Story) {
-        
+        if story.saved { return }
         // TO DO: enforce uniqueness and pre-fetch article and comments
-        
-        // to properly display whether story is saved on reload, would need to compare saved stories to incoming stories
         story.saved = true
         savedStories.append(story)
         syncSavedStories()
