@@ -6,6 +6,7 @@
 //  Copyright (c) 2015 Alex Choi. All rights reserved.
 //
 
+import DTCoreText
 
 struct TextAttributes {
     
@@ -19,7 +20,7 @@ struct TextAttributes {
         return [NSParagraphStyleAttributeName: paragraphStyle]
     }()
     static func URLAttributes(URL: NSURL) -> [NSObject: AnyObject] {
-        return [NSLinkAttributeName: URL]
+        return [DTLinkAttribute: URL]
     }
 }
 

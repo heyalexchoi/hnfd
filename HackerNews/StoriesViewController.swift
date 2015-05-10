@@ -157,7 +157,7 @@ class StoriesViewController: UIViewController {
         
         // TO DO: enforce uniqueness and pre-fetch article and comments
         
-        // to properly display whether story is saved on reload, would need to compare saved stories to incoming stories 
+        // to properly display whether story is saved on reload, would need to compare saved stories to incoming stories
         story.saved = true
         savedStories.append(story)
         syncSavedStories()

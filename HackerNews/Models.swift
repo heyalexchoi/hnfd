@@ -152,17 +152,28 @@ struct ReadabilityArticle {
     let attributedContent: NSAttributedString
     
     init(json: JSON) {
-        self.content = json["content"].stringValue
-        self.domain = json["domain"].stringValue
-        self.author = json["author"].stringValue
-        self.URL = json["url"].URL
-        self.shortURL = json["short_url"].URL
-        self.title = json["title"].stringValue
-        self.excerpt = json["excerpt"].stringValue
-        self.wordCount = json["word_count"].intValue
-        self.totalPages = json["total_pages"].intValue
-        self.dek = json["dek"].stringValue
-        self.leadImageURL = json["lead_image_url"].URL
-        self.attributedContent = NSAttributedString(htmlString: self.content)
+        content = json["content"].stringValue
+        domain = json["domain"].stringValue
+        author = json["author"].stringValue
+        URL = json["url"].URL
+        shortURL = json["short_url"].URL
+        title = json["title"].stringValue
+        excerpt = json["excerpt"].stringValue
+        wordCount = json["word_count"].intValue
+        totalPages = json["total_pages"].intValue
+        dek = json["dek"].stringValue
+        leadImageURL = json["lead_image_url"].URL
+        let data = self.content.dataUsingEncoding(NSUTF8StringEncoding)!
+        
+        let attributedContent = data.length > 0 ? NSMutableAttributedString(HTMLData: data, options: [DTDefaultFontName: UIFont.textReaderFont().fontName, DTDefaultFontSize: UIFont.textReaderFont().pointSize, DTDefaultTextColor: UIColor.textColor()], documentAttributes: nil) : NSMutableAttributedString(string: "")
+        attributedContent.enumerateAttribute(NSAttachmentAttributeName, inRange: NSRange(location: 0, length: attributedContent.length), options: nil) { (attribute, range, stop) -> Void in
+            if let attachment = attribute as? DTImageTextAttachment {
+                let paragraphStyle = NSMutableParagraphStyle()
+                paragraphStyle.alignment = .Center
+                attributedContent.addAttribute(NSParagraphStyleAttributeName, value: paragraphStyle, range: range)
+            }
+        }
+        
+        self.attributedContent = attributedContent.copy() as! NSAttributedString
     }
 }
