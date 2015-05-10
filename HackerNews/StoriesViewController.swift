@@ -162,17 +162,23 @@ class StoriesViewController: UIViewController {
         story.saved = true
         savedStories.append(story)
         syncSavedStories()
-        tableView.reloadRowsAtIndexPaths([indexPathForStory(story)], withRowAnimation: .None)
+        tableView.reloadRowsAtIndexPaths([indexPathForStory(story)], withRowAnimation: .Right)
     }
     
     func unsaveStory(story: Story) {
+        if !story.saved { return }
+        tableView.beginUpdates()
+        let indexPath = indexPathForStory(story)
         story.saved = false
         savedStories = savedStories.filter { $0 != story }
         syncSavedStories()
         if storiesType == .Saved {
             stories = savedStories
+            tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .Left)
+        } else {
+            tableView.reloadRowsAtIndexPaths([indexPath], withRowAnimation: .Left)
         }
-        tableView.reloadRowsAtIndexPaths([indexPathForStory(story)], withRowAnimation: .None)
+        tableView.endUpdates()
     }
     
     func syncSavedStories() {
