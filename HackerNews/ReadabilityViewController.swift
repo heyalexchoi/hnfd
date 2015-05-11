@@ -14,6 +14,7 @@ class ReadabilityViewContoller: UIViewController {
     var task: NSURLSessionTask?
     
     let apiClient = ReadabilityAPIClient()
+    let cache = Cache.sharedCache()
     let story: Story
     let articleURL: NSURL
     
@@ -32,7 +33,7 @@ class ReadabilityViewContoller: UIViewController {
             view.setTranslatesAutoresizingMaskIntoConstraints(false)
             self.view.addSubview(view)
         }
-
+        
         view.twt_addConstraintsWithVisualFormatStrings([
             "H:|[textView]|",
             "V:|[textView]|"], views: [
@@ -79,30 +80,34 @@ class ReadabilityViewContoller: UIViewController {
     func getReadabilityArticle() {
         task?.cancel()
         ProgressHUD.showHUDAddedTo(view, animated: true)
-        task = apiClient.getParsedArticleForURL(articleURL, completion: { [weak self] (article, error) -> Void in
+        task = cache.articleForStory(story, completion: { [weak self] (article, error) -> Void in
             ProgressHUD.hideHUDForView(self?.view, animated: true)
             self?.article = article
-            if let article = article,
-                strong_self = self {
-                    let attributedContent = NSMutableAttributedString(attributedString: article.attributedContent)
-                    let attributedText = NSMutableAttributedString()
-                    attributedText.appendAttributedString(strong_self.textView.attributedString)
-                    attributedText.appendAttributedString(NSAttributedString(string: "\n\n", attributes: TextAttributes.textReaderAttributes))
-                    attributedText.appendAttributedString(attributedContent)
-                    strong_self.textView.attributedString = attributedText
+            if let article = article {
+                self?.finishLoadingArticle(article)
             } else if let error = error {
                 UIAlertView(title: "Get Parsed Article Error",
                     message: error.localizedDescription,
                     delegate: nil,
                     cancelButtonTitle: "OK").show()
             }
-            }).task
+            })
+        
+    }
+    
+    func finishLoadingArticle(article: ReadabilityArticle) {
+        let attributedContent = NSMutableAttributedString(attributedString: article.attributedContent)
+        let attributedText = NSMutableAttributedString()
+        attributedText.appendAttributedString(textView.attributedString)
+        attributedText.appendAttributedString(NSAttributedString(string: "\n\n", attributes: TextAttributes.textReaderAttributes))
+        attributedText.appendAttributedString(attributedContent)
+        textView.attributedString = attributedText
     }
     
     func actionButtonDidPress() {
         presentViewController(UIActivityViewController(activityItems: [articleURL], applicationActivities: nil), animated: true, completion: nil)
     }
-
+    
 }
 
 

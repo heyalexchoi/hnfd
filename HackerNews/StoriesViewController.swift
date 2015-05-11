@@ -15,6 +15,7 @@ class StoriesViewController: UIViewController {
     var stories = [Story]()
     var storiesType: StoriesType = .Top
     let apiClient = HNAPIClient()
+    let cache = Cache.sharedCache()
     let tableView = UITableView(frame: CGRectZero, style: .Plain)
     
     let limit = 25
@@ -43,7 +44,7 @@ class StoriesViewController: UIViewController {
         super.viewDidLoad()
         
         setupMenu()
-
+        
         navigationItem.titleView = titleView
         titleView.tapHandler = { [weak self] () -> Void in
             self?.toggleMenu()
@@ -84,7 +85,7 @@ class StoriesViewController: UIViewController {
     func getStories(refresh: Bool) {
         if stories.count < 1 { ProgressHUD.showHUDAddedTo(view, animated: true) }
         if refresh { offset = 0 }
-
+        
         if storiesType == .Saved {
             stories = savedStories
             tableView.reloadData()
@@ -93,7 +94,7 @@ class StoriesViewController: UIViewController {
             tableView.infiniteScrollingView.stopAnimating()
             return
         }
-
+        
         task?.cancel()
         task = apiClient.getStories(storiesType, limit:limit, offset: offset) { [weak self] (stories, error) -> Void in
             ProgressHUD.hideHUDForView(self?.view, animated: true)
@@ -101,16 +102,17 @@ class StoriesViewController: UIViewController {
             self?.tableView.infiniteScrollingView.stopAnimating()
             self?.title = self?.storiesType.title
             if let stories = stories,
-            strong_self = self {
-                stories.map { (story) -> Void in
-                    if let index = find(strong_self.savedStories, story) {
-                        story.saved = true
-                        strong_self.savedStories[index] = story
+                strong_self = self {
+                    stories.map { (story) -> Void in
+                        if let index = find(strong_self.savedStories, story) {
+                            story.saved = true
+                            strong_self.savedStories[index] = story
+                            strong_self.fetchAffiliatedStoryData(story)
+                        }
                     }
-                }
-                self?.stories = refresh ? stories : self!.stories + stories
-                self?.offset = self!.offset + self!.limit
-                self?.tableView.reloadData()
+                    self?.stories = refresh ? stories : self!.stories + stories
+                    self?.offset = self!.offset + self!.limit
+                    self?.tableView.reloadData()
             } else {
                 UIAlertView(title: "Error getting top stories",
                     message: error?.localizedDescription,
@@ -131,7 +133,6 @@ class StoriesViewController: UIViewController {
     // MARK: - Menu
     
     func setupMenu() {
-        
         menu.items = StoriesType.allValues.map { (type) -> REMenuItem in
             return REMenuItem(title: type.title, image: nil, highlightedImage: nil, action: { [weak self] (_) -> Void in
                 self?.menuDidFinishSelection(type)
@@ -158,11 +159,11 @@ class StoriesViewController: UIViewController {
     
     func saveStory(story: Story) {
         if story.saved { return }
-        // TO DO: enforce uniqueness and pre-fetch article and comments
         story.saved = true
         savedStories.append(story)
         syncSavedStories()
         tableView.reloadRowsAtIndexPaths([indexPathForStory(story)], withRowAnimation: .Right)
+        fetchAffiliatedStoryData(story)
     }
     
     func unsaveStory(story: Story) {
@@ -184,6 +185,11 @@ class StoriesViewController: UIViewController {
     func syncSavedStories() {
         let data = NSKeyedArchiver.archivedDataWithRootObject(savedStories)
         NSUserDefaults.standardUserDefaults().setObject(data, forKey: StoriesType.Saved.rawValue)
+    }
+    
+    func fetchAffiliatedStoryData(story: Story) {
+        cache.articleForStory(story, completion: nil)
+        cache.fullStoryForStory(story, completion: nil)
     }
     
 }

@@ -12,3 +12,4 @@
 #import <REMenu/REMenu.h>
 #import <NYXImagesKit/NYXImagesKit.h>
 #import <UIImage_Additions/UIImage+Additions.h>
+#import <TMCache/TMCache.h>

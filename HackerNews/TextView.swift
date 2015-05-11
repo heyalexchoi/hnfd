@@ -6,7 +6,6 @@
 //  Copyright (c) 2015 Alex Choi. All rights reserved.
 //
 
-
 class TextView: UITextView {
     
     override init(frame: CGRect, textContainer: NSTextContainer?) {

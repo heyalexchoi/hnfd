@@ -6,8 +6,6 @@
 //  Copyright (c) 2015 Alex Choi. All rights reserved.
 //
 
-
-
 class StoriesTitleView: UIView {
     
     var title: String? {
