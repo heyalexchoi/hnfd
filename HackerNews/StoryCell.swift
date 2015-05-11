@@ -62,6 +62,7 @@ class StoryCell: UITableViewCell {
         contentView.addGestureRecognizer(rightSwipeRecognizer)
         
         titleLabel.numberOfLines = 0
+        titleLabel.preferredMaxLayoutWidth = contentView.bounds.size.width - 60 // comments container width 40 + 5 + 15 padding
         titleLabel.lineBreakMode = .ByWordWrapping
         
         for label in [titleLabel, byLabel, scoreLabel, timeLabel, URLLabel] {
