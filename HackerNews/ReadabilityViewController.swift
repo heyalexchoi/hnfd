@@ -100,7 +100,12 @@ class ReadabilityViewContoller: UIViewController {
         let attributedText = NSMutableAttributedString()
         attributedText.appendAttributedString(textView.attributedString)
         attributedText.appendAttributedString(NSAttributedString(string: "\n\n", attributes: TextAttributes.textReaderAttributes))
+        
+        let paragraphStyle = NSMutableParagraphStyle() // work around. DTAttributedTextView doesn't seem to display line spacing correctly
+        paragraphStyle.minimumLineHeight = UIFont.textReaderFont().pointSize * 1.3
+        attributedContent.addAttribute(NSParagraphStyleAttributeName, value: paragraphStyle, range: NSRange(location: 0, length: attributedContent.length))
         attributedText.appendAttributedString(attributedContent)
+
         textView.attributedString = attributedText
     }
     
@@ -160,6 +165,7 @@ extension ReadabilityViewContoller: DTAttributedTextContentViewDelegate, DTLazyI
         linkButton.URL = url
         linkButton.minimumHitSize = CGSize(width: 25, height: 25)
         linkButton.addTarget(self, action: "linkButtonDidPress:", forControlEvents: .TouchUpInside)
+        linkButton.GUID = identifier
         return linkButton
     }
     
