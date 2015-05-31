@@ -17,7 +17,7 @@ class CommentsViewController: UIViewController {
     }
     
     var flattenedComments = [Comment]()
-    let apiClient = HNAPIClient()
+    let cache = Cache.sharedCache()
     let treeView = UITableView(frame: CGRectZero, style: .Plain)
     
     init(story: Story) {
@@ -45,26 +45,34 @@ class CommentsViewController: UIViewController {
         treeView.setTranslatesAutoresizingMaskIntoConstraints(false)
         view.addSubview(treeView)
         
+        treeView.addPullToRefreshWithActionHandler { [weak self] () -> Void in
+            self?.getFullStory(true)
+        }
+        
         view.twt_addConstraintsWithVisualFormatStrings([
             "H:|[treeView]|",
             "V:|[treeView]|"], views: [
                 "treeView": treeView])
         
-        getFullStory()
+        getFullStory(false)
         
     }
     
-    func getFullStory() {
-        ProgressHUD.showHUDAddedTo(view, animated: true)
-        apiClient.getStory(story.id, completion: { [weak self] (story, error) -> Void in
+    func getFullStory(refresh: Bool) {
+        if !refresh { ProgressHUD.showHUDAddedTo(view, animated: true) }
+        cache.fullStoryForStory(story, preference: refresh ? .FetchRemoteDataAndUpdateCache : .ReturnCacheDataElseLoad) { [weak self] (story, error) -> Void in
             ProgressHUD.hideHUDForView(self?.view, animated: true)
+            self?.treeView.pullToRefreshView.stopAnimating()
             if let error = error {
-                println(error)
+                UIAlertView(title: "Comments Error",
+                    message: error.localizedDescription,
+                    delegate: nil,
+                    cancelButtonTitle: "OK").show()
             } else if let story = story {
                 self?.story = story
                 self?.treeView.reloadData()
             }
-            })
+        }
     }
 
     func flatten(comments: [Comment]) -> [Comment] {

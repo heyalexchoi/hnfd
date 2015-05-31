@@ -6,9 +6,14 @@
 //  Copyright (c) 2015 Alex Choi. All rights reserved.
 //
 
+import NYXImagesKit
+import UIImage_Additions
+
 protocol StoryCellDelegate: class {
     func cellDidSelectStoryArticle(cell: StoryCell)
     func cellDidSelectStoryComments(cell: StoryCell)
+    func cellDidSwipeLeft(cell: StoryCell)
+    func cellDidSwipeRight(cell: StoryCell)
 }
 
 class StoryCell: UITableViewCell {
@@ -28,11 +33,17 @@ class StoryCell: UITableViewCell {
     let URLLabel = Label()
     let commentsLabel = Label()
     
+    let pinnedImageView = UIImageView(image: UIImage.pushPin())
+    
     let scoreBySpace = UIView()
     let byTimeSpace = UIView()
     
     let articleButton = UIButton()
     let commentsButton = UIButton()
+    
+    let leftSwipeRecognizer = UISwipeGestureRecognizer()
+    let rightSwipeRecognizer = UISwipeGestureRecognizer()
+
     
     override init(style: UITableViewCellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -43,7 +54,15 @@ class StoryCell: UITableViewCell {
         layoutMargins = UIEdgeInsetsZero
         preservesSuperviewLayoutMargins = false
         
+        leftSwipeRecognizer.direction = .Left
+        rightSwipeRecognizer.direction = .Right
+        leftSwipeRecognizer.addTarget(self, action: "didSwipeLeft")
+        rightSwipeRecognizer.addTarget(self, action: "didSwipeRight")
+        contentView.addGestureRecognizer(leftSwipeRecognizer)
+        contentView.addGestureRecognizer(rightSwipeRecognizer)
+        
         titleLabel.numberOfLines = 0
+        titleLabel.preferredMaxLayoutWidth = contentView.bounds.size.width - 60 // comments container width 40 + 5 + 15 padding
         titleLabel.lineBreakMode = .ByWordWrapping
         
         for label in [titleLabel, byLabel, scoreLabel, timeLabel, URLLabel] {
@@ -58,6 +77,9 @@ class StoryCell: UITableViewCell {
         
         commentsLabel.setTranslatesAutoresizingMaskIntoConstraints(false)
         commentsContainer.addSubview(commentsLabel)
+        
+        pinnedImageView.setTranslatesAutoresizingMaskIntoConstraints(false)
+        commentsContainer.addSubview(pinnedImageView)
         
         articleContainer.setTranslatesAutoresizingMaskIntoConstraints(false)
         contentView.addSubview(articleContainer)
@@ -91,6 +113,11 @@ class StoryCell: UITableViewCell {
         commentsContainer.twt_addHorizontalCenteringConstraintWithView(commentsLabel)
         commentsContainer.twt_addVerticalCenteringConstraintWithView(commentsLabel)
         
+        pinnedImageView.snp_makeConstraints { (make) -> Void in
+            make.top.equalTo(commentsContainer).offset(10)
+            make.right.equalTo(commentsContainer).offset(-10)
+        }
+        
         contentView.backgroundColor = UIColor.backgroundColor()
         contentView.twt_addVerticalCenteringConstraintWithView(articleContainer)
         contentView.twt_addConstraintsWithVisualFormatStrings([
@@ -112,11 +139,12 @@ class StoryCell: UITableViewCell {
     
     func prepare(story: Story) {
         titleLabel.text = story.title
-        byLabel.text = story.by
-        commentsLabel.text = String(story.descendants)
-        scoreLabel.text = String(story.score)
-        timeLabel.text = String(story.date.timeAgoSinceNow())
-        URLLabel.text = story.URL?.absoluteString
+        byLabel.setText(story.by, attributes: TextAttributes.detailAttributes)
+        commentsLabel.setText(String(story.descendants), attributes: TextAttributes.detailAttributes)
+        scoreLabel.setText(String(story.score), attributes: TextAttributes.detailAttributes)
+        timeLabel.setText(String(story.date.timeAgoSinceNow()), attributes: TextAttributes.detailAttributes)
+        URLLabel.setText(story.URL?.absoluteString, attributes: TextAttributes.detailAttributes)
+        pinnedImageView.hidden = !story.saved
     }
     
     func articleButtonDidPress() {
@@ -125,5 +153,13 @@ class StoryCell: UITableViewCell {
     
     func commentsButtonDidPress() {
         delegate?.cellDidSelectStoryComments(self)
+    }
+    
+    func didSwipeLeft() {
+        delegate?.cellDidSwipeLeft(self)
+    }
+    
+    func didSwipeRight() {
+        delegate?.cellDidSwipeRight(self)
     }
 }

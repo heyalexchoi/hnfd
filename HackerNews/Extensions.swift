@@ -6,6 +6,9 @@
 //  Copyright (c) 2015 Alex Choi. All rights reserved.
 //
 
+import NYXImagesKit
+import UIImage_Additions
+
 extension UIColor {
     
     class func textColor() -> UIColor {
@@ -28,6 +31,10 @@ extension UIFont {
         return UIFont(name: "Avenir-Medium", size: 16)!
     }
     
+    class func detailFont() -> UIFont {
+        return UIFont(name: "Avenir-Light", size: 14)!
+    }
+    
     class func textReaderFont() -> UIFont {
         return UIFont(name: "Avenir-Book", size: 18)!
     }
@@ -38,15 +45,35 @@ extension UIFont {
 
 }
 
-extension NSAttributedString {
+extension UIImage {
     
-    convenience init(htmlString: String) {
-        let attributedString = NSAttributedString(data: (htmlString as NSString).dataUsingEncoding(NSUTF8StringEncoding)!,
-            options: [NSDocumentTypeDocumentAttribute: NSHTMLTextDocumentType, NSCharacterEncodingDocumentAttribute: NSUTF8StringEncoding],
-            documentAttributes: nil, error: nil)!
-        self.init(attributedString: attributedString)
+    class func downChevron() -> UIImage {
+        return UIImage.add_imageNamed("down_chevron", tintColor: UIColor.textColor(), style: ADDImageTintStyleKeepingAlpha).scaleToFitSize(CGSize(width: 15, height: 15))
     }
     
+    class func pushPin() -> UIImage {
+        return UIImage.add_imageNamed("push_pin_4", tintColor: UIColor.textColor(), style: ADDImageTintStyleKeepingAlpha).scaleToFitSize(CGSize(width: 15, height: 15))
+    }
+}
+
+extension String {
+    
+    static func htmlStringHyperlink(URL: NSURL, text: String) -> String {
+        let string: String = URL.absoluteString ?? ""
+        let quotedString = "\"" + string + "\""
+        return "<a href=\(quotedString)>\(text)</a>"
+    }
+}
+
+extension NSURL {
+    
+    func hyperlinkWithText(text: String) -> String {
+        return String.htmlStringHyperlink(self, text: text)
+    }
+    
+    func hyperlink() -> String {
+        return self.hyperlinkWithText(self.absoluteString ?? "")
+    }
 }
 
 func merge<K,V>(dicts: [K: V]...) -> [K: V] {

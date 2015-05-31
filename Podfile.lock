@@ -14,11 +14,14 @@ PODS:
   - DTFoundation/UIKit (1.7.5):
     - DTFoundation/Core
   - MBProgressHUD (0.9.1)
+  - NYXImagesKit (2.3)
   - REMenu (1.10)
   - SnapKit (0.11.0)
   - SVPullToRefresh (0.4.1)
   - SwiftyJSON (2.2.0)
+  - TMCache (2.1.0)
   - TWTToast/UIKit/AutoLayout (0.15)
+  - UIImage+Additions (2.0.1)
   - UIImage-Helpers (0.0.3)
 
 DEPENDENCIES:
@@ -27,12 +30,15 @@ DEPENDENCIES:
   - DateTools
   - DTCoreText (from `https://github.com/davbeck/DTCoreText.git`)
   - MBProgressHUD
+  - NYXImagesKit
   - REMenu
   - SnapKit
   - SVPullToRefresh
   - SwiftyJSON (from `https://github.com/SwiftyJSON/SwiftyJSON.git`)
+  - TMCache
   - TWTToast/UIKit/AutoLayout (from `https://github.com/twotoasters/Toast.git`, branch
     `master`)
+  - UIImage+Additions
   - UIImage-Helpers
 
 EXTERNAL SOURCES:
@@ -62,11 +68,14 @@ SPEC CHECKSUMS:
   DTCoreText: f64c23e99805671621cc059e7502c8bb08aad14f
   DTFoundation: 1d28080c20c3da041706545363f8238ab53a6204
   MBProgressHUD: c47f2c166c126cf2ce36498d80f33e754d4e93ad
+  NYXImagesKit: 8163e3335a40eaa173ca5bbbf81fafb57d3947eb
   REMenu: 30dad195930adf6c5eeb8041e3257aa60bf9fa49
   SnapKit: 5194d53cee209d337a989919ff66a70b7aa3dda3
   SVPullToRefresh: ba2e718695a43253d8bea6852d2960097dc15d8c
   SwiftyJSON: 0b3e6c07af17ff745e77e8e9984097b55c956e5c
+  TMCache: 95ebcc9b3c7e90fb5fd8fc3036cba3aa781c9bed
   TWTToast: 0da7f209a5f2410332ac84b0e0d6f63964c1ff2a
+  UIImage+Additions: e4e15b8dae4aea5fa9016964c1af6344431fd1e3
   UIImage-Helpers: 06b04a42bdd222844035602e87e936765c80f620
 
-COCOAPODS: 0.36.4
+COCOAPODS: 0.37.1

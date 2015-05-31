@@ -16,8 +16,9 @@ enum StoriesType: String {
     New = "newstories",
     Show = "showstories",
     Ask = "askstories",
-    Job = "jobstories"
-    static var allValues = [Top, New, Show, Ask, Job]
+    Job = "jobstories",
+    Saved = "savedstories"
+    static var allValues = [Top, New, Show, Ask, Job, Saved]
     var title: String {
         return rawValue.stringByReplacingOccurrencesOfString("stories", withString: " stories").capitalizedString
     }
@@ -26,7 +27,6 @@ enum StoriesType: String {
 class HNAPIClient {
     
     let baseURLString = Constants.HNAPIBaseURLString
-    static let sharedClient = HNAPIClient()
     let responseProcessingQueue = NSOperationQueue()
     
     func getStories(type: StoriesType, limit: Int, offset: Int, completion: (stories: [Story]?, error: NSError?) -> Void) -> Request {
@@ -49,11 +49,16 @@ class HNAPIClient {
     func getStory(id: Int, completion: (story: Story?, error: NSError?) -> Void) -> Request {
         return Alamofire
             .request(.GET, baseURLString + "/items/\(id)")
-            .responseJSON { (_, _, json, error) -> Void in
+            .responseJSON { [weak self] (_, _, json, error) -> Void in
                 if let error = error {
                     completion(story: nil, error: error)
                 } else if let json: AnyObject = json {
-                    completion(story: Story(json: JSON(json)), error: nil)
+                    self?.responseProcessingQueue.addOperationWithBlock({ () -> Void in
+                        let story = Story(json: JSON(json))
+                        NSOperationQueue.mainQueue().addOperationWithBlock({ () -> Void in
+                            completion(story: story, error: nil)
+                        })
+                    })
                 }
         }
     }
