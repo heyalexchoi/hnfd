@@ -10,6 +10,11 @@ import TMCache
 
 let errorDomain = "HNFD Error Domain"
 
+enum CacheFetchPreference {
+    case ReturnCacheDataElseLoad,
+    FetchRemoteDataAndUpdateCache
+}
+
 class Cache: TMCache {
     
     let readabilityAPIClient = ReadabilityAPIClient()
@@ -69,29 +74,40 @@ class Cache: TMCache {
         return task
     }
     /*!
-    Fetches full story from network. If story is saved, updates value in cache.
-    If story could not be fetched, falls back on cached value if available. 
-    If no cached value, completes with any fetching related errors.
-    
-    TO DO: change behavior depending on reachability - fetch immediately from cache if connectivity is poor.
+    Get full story with comments for a story. 
+    Options allow user to prefer either cached or remote data.
     */
-    func fullStoryForStory(story: Story, completion: ((story: Story?, error: NSError?) -> Void)?) -> NSURLSessionTask  {
-        return hnAPIClient.getStory(story.id, completion: { [weak self] (fetchedStory, error) -> Void in
-            if let fetchedStory = fetchedStory {
-                completion?(story: fetchedStory, error: nil)
-                if story.saved {
-                    self?.setObject(fetchedStory, forKey: story.storyCacheKey, block: nil)
+    func fullStoryForStory(story: Story, preference: CacheFetchPreference, completion: ((story: Story?, error: NSError?) -> Void)?) -> NSURLSessionTask?  {
+        
+        switch preference {
+            
+        case .FetchRemoteDataAndUpdateCache:
+            return hnAPIClient.getStory(story.id, completion: { [weak self] (fetchedStory, error) -> Void in
+                if let fetchedStory = fetchedStory {
+                    if story.saved { self?.setObject(fetchedStory, forKey: story.storyCacheKey, block: nil) }
+                    completion?(story: fetchedStory, error: nil)
+                } else if let error = error {
+                    completion?(story: nil, error: error)
                 }
-            } else {
-                self?.cachedStory(story, completion: { (story) -> Void in
-                    if let story = story {
-                        completion?(story: story, error: nil)
-                    } else if let error = error {
-                        completion?(story: nil, error: error)
-                    }
+                }).task
+            
+        case .ReturnCacheDataElseLoad:
+            cachedStory(story, completion: { [weak self] (cachedStory) -> Void in
+                if let cachedStory = cachedStory {
+                    completion?(story: cachedStory, error: nil)
+                } else {
+                    self?.hnAPIClient.getStory(story.id, completion: { (fetchedStory, error) -> Void in
+                        if let fetchedStory = fetchedStory {
+                            if story.saved { self?.setObject(fetchedStory, forKey: story.storyCacheKey, block: nil) }
+                            completion?(story: fetchedStory, error: nil)
+                        } else if let error = error {
+                            completion?(story: nil, error: error)
+                        }
+                    })
+                }
                 })
-            }
-            }).task
+            return nil
+        }
     }
     
 }

@@ -13,7 +13,6 @@ class ReadabilityViewContoller: UIViewController {
     var article: ReadabilityArticle?
     var task: NSURLSessionTask?
     
-    let apiClient = ReadabilityAPIClient()
     let cache = Cache.sharedCache()
     let story: Story
     let articleURL: NSURL
@@ -86,7 +85,7 @@ class ReadabilityViewContoller: UIViewController {
             if let article = article {
                 self?.finishLoadingArticle(article)
             } else if let error = error {
-                UIAlertView(title: "Get Parsed Article Error",
+                UIAlertView(title: "Readability Article Error",
                     message: error.localizedDescription,
                     delegate: nil,
                     cancelButtonTitle: "OK").show()

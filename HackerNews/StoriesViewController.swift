@@ -114,10 +114,10 @@ class StoriesViewController: UIViewController {
                     self?.offset = self!.offset + self!.limit
                     self?.tableView.reloadData()
             } else {
-                UIAlertView(title: "Error getting top stories",
+                UIAlertView(title: "Stories Error",
                     message: error?.localizedDescription,
                     delegate: nil,
-                    cancelButtonTitle: "OK")
+                    cancelButtonTitle: "OK").show()
             }
             }.task
     }
@@ -160,7 +160,7 @@ class StoriesViewController: UIViewController {
     func saveStory(story: Story) {
         if story.saved { return }
         story.saved = true
-        savedStories.append(story)
+        savedStories.insert(story, atIndex: 0)
         syncSavedStories()
         tableView.reloadRowsAtIndexPaths([indexPathForStory(story)], withRowAnimation: .Right)
         fetchAffiliatedStoryData(story)
@@ -189,7 +189,7 @@ class StoriesViewController: UIViewController {
     
     func fetchAffiliatedStoryData(story: Story) {
         cache.articleForStory(story, completion: nil)
-        cache.fullStoryForStory(story, completion: nil)
+        cache.fullStoryForStory(story, preference: .FetchRemoteDataAndUpdateCache, completion: nil)
     }
     
 }
