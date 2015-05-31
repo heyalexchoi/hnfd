@@ -45,6 +45,10 @@ class CommentsViewController: UIViewController {
         treeView.setTranslatesAutoresizingMaskIntoConstraints(false)
         view.addSubview(treeView)
         
+        treeView.addPullToRefreshWithActionHandler { [weak self] () -> Void in
+            self?.getFullStory(true)
+        }
+        
         view.twt_addConstraintsWithVisualFormatStrings([
             "H:|[treeView]|",
             "V:|[treeView]|"], views: [
@@ -55,9 +59,10 @@ class CommentsViewController: UIViewController {
     }
     
     func getFullStory(refresh: Bool) {
-        if story.kids.count > story.children.count { ProgressHUD.showHUDAddedTo(view, animated: true) }
+        if !refresh { ProgressHUD.showHUDAddedTo(view, animated: true) }
         cache.fullStoryForStory(story, preference: refresh ? .FetchRemoteDataAndUpdateCache : .ReturnCacheDataElseLoad) { [weak self] (story, error) -> Void in
             ProgressHUD.hideHUDForView(self?.view, animated: true)
+            self?.treeView.pullToRefreshView.stopAnimating()
             if let error = error {
                 UIAlertView(title: "Comments Error",
                     message: error.localizedDescription,

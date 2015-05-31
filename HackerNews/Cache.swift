@@ -22,7 +22,9 @@ class Cache: TMCache {
     
     func cachedStory(story: Story, completion: (Story?) -> Void) {
         objectForKey(story.storyCacheKey, block: { (Cache, key, value) -> Void in
-            completion(value as? Story)
+            NSOperationQueue.mainQueue().addOperationWithBlock({ () -> Void in
+                completion(value as? Story)
+            })
         })
     }
     
@@ -34,7 +36,9 @@ class Cache: TMCache {
     
     func cachedArticle(story: Story, completion: (ReadabilityArticle?) -> Void) {
         objectForKey(story.articleCacheKey, block: { (cache, key, value) -> Void in
-            completion(value as? ReadabilityArticle)
+            NSOperationQueue.mainQueue().addOperationWithBlock({ () -> Void in
+                completion(value as? ReadabilityArticle)
+            })
         })
     }
     
@@ -74,7 +78,7 @@ class Cache: TMCache {
         return task
     }
     /*!
-    Get full story with comments for a story. 
+    Get full story with comments for a story.
     Options allow user to prefer either cached or remote data.
     */
     func fullStoryForStory(story: Story, preference: CacheFetchPreference, completion: ((story: Story?, error: NSError?) -> Void)?) -> NSURLSessionTask?  {
