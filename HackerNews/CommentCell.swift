@@ -62,8 +62,6 @@ class CommentCell: UITableViewCell {
         indentationWidthConstraint.constant = CGFloat((level + 2) * 15)
         byLabel.text = comment.by
         timeLabel.text = comment.date.timeAgoSinceNow()
-        var attributedText = NSMutableAttributedString(attributedString: comment.attributedText)
-        attributedText.addAttributes(TextAttributes.textReaderAttributes, range: NSRange(location: 0, length: attributedText.length))
-        textView.attributedText = attributedText
+        textView.attributedText = comment.attributedText
     }
 }

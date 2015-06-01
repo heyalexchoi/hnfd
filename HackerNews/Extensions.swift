@@ -9,6 +9,10 @@
 import NYXImagesKit
 import UIImage_Additions
 
+struct Shared {
+    static let prototypeView = UIView()
+}
+
 extension UIColor {
     
     class func textColor() -> UIColor {
@@ -21,6 +25,10 @@ extension UIColor {
     
     class func separatorColor() -> UIColor {
         return UIColor.coolGrayColor()
+    }
+    
+    class func tintColor() -> UIColor {
+        return Shared.prototypeView.tintColor
     }
     
 }

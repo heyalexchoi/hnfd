@@ -8,6 +8,7 @@
 
 import UIKit
 
+
 class CommentsViewController: UIViewController {
     
     var story: Story {
@@ -19,9 +20,11 @@ class CommentsViewController: UIViewController {
     var flattenedComments = [Comment]()
     let cache = Cache.sharedCache()
     let treeView = UITableView(frame: CGRectZero, style: .Plain)
+    let header: CommentsHeaderView
     
     init(story: Story) {
         self.story = story
+        header = CommentsHeaderView(story: story)
         super.init(nibName:nil, bundle: nil)
     }
     
@@ -32,7 +35,9 @@ class CommentsViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        title = story.title
+        if let URL = story.URL {
+            navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .Action, target: self, action: "actionButtonDidPress")
+        }
         
         treeView.rowHeight = UITableViewAutomaticDimension
         treeView.estimatedRowHeight = 200
@@ -49,6 +54,8 @@ class CommentsViewController: UIViewController {
             self?.getFullStory(true)
         }
         
+        header.linkLabel.delegate = self
+        
         view.twt_addConstraintsWithVisualFormatStrings([
             "H:|[treeView]|",
             "V:|[treeView]|"], views: [
@@ -56,6 +63,12 @@ class CommentsViewController: UIViewController {
         
         getFullStory(false)
         
+    }
+    
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        treeView.tableHeaderView = header
+        header.frame = CGRect(origin: CGPointZero, size: header.systemLayoutSizeFittingSize(UILayoutFittingCompressedSize))
     }
     
     func getFullStory(refresh: Bool) {
@@ -83,6 +96,12 @@ class CommentsViewController: UIViewController {
                 return [comment]
             }
             .flatMap { $0 }
+    }
+    
+    func actionButtonDidPress() {
+        if let URL = story.URL {
+            presentViewController(UIActivityViewController(activityItems: [URL], applicationActivities: nil), animated: true, completion: nil)
+        }
     }
     
 }

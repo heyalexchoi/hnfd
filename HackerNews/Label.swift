@@ -27,7 +27,7 @@ class Label: UILabel {
         }
     }
     
-    func setText(string: String?, attributes: [String: NSObject]) {
+    func setText(string: String?, attributes: [String: AnyObject]) {
         if let string = string {
             attributedText = NSAttributedString(string: string, attributes: attributes)
         } else {
