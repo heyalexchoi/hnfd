@@ -38,7 +38,7 @@ class ReadabilityArticle: NSObject, NSCoding {
         leadImageURL = json["lead_image_url"].URL
         let data = self.content.dataUsingEncoding(NSUTF8StringEncoding)!
         
-        let attributedContent = data.length > 0 ? NSMutableAttributedString(HTMLData: data, options: [DTDefaultFontName: UIFont.textReaderFont().fontName, DTDefaultFontSize: UIFont.textReaderFont().pointSize, DTDefaultTextColor: UIColor.textColor()], documentAttributes: nil) : NSMutableAttributedString(string: "")
+        let attributedContent = data.length > 0 ? NSMutableAttributedString(HTMLData: data, options: [DTDefaultFontName: UIFont.textReaderFont().fontName, DTDefaultFontSize: UIFont.textReaderFont().pointSize, DTDefaultTextColor: UIColor.textColor(), DTDefaultLinkColor: UIColor.tintColor()], documentAttributes: nil) : NSMutableAttributedString(string: "")
         attributedContent.enumerateAttribute(NSAttachmentAttributeName, inRange: NSRange(location: 0, length: attributedContent.length), options: nil) { (attribute, range, stop) -> Void in
             if let attachment = attribute as? DTImageTextAttachment {
                 let paragraphStyle = NSMutableParagraphStyle()

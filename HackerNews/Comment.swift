@@ -32,7 +32,7 @@ class Comment: NSObject, NSCoding {
         let text = json["text"].stringValue
         self.text = text
         let data = text.dataUsingEncoding(NSUTF8StringEncoding)!
-        self.attributedText = data.length > 0 ? NSAttributedString(HTMLData: data, options: [DTUseiOS6Attributes: true], documentAttributes: nil) : NSAttributedString(string: "")
+        self.attributedText = data.length > 0 ? NSAttributedString(HTMLData: data, options: [DTUseiOS6Attributes: true, DTDefaultFontName: UIFont.textReaderFont().fontName, DTDefaultFontSize: UIFont.textReaderFont().pointSize, DTDefaultTextColor: UIColor.textColor(), DTDefaultLinkColor: UIColor.tintColor()], documentAttributes: nil) : NSAttributedString(string: "")
         self.deleted = json["deleted"].boolValue
         self.children = json["children"].arrayValue.map { Comment(json: $0, level: level + 1) } .filter { !$0.deleted }
         self.level = level

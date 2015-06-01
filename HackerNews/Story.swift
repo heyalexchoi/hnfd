@@ -38,6 +38,7 @@ class Story: NSObject, NSCoding {
     let kids: [Int]
     let score: Int
     let text: String
+    let attributedText: NSAttributedString
     let time: Int
     let title: String
     let type: Type
@@ -59,6 +60,8 @@ class Story: NSObject, NSCoding {
         self.kids = json["kids"].arrayValue.map { $0.intValue }
         self.score = json["score"].intValue
         self.text = json["text"].stringValue
+        let data = text.dataUsingEncoding(NSUTF8StringEncoding)!
+        self.attributedText = data.length > 0 ? NSAttributedString(HTMLData: data, options: [DTUseiOS6Attributes: true, DTDefaultFontName: UIFont.textReaderFont().fontName, DTDefaultFontSize: UIFont.textReaderFont().pointSize, DTDefaultTextColor: UIColor.textColor(), DTDefaultLinkColor: UIColor.tintColor()], documentAttributes: nil) : NSAttributedString(string: "")
         self.time = json["time"].intValue
         self.title = json["title"].stringValue
         self.type = Type(rawValue: json["type"].stringValue)!

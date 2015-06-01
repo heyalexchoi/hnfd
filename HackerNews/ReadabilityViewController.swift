@@ -69,7 +69,7 @@ class ReadabilityViewContoller: UIViewController {
         
         let hyperlink = articleURL.hyperlink()
         let linkData = hyperlink.dataUsingEncoding(NSUTF8StringEncoding)
-        let link = NSAttributedString(HTMLData: linkData, options: [DTDefaultFontName: UIFont.textReaderFont().fontName, DTDefaultFontSize: UIFont.textReaderFont().pointSize, DTDefaultTextColor: UIColor.textColor()], documentAttributes: nil)
+        let link = NSAttributedString(HTMLData: linkData, options: [DTDefaultFontName: UIFont.textReaderFont().fontName, DTDefaultFontSize: UIFont.textReaderFont().pointSize, DTDefaultLinkColor: UIColor.tintColor()], documentAttributes: nil)
         articleInfo.appendAttributedString(NSAttributedString(string: "\n\n"))
         articleInfo.appendAttributedString(link)
         

@@ -19,7 +19,7 @@ struct TextAttributes {
         paragraphStyle.alignment = .Center
         return [NSParagraphStyleAttributeName: paragraphStyle]
     }()
-    static func URLAttributes(URL: NSURL) -> [NSObject: AnyObject] {
+    static func URLAttributes(URL: NSURL) -> [String: AnyObject] {
         return [DTLinkAttribute: URL]
     }
 }
