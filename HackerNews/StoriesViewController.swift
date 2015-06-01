@@ -9,20 +9,10 @@
 import UIKit
 import REMenu
 
-class StoriesViewController: UIViewController {
+class SavedStoriesController {
     
-    var task: NSURLSessionTask?
-    var stories = [Story]()
-    var storiesType: StoriesType = .Top
-    let apiClient = HNAPIClient()
+    static let sharedController = SavedStoriesController()
     let cache = Cache.sharedCache()
-    let tableView = UITableView(frame: CGRectZero, style: .Plain)
-    
-    let limit = 25
-    var offset = 0
-    
-    let titleView = StoriesTitleView()
-    let menu = REMenu()
     
     var savedStories: [Story] = {
         if let data = NSUserDefaults.standardUserDefaults().objectForKey(StoriesType.Saved.rawValue) as? NSData {
@@ -33,6 +23,75 @@ class StoriesViewController: UIViewController {
         }
         return [Story]()
         }()
+    
+    func fetchAffiliatedStoryData(story: Story) {
+        cache.articleForStory(story, completion: nil)
+        cache.fullStoryForStory(story, preference: .FetchRemoteDataAndUpdateCache, completion: nil)
+    }
+    // filter fetched stories through this method to update saved stories and properly mark fetched stories
+    func filterStories(stories: [Story]) -> [Story] {
+        return stories.map { [weak self] (story) -> Story in
+            if let strong_self = self {
+                if let index = find(strong_self.savedStories, story) {
+                    story.saved = true
+                    strong_self.savedStories[index] = story
+                    strong_self.fetchAffiliatedStoryData(story)
+                }
+            }
+            return story
+        }
+    }
+    
+    // MARK: - SAVED STORIES
+    
+    func saveStory(story: Story) -> Bool {
+        if story.saved { return false }
+        story.saved = true
+        savedStories.insert(story, atIndex: 0)
+        syncSavedStories()
+        fetchAffiliatedStoryData(story)
+        return true
+    }
+    
+    func unsaveStory(story: Story) {
+        if !story.saved { return }
+        story.saved = false
+        savedStories = savedStories.filter { $0 != story }
+        syncSavedStories()
+    }
+    
+    func syncSavedStories() {
+        let data = NSKeyedArchiver.archivedDataWithRootObject(savedStories)
+        NSUserDefaults.standardUserDefaults().setObject(data, forKey: StoriesType.Saved.rawValue)
+    }
+}
+
+class StoriesViewController: UIViewController {
+    
+    var task: NSURLSessionTask?
+    var stories = [Story]()
+    var storiesType: StoriesType = .Top
+    let apiClient = HNAPIClient()
+    let cache = Cache.sharedCache()
+    let tableView = UITableView(frame: CGRectZero, style: .Plain)
+    
+    let savedStoriesController = SavedStoriesController.sharedController
+    
+    let limit = 25
+    var offset = 0
+    
+    let titleView = StoriesTitleView()
+    let menu = REMenu()
+    
+    var savedStories: [Story] {
+        get {
+            return savedStoriesController.savedStories
+        }
+        set {
+            savedStoriesController.savedStories = savedStories
+        }
+    }
+    
     
     override var title: String? {
         didSet {
@@ -103,14 +162,8 @@ class StoriesViewController: UIViewController {
             self?.title = self?.storiesType.title
             if let stories = stories,
                 strong_self = self {
-                    stories.map { (story) -> Void in
-                        if let index = find(strong_self.savedStories, story) {
-                            story.saved = true
-                            strong_self.savedStories[index] = story
-                            strong_self.fetchAffiliatedStoryData(story)
-                        }
-                    }
-                    self?.stories = refresh ? stories : self!.stories + stories
+                    let filteredStories = strong_self.savedStoriesController.filterStories(stories)
+                    self?.stories = refresh ? stories : self!.stories + filteredStories
                     self?.offset = self!.offset + self!.limit
                     self?.tableView.reloadData()
             } else {
@@ -159,11 +212,8 @@ class StoriesViewController: UIViewController {
     
     func saveStory(story: Story) {
         if story.saved { return }
-        story.saved = true
-        savedStories.insert(story, atIndex: 0)
-        syncSavedStories()
+        savedStoriesController.saveStory(story)
         tableView.reloadRowsAtIndexPaths([indexPathForStory(story)], withRowAnimation: .Right)
-        fetchAffiliatedStoryData(story)
     }
     
     func unsaveStory(story: Story) {
@@ -185,11 +235,6 @@ class StoriesViewController: UIViewController {
     func syncSavedStories() {
         let data = NSKeyedArchiver.archivedDataWithRootObject(savedStories)
         NSUserDefaults.standardUserDefaults().setObject(data, forKey: StoriesType.Saved.rawValue)
-    }
-    
-    func fetchAffiliatedStoryData(story: Story) {
-        cache.articleForStory(story, completion: nil)
-        cache.fullStoryForStory(story, preference: .FetchRemoteDataAndUpdateCache, completion: nil)
     }
     
 }
