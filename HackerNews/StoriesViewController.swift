@@ -28,6 +28,14 @@ class SavedStoriesController {
         cache.articleForStory(story, completion: nil)
         cache.fullStoryForStory(story, preference: .FetchRemoteDataAndUpdateCache, completion: nil)
     }
+    
+    func updateAllSavedStories() {
+        // this should probably be queued or something. cpu goes nuts when i do this
+        for story in savedStories {
+            fetchAffiliatedStoryData(story)
+        }
+    }
+    
     // filter fetched stories through this method to update saved stories and properly mark fetched stories
     func filterStories(stories: [Story]) -> [Story] {
         return stories.map { [weak self] (story) -> Story in
@@ -151,6 +159,9 @@ class StoriesViewController: UIViewController {
             ProgressHUD.hideHUDForView(view, animated: true)
             tableView.pullToRefreshView.stopAnimating()
             tableView.infiniteScrollingView.stopAnimating()
+            if refresh {
+                savedStoriesController.updateAllSavedStories()
+            }
             return
         }
         
@@ -211,18 +222,14 @@ class StoriesViewController: UIViewController {
     // MARK: - SAVED STORIES
     
     func saveStory(story: Story) {
-        if story.saved { return }
         savedStoriesController.saveStory(story)
         tableView.reloadRowsAtIndexPaths([indexPathForStory(story)], withRowAnimation: .Right)
     }
     
     func unsaveStory(story: Story) {
-        if !story.saved { return }
-        tableView.beginUpdates()
+        savedStoriesController.unsaveStory(story)
         let indexPath = indexPathForStory(story)
-        story.saved = false
-        savedStories = savedStories.filter { $0 != story }
-        syncSavedStories()
+        tableView.beginUpdates()
         if storiesType == .Saved {
             stories = savedStories
             tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .Left)
@@ -230,11 +237,6 @@ class StoriesViewController: UIViewController {
             tableView.reloadRowsAtIndexPaths([indexPath], withRowAnimation: .Left)
         }
         tableView.endUpdates()
-    }
-    
-    func syncSavedStories() {
-        let data = NSKeyedArchiver.archivedDataWithRootObject(savedStories)
-        NSUserDefaults.standardUserDefaults().setObject(data, forKey: StoriesType.Saved.rawValue)
     }
     
 }
