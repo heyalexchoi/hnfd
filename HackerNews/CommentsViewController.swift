@@ -74,7 +74,7 @@ class CommentsViewController: UIViewController {
     func getFullStory(refresh: Bool) {
         if !refresh { ProgressHUD.showHUDAddedTo(view, animated: true) }
         cache.fullStoryForStory(story, preference: refresh ? .FetchRemoteDataAndUpdateCache : .ReturnCacheDataElseLoad) { [weak self] (story, error) -> Void in
-            ProgressHUD.hideHUDForView(self?.view, animated: true)
+            ProgressHUD.hideAllHUDsForView(self?.view, animated: true)
             self?.treeView.pullToRefreshView.stopAnimating()
             if let error = error {
                 UIAlertView(title: "Comments Error",

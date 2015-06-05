@@ -97,7 +97,7 @@ class StoriesViewController: UIViewController {
         
         task?.cancel()
         task = apiClient.getStories(storiesType, limit:limit, offset: offset) { [weak self] (stories, error) -> Void in
-            ProgressHUD.hideHUDForView(self?.view, animated: true)
+            ProgressHUD.hideAllHUDsForView(self?.view, animated: true)
             self?.tableView.pullToRefreshView.stopAnimating()
             self?.tableView.infiniteScrollingView.stopAnimating()
             self?.title = self?.storiesType.title
