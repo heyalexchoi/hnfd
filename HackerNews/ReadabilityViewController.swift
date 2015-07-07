@@ -109,7 +109,8 @@ class ReadabilityViewContoller: UIViewController {
     }
     
     func actionButtonDidPress() {
-        presentViewController(UIActivityViewController(activityItems: [articleURL], applicationActivities: nil), animated: true, completion: nil)
+        let storyActivity = StoryActivity()        
+        presentViewController(UIActivityViewController(activityItems: [articleURL, story], applicationActivities: [storyActivity]), animated: true, completion: nil)
     }
     
 }

@@ -19,7 +19,7 @@ class StoryActivity: UIActivity {
     }
     
     override func activityTitle() -> String? {
-        return "Save Story"
+        return "Save"
     }
     
     override func activityImage() -> UIImage? {
@@ -36,7 +36,7 @@ class StoryActivity: UIActivity {
     
     override func performActivity() {
         if let story = story {
-            
+            SavedStoriesController.sharedController.saveStory(story)
         }
     }
 }
