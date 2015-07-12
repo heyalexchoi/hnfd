@@ -17,6 +17,11 @@ class ReadabilityViewContoller: UIViewController {
     
     let webView = UIWebView()
     
+    var shouldScroll = true
+    var readingProgress: CGFloat {
+        return webView.scrollView.contentOffset.y / webView.scrollView.contentSize.height
+    }
+    
     init(story: Story) {
         self.story = story
         self.articleURL = story.URL!
@@ -26,6 +31,7 @@ class ReadabilityViewContoller: UIViewController {
         
         // hides white flash. for whatever reason setting webview's background color doesnt prevent white flash.
         view.backgroundColor = UIColor.backgroundColor()
+        webView.hidden = true
         webView.opaque = false
         webView.backgroundColor = UIColor.clearColor()
         
@@ -48,6 +54,31 @@ class ReadabilityViewContoller: UIViewController {
     
     deinit {
         task?.cancel()
+    }
+    
+    override func viewWillDisappear(animated: Bool) {
+        super.viewWillDisappear(animated)
+        saveReadingProgress()
+    }
+    
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        scrollToReadingProgress()
+    }
+    
+    func saveReadingProgress() {
+        article?.readingProgress = readingProgress
+        article?.save()
+    }
+    
+    func scrollToReadingProgress() {
+        if webView.scrollView.contentSize.height > webView.scrollView.bounds.size.height
+            && shouldScroll,
+            let article = article {
+                webView.scrollView.setContentOffset(CGPoint(x:0, y: article.readingProgress * webView.scrollView.contentSize.height), animated: false)
+                webView.hidden = false
+                shouldScroll = false
+        }
     }
     
     func getReadabilityArticle() {
@@ -81,12 +112,12 @@ class ReadabilityViewContoller: UIViewController {
             "font-size: \(UIFont.textReaderFont().pointSize);" +
             "font-family: \(UIFont.textReaderFont().fontName);" +
             "background-color: \(UIColor.backgroundColor().hexString());" +
-            "color: \(UIColor.textColor().hexString());"
+        "color: \(UIColor.textColor().hexString());"
         customCSS +=
         " }"
         
         customCSS +=
-        "a {" +
+            "a {" +
             "color: \(UIColor.textColor().hexString());" +
         "}"
         
@@ -117,8 +148,9 @@ class ReadabilityViewContoller: UIViewController {
         let body = "<body>" + articleInfo + article.content + "</body>"
         
         let html = head + body
-                
+        
         webView.loadHTMLString(html, baseURL: nil)
+        scrollToReadingProgress()
     }
     
     func actionButtonDidPress() {

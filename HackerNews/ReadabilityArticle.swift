@@ -23,6 +23,12 @@ class ReadabilityArticle: NSObject, NSCoding {
     let leadImageURL: NSURL?
     let datePublished: NSDate?
     
+    var readingProgress: CGFloat = 0
+    
+    var cacheKey: String {
+        return self.dynamicType.cacheKeyForURL(URL)
+    }
+    
     let readabilityDateFormat = "yyyy-MM-dd HH:mm:ss"
     
     init(json: JSON) {
@@ -64,6 +70,14 @@ class ReadabilityArticle: NSObject, NSCoding {
     
     func encodeWithCoder(coder: NSCoder) {
         coder.encodeObject(toJSON(), forKey: "json")
+    }
+    
+    class func cacheKeyForURL(url: NSURL) -> String {
+        return "cached_article_\(url.absoluteString!)"
+    }
+    
+    func save() {
+        Cache.sharedCache().setObject(self, forKey: cacheKey, block: nil)
     }
     
 }
