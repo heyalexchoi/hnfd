@@ -22,6 +22,8 @@ class ReadabilityViewContoller: UIViewController {
         return webView.scrollView.contentOffset.y / webView.scrollView.contentSize.height
     }
     
+    var htmlLoaded = false
+    
     init(story: Story) {
         self.story = story
         self.articleURL = story.URL!
@@ -34,6 +36,8 @@ class ReadabilityViewContoller: UIViewController {
         webView.hidden = true
         webView.opaque = false
         webView.backgroundColor = UIColor.clearColor()
+        
+        webView.delegate = self
         
         for view in [webView] {
             view.setTranslatesAutoresizingMaskIntoConstraints(false)
@@ -70,8 +74,10 @@ class ReadabilityViewContoller: UIViewController {
     }
     
     func saveReadingProgress() {
-        article?.readingProgress = readingProgress
-        article?.save()
+        if story.saved {
+            article?.readingProgress = readingProgress
+            article?.save()
+        }
     }
     
     func scrollToReadingProgress() {
@@ -99,7 +105,6 @@ class ReadabilityViewContoller: UIViewController {
                     cancelButtonTitle: "OK").show()
             }
             })
-        
     }
     
     func finishLoadingArticle(article: ReadabilityArticle) {
@@ -109,7 +114,6 @@ class ReadabilityViewContoller: UIViewController {
         
         // swift compiler choking on string concatenations. had to break them into more statements
         var customCSS =
-        
         "body {"
         customCSS +=
             "font-size: \(UIFont.textReaderFont().pointSize);" +
@@ -120,7 +124,7 @@ class ReadabilityViewContoller: UIViewController {
         " }"
         
         customCSS +=
-            "a {" +
+        "a {" +
             "color: \(UIColor.textColor().hexString());" +
         "}"
         
@@ -145,7 +149,7 @@ class ReadabilityViewContoller: UIViewController {
         }
         
         articleInfo +=
-            "<div><a href='url'> \(article.URL) </a></div>" +
+            "<div><a href='\(article.URL)'> \(article.URL) </a></div>" +
         "</div>"
         
         let body = "<body>" + articleInfo + article.content + "</body>"
@@ -160,4 +164,19 @@ class ReadabilityViewContoller: UIViewController {
         presentViewController(UIActivityViewController(activityItems: [articleURL, story], applicationActivities: [storyActivity]), animated: true, completion: nil)
     }
     
+}
+
+extension ReadabilityViewContoller: UIWebViewDelegate {
+    
+    func webView(webView: UIWebView, shouldStartLoadWithRequest request: NSURLRequest, navigationType: UIWebViewNavigationType) -> Bool {
+        if htmlLoaded {
+            presentViewController(UINavigationController(rootViewController: WebViewController(url: request.URL!)), animated: true, completion: nil)
+            return false
+        }
+        return true
+    }
+    
+    func webViewDidFinishLoad(webView: UIWebView) {
+        htmlLoaded = true
+    }
 }

@@ -107,6 +107,10 @@ class CommentsViewController: UIViewController {
         presentViewController(UIActivityViewController(activityItems: items, applicationActivities: [storyActivity]), animated: true, completion: nil)
     }
     
+    func goToArticle() {
+        // TO DO: manage navigation stack so user can go back and forth between article and comments without making huge chain
+        navigationController?.pushViewController(ReadabilityViewContoller(story: story), animated: true)
+    }
 }
 
 extension CommentsViewController: UITableViewDataSource {
@@ -131,7 +135,11 @@ extension CommentsViewController: UITableViewDataSource {
 extension CommentsViewController: UITextViewDelegate {
     
     func textView(textView: UITextView, shouldInteractWithURL URL: NSURL, inRange characterRange: NSRange) -> Bool {
-        presentViewController(UINavigationController(rootViewController: WebViewController(url: URL)), animated: true, completion: nil)
+        if URL == story.URL {
+            goToArticle()
+        } else {
+            presentViewController(UINavigationController(rootViewController: WebViewController(url: URL)), animated: true, completion: nil)
+        }        
         return false
     }
     

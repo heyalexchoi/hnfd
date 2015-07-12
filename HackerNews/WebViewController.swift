@@ -43,7 +43,9 @@ class WebViewController: UIViewController {
     }
     
     func actionButtonDidPress() {
-        presentViewController(UIActivityViewController(activityItems: [URL], applicationActivities: nil), animated: true, completion: nil)
+        if let URL = webView.URL {
+            presentViewController(UIActivityViewController(activityItems: [URL], applicationActivities: nil), animated: true, completion: nil)
+        }
     }
 
 }
