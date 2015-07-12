@@ -18,21 +18,23 @@ class StoriesViewController: UIViewController {
     let cache = Cache.sharedCache()
     let tableView = UITableView(frame: CGRectZero, style: .Plain)
     
+    let savedStoriesController = SavedStoriesController.sharedController
+    
     let limit = 25
     var offset = 0
     
     let titleView = StoriesTitleView()
     let menu = REMenu()
     
-    var savedStories: [Story] = {
-        if let data = NSUserDefaults.standardUserDefaults().objectForKey(StoriesType.Saved.rawValue) as? NSData {
-            if var loadedStories = NSKeyedUnarchiver.unarchiveObjectWithData(data) as? [Story] {
-                loadedStories = NSOrderedSet(array: loadedStories).array as! [Story]
-                return loadedStories
-            }
+    var savedStories: [Story] {
+        get {
+            return savedStoriesController.savedStories
         }
-        return [Story]()
-        }()
+        set {
+            savedStoriesController.savedStories = savedStories
+        }
+    }
+    
     
     override var title: String? {
         didSet {
@@ -78,6 +80,11 @@ class StoriesViewController: UIViewController {
         
     }
     
+    override func viewWillAppear(animated: Bool) {
+        super.viewWillAppear(animated)
+        tableView.reloadData()
+    }
+    
     func refresh() {
         getStories(true)
     }
@@ -92,6 +99,9 @@ class StoriesViewController: UIViewController {
             ProgressHUD.hideHUDForView(view, animated: true)
             tableView.pullToRefreshView.stopAnimating()
             tableView.infiniteScrollingView.stopAnimating()
+            if refresh {
+                savedStoriesController.updateAllSavedStories()
+            }
             return
         }
         
@@ -103,14 +113,8 @@ class StoriesViewController: UIViewController {
             self?.title = self?.storiesType.title
             if let stories = stories,
                 strong_self = self {
-                    stories.map { (story) -> Void in
-                        if let index = find(strong_self.savedStories, story) {
-                            story.saved = true
-                            strong_self.savedStories[index] = story
-                            strong_self.fetchAffiliatedStoryData(story)
-                        }
-                    }
-                    self?.stories = refresh ? stories : self!.stories + stories
+                    let filteredStories = strong_self.savedStoriesController.filterStories(stories)
+                    self?.stories = refresh ? stories : self!.stories + filteredStories
                     self?.offset = self!.offset + self!.limit
                     self?.tableView.reloadData()
             } else {
@@ -158,21 +162,14 @@ class StoriesViewController: UIViewController {
     // MARK: - SAVED STORIES
     
     func saveStory(story: Story) {
-        if story.saved { return }
-        story.saved = true
-        savedStories.insert(story, atIndex: 0)
-        syncSavedStories()
+        savedStoriesController.saveStory(story)
         tableView.reloadRowsAtIndexPaths([indexPathForStory(story)], withRowAnimation: .Right)
-        fetchAffiliatedStoryData(story)
     }
     
     func unsaveStory(story: Story) {
-        if !story.saved { return }
-        tableView.beginUpdates()
+        savedStoriesController.unsaveStory(story)
         let indexPath = indexPathForStory(story)
-        story.saved = false
-        savedStories = savedStories.filter { $0 != story }
-        syncSavedStories()
+        tableView.beginUpdates()
         if storiesType == .Saved {
             stories = savedStories
             tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .Left)
@@ -180,16 +177,6 @@ class StoriesViewController: UIViewController {
             tableView.reloadRowsAtIndexPaths([indexPath], withRowAnimation: .Left)
         }
         tableView.endUpdates()
-    }
-    
-    func syncSavedStories() {
-        let data = NSKeyedArchiver.archivedDataWithRootObject(savedStories)
-        NSUserDefaults.standardUserDefaults().setObject(data, forKey: StoriesType.Saved.rawValue)
-    }
-    
-    func fetchAffiliatedStoryData(story: Story) {
-        cache.articleForStory(story, completion: nil)
-        cache.fullStoryForStory(story, preference: .FetchRemoteDataAndUpdateCache, completion: nil)
     }
     
 }

@@ -87,21 +87,24 @@ class CommentsViewController: UIViewController {
             }
         }
     }
-
+    
     func flatten(comments: [Comment]) -> [Comment] {
         return comments.map { [ weak self] (comment) -> [Comment] in
             if let strong_self = self {
                 return [comment] + strong_self.flatten(comment.children)
             }
-                return [comment]
+            return [comment]
             }
             .flatMap { $0 }
     }
     
     func actionButtonDidPress() {
+        var items: [AnyObject] = [story]
         if let URL = story.URL {
-            presentViewController(UIActivityViewController(activityItems: [URL], applicationActivities: nil), animated: true, completion: nil)
+            items.append(URL)
         }
+        let storyActivity = StoryActivity()
+        presentViewController(UIActivityViewController(activityItems: items, applicationActivities: [storyActivity]), animated: true, completion: nil)
     }
     
 }
@@ -126,7 +129,7 @@ extension CommentsViewController: UITableViewDataSource {
 }
 
 extension CommentsViewController: UITextViewDelegate {
-
+    
     func textView(textView: UITextView, shouldInteractWithURL URL: NSURL, inRange characterRange: NSRange) -> Bool {
         presentViewController(UINavigationController(rootViewController: WebViewController(url: URL)), animated: true, completion: nil)
         return false

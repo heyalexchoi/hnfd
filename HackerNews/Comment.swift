@@ -48,7 +48,7 @@ class Comment: NSObject, NSCoding {
             "time": time,
             "text": text,
             "deleted": deleted,
-            "children": children,
+            "children": children.map{$0.toJSON()},
             "level": level
         ]
     }
