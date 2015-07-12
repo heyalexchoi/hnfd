@@ -45,6 +45,8 @@ class ReadabilityViewContoller: UIViewController {
             "V:|[webView]|"], views: [
                 "webView": webView])
         
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: "saveReadingProgress", name: UIApplicationWillResignActiveNotification, object: nil)
+        
         getReadabilityArticle()
     }
     
@@ -54,6 +56,7 @@ class ReadabilityViewContoller: UIViewController {
     
     deinit {
         task?.cancel()
+        NSNotificationCenter.defaultCenter().removeObserver(self)
     }
     
     override func viewWillDisappear(animated: Bool) {
@@ -150,7 +153,6 @@ class ReadabilityViewContoller: UIViewController {
         let html = head + body
         
         webView.loadHTMLString(html, baseURL: nil)
-        scrollToReadingProgress()
     }
     
     func actionButtonDidPress() {

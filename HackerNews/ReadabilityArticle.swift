@@ -23,7 +23,7 @@ class ReadabilityArticle: NSObject, NSCoding {
     let leadImageURL: NSURL?
     let datePublished: NSDate?
     
-    var readingProgress: CGFloat = 0
+    var readingProgress: CGFloat
     
     var cacheKey: String {
         return self.dynamicType.cacheKeyForURL(URL)
@@ -44,6 +44,7 @@ class ReadabilityArticle: NSObject, NSCoding {
         dek = json["dek"].stringValue
         leadImageURL = json["lead_image_url"].URL
         datePublished = DateFormatter.dateFromString(json["date_published"].stringValue, format: readabilityDateFormat)
+        readingProgress = CGFloat(json["reading_progress"].floatValue)
     }
     
     func toJSON() -> AnyObject {
@@ -59,7 +60,8 @@ class ReadabilityArticle: NSObject, NSCoding {
             "totalPages": totalPages,
             "dek": dek,
             "lead_image_url": leadImageURL?.absoluteString ?? "",
-            "date_published": datePublished != nil ? DateFormatter.stringFromDate(datePublished!, format: readabilityDateFormat) : ""
+            "date_published": datePublished != nil ? DateFormatter.stringFromDate(datePublished!, format: readabilityDateFormat) : "",
+            "reading_progress": readingProgress
         ]
     }
     
