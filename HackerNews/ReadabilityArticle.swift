@@ -6,7 +6,6 @@
 //  Copyright (c) 2015 Alex Choi. All rights reserved.
 //
 
-import DTCoreText
 import SwiftyJSON
 
 class ReadabilityArticle: NSObject, NSCoding {
@@ -14,7 +13,7 @@ class ReadabilityArticle: NSObject, NSCoding {
     let content: String
     let domain: String
     let author: String
-    let URL: NSURL?
+    let URL: NSURL
     let shortURL: NSURL?
     let title : String
     let excerpt: String
@@ -22,13 +21,15 @@ class ReadabilityArticle: NSObject, NSCoding {
     let totalPages: Int
     let dek: String
     let leadImageURL: NSURL?
-    let attributedContent: NSAttributedString
+    let datePublished: NSDate?
+    
+    let readabilityDateFormat = "yyyy-MM-dd HH:mm:ss"
     
     init(json: JSON) {
         content = json["content"].stringValue
         domain = json["domain"].stringValue
         author = json["author"].stringValue
-        URL = json["url"].URL
+        URL = json["url"].URL!
         shortURL = json["short_url"].URL
         title = json["title"].stringValue
         excerpt = json["excerpt"].stringValue
@@ -36,18 +37,7 @@ class ReadabilityArticle: NSObject, NSCoding {
         totalPages = json["total_pages"].intValue
         dek = json["dek"].stringValue
         leadImageURL = json["lead_image_url"].URL
-        let data = self.content.dataUsingEncoding(NSUTF8StringEncoding)!
-        
-        let attributedContent = data.length > 0 ? NSMutableAttributedString(HTMLData: data, options: [DTDefaultFontName: UIFont.textReaderFont().fontName, DTDefaultFontSize: UIFont.textReaderFont().pointSize, DTDefaultTextColor: UIColor.textColor(), DTDefaultLinkColor: UIColor.tintColor()], documentAttributes: nil) : NSMutableAttributedString(string: "")
-        attributedContent.enumerateAttribute(NSAttachmentAttributeName, inRange: NSRange(location: 0, length: attributedContent.length), options: nil) { (attribute, range, stop) -> Void in
-            if let attachment = attribute as? DTImageTextAttachment {
-                let paragraphStyle = NSMutableParagraphStyle()
-                paragraphStyle.alignment = .Center
-                attributedContent.addAttribute(NSParagraphStyleAttributeName, value: paragraphStyle, range: range)
-            }
-        }
-        
-        self.attributedContent = attributedContent.copy() as! NSAttributedString
+        datePublished = DateFormatter.dateFromString(json["date_published"].stringValue, format: readabilityDateFormat)
     }
     
     func toJSON() -> AnyObject {
@@ -55,14 +45,15 @@ class ReadabilityArticle: NSObject, NSCoding {
             "content": content,
             "domain": domain,
             "author": author,
-            "url": URL?.absoluteString ?? "",
+            "url": URL.absoluteString!,
             "short_url": shortURL?.absoluteString ?? "",
             "title": title,
             "excerpt": excerpt,
             "word_count": wordCount,
             "totalPages": totalPages,
             "dek": dek,
-            "lead_image_url": leadImageURL?.absoluteString ?? ""
+            "lead_image_url": leadImageURL?.absoluteString ?? "",
+            "date_published": datePublished != nil ? DateFormatter.stringFromDate(datePublished!, format: readabilityDateFormat) : ""
         ]
     }
     

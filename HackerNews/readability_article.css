@@ -1,0 +1,32 @@
+
+body {
+	line-height: 1.5;
+	margin: 25px;
+	text-align: left;
+	font-weight: 400;
+	text-rendering: optimizeLegibility;
+	direction: ltr;
+	display: block;			
+}
+
+.article_info {
+	font-size: .9em;	
+	line-height: 1.35;			
+}
+
+.article_info h1 {			
+	font-weight: 700;
+	margin: 1em 0 0;
+	font-size: 1.8em;
+	line-height: 1.2;
+	padding-bottom: .3em;
+}
+
+.author {
+	font-weight: 700;
+}
+
+img {
+	max-width: 100%;
+	max-height: 100%;
+}
