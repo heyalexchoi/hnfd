@@ -19,7 +19,8 @@ class ReadabilityAPIClient {
             .request(.GET,
                 baseURLString + "/content/v1/parser",
                 parameters: ["url": URL, "token": PrivateKeys.readabilityParserAPIToken])
-            .responseJSON { [weak self] (_, _, json, error) -> Void in
+            .validate()
+            .responseJSON { [weak self] (req, res, json, error) -> Void in
                 if let error = error {
                     completion(article: nil, error: error)
                 } else if let json: AnyObject = json {

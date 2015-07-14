@@ -23,6 +23,12 @@ class ReadabilityArticle: NSObject, NSCoding {
     let leadImageURL: NSURL?
     let datePublished: NSDate?
     
+    var readingProgress: CGFloat
+    
+    var cacheKey: String {
+        return self.dynamicType.cacheKeyForURL(URL)
+    }
+    
     let readabilityDateFormat = "yyyy-MM-dd HH:mm:ss"
     
     init(json: JSON) {
@@ -38,6 +44,7 @@ class ReadabilityArticle: NSObject, NSCoding {
         dek = json["dek"].stringValue
         leadImageURL = json["lead_image_url"].URL
         datePublished = DateFormatter.dateFromString(json["date_published"].stringValue, format: readabilityDateFormat)
+        readingProgress = CGFloat(json["reading_progress"].floatValue)
     }
     
     func toJSON() -> AnyObject {
@@ -53,7 +60,8 @@ class ReadabilityArticle: NSObject, NSCoding {
             "totalPages": totalPages,
             "dek": dek,
             "lead_image_url": leadImageURL?.absoluteString ?? "",
-            "date_published": datePublished != nil ? DateFormatter.stringFromDate(datePublished!, format: readabilityDateFormat) : ""
+            "date_published": datePublished != nil ? DateFormatter.stringFromDate(datePublished!, format: readabilityDateFormat) : "",
+            "reading_progress": readingProgress
         ]
     }
     
@@ -64,6 +72,14 @@ class ReadabilityArticle: NSObject, NSCoding {
     
     func encodeWithCoder(coder: NSCoder) {
         coder.encodeObject(toJSON(), forKey: "json")
+    }
+    
+    class func cacheKeyForURL(url: NSURL) -> String {
+        return "cached_article_\(url.absoluteString!)"
+    }
+    
+    func save() {
+        Cache.sharedCache().setObject(self, forKey: cacheKey, block: nil)
     }
     
 }

@@ -9,6 +9,14 @@ body {
 	display: block;			
 }
 
+pre {
+    white-space: pre-wrap;
+}
+
+a {
+    word-wrap: break-word;
+}
+
 .article_info {
 	font-size: .9em;	
 	line-height: 1.35;			

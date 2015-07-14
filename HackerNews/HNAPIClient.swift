@@ -32,6 +32,7 @@ class HNAPIClient {
     func getStories(type: StoriesType, limit: Int, offset: Int, completion: (stories: [Story]?, error: NSError?) -> Void) -> Request {
         return Alamofire
             .request(.GET, baseURLString + "/\(type.rawValue)", parameters: ["limit": limit, "offset": offset])
+            .validate()
             .responseJSON { [weak self] (_, _, json, error) -> Void in
                 if let error = error {
                     completion(stories: nil, error: error)
@@ -49,6 +50,7 @@ class HNAPIClient {
     func getStory(id: Int, completion: (story: Story?, error: NSError?) -> Void) -> Request {
         return Alamofire
             .request(.GET, baseURLString + "/items/\(id)")
+            .validate()
             .responseJSON { [weak self] (_, _, json, error) -> Void in
                 if let error = error {
                     completion(story: nil, error: error)

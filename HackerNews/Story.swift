@@ -46,11 +46,14 @@ class Story: NSObject, NSCoding {
     let children: [Comment]
     let date: NSDate
     var saved = false
-    var storyCacheKey: String {
+    var cacheKey: String {
         return "cached_story_\(id)"
     }
     var articleCacheKey: String {
-        return "cached_article_\(id)"
+        if let URL = URL {
+            return ReadabilityArticle.cacheKeyForURL(URL)
+        }
+        return ""
     }
     
     init(json: JSON) {

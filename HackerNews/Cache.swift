@@ -21,7 +21,7 @@ class Cache: TMCache {
     let hnAPIClient = HNAPIClient()
     
     func cachedStory(story: Story, completion: (Story?) -> Void) {
-        objectForKey(story.storyCacheKey, block: { (Cache, key, value) -> Void in
+        objectForKey(story.cacheKey, block: { (Cache, key, value) -> Void in
             NSOperationQueue.mainQueue().addOperationWithBlock({ () -> Void in
                 completion(value as? Story)
             })
@@ -29,7 +29,7 @@ class Cache: TMCache {
     }
     
     func isStoryCached(story: Story, completion: (Bool) -> Void) {
-        diskCache.fileURLForKey(story.storyCacheKey, block: { (Cache, key, value, url) -> Void in
+        diskCache.fileURLForKey(story.cacheKey, block: { (Cache, key, value, url) -> Void in
             completion(url != nil)
         })
     }
@@ -88,7 +88,7 @@ class Cache: TMCache {
         case .FetchRemoteDataAndUpdateCache:
             return hnAPIClient.getStory(story.id, completion: { [weak self] (fetchedStory, error) -> Void in
                 if let fetchedStory = fetchedStory {
-                    if story.saved { self?.setObject(fetchedStory, forKey: story.storyCacheKey, block: nil) }
+                    if story.saved { self?.setObject(fetchedStory, forKey: story.cacheKey, block: nil) }
                     completion?(story: fetchedStory, error: nil)
                 } else if let error = error {
                     completion?(story: nil, error: error)
@@ -102,7 +102,7 @@ class Cache: TMCache {
                 } else {
                     self?.hnAPIClient.getStory(story.id, completion: { (fetchedStory, error) -> Void in
                         if let fetchedStory = fetchedStory {
-                            if story.saved { self?.setObject(fetchedStory, forKey: story.storyCacheKey, block: nil) }
+                            if story.saved { self?.setObject(fetchedStory, forKey: story.cacheKey, block: nil) }
                             completion?(story: fetchedStory, error: nil)
                         } else if let error = error {
                             completion?(story: nil, error: error)

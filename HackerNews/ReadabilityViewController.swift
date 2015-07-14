@@ -17,6 +17,13 @@ class ReadabilityViewContoller: UIViewController {
     
     let webView = UIWebView()
     
+    var shouldScroll = true
+    var readingProgress: CGFloat {
+        return webView.scrollView.contentOffset.y / webView.scrollView.contentSize.height
+    }
+    
+    var htmlLoaded = false
+    
     init(story: Story) {
         self.story = story
         self.articleURL = story.URL!
@@ -26,8 +33,11 @@ class ReadabilityViewContoller: UIViewController {
         
         // hides white flash. for whatever reason setting webview's background color doesnt prevent white flash.
         view.backgroundColor = UIColor.backgroundColor()
+        webView.hidden = true
         webView.opaque = false
         webView.backgroundColor = UIColor.clearColor()
+        
+        webView.delegate = self
         
         for view in [webView] {
             view.setTranslatesAutoresizingMaskIntoConstraints(false)
@@ -39,6 +49,8 @@ class ReadabilityViewContoller: UIViewController {
             "V:|[webView]|"], views: [
                 "webView": webView])
         
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: "saveReadingProgress", name: UIApplicationWillResignActiveNotification, object: nil)
+        
         getReadabilityArticle()
     }
     
@@ -48,6 +60,34 @@ class ReadabilityViewContoller: UIViewController {
     
     deinit {
         task?.cancel()
+        NSNotificationCenter.defaultCenter().removeObserver(self)
+    }
+    
+    override func viewWillDisappear(animated: Bool) {
+        super.viewWillDisappear(animated)
+        saveReadingProgress()
+    }
+    
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        scrollToReadingProgress()
+    }
+    
+    func saveReadingProgress() {
+        if story.saved {
+            article?.readingProgress = readingProgress
+            article?.save()
+        }
+    }
+    
+    func scrollToReadingProgress() {
+        if webView.scrollView.contentSize.height > webView.scrollView.bounds.size.height
+            && shouldScroll,
+            let article = article {
+                webView.scrollView.setContentOffset(CGPoint(x:0, y: article.readingProgress * webView.scrollView.contentSize.height), animated: false)
+                webView.hidden = false
+                shouldScroll = false
+        }
     }
     
     func getReadabilityArticle() {
@@ -65,7 +105,6 @@ class ReadabilityViewContoller: UIViewController {
                     cancelButtonTitle: "OK").show()
             }
             })
-        
     }
     
     func finishLoadingArticle(article: ReadabilityArticle) {
@@ -75,13 +114,12 @@ class ReadabilityViewContoller: UIViewController {
         
         // swift compiler choking on string concatenations. had to break them into more statements
         var customCSS =
-        
         "body {"
         customCSS +=
             "font-size: \(UIFont.textReaderFont().pointSize);" +
             "font-family: \(UIFont.textReaderFont().fontName);" +
             "background-color: \(UIColor.backgroundColor().hexString());" +
-            "color: \(UIColor.textColor().hexString());"
+        "color: \(UIColor.textColor().hexString());"
         customCSS +=
         " }"
         
@@ -111,13 +149,13 @@ class ReadabilityViewContoller: UIViewController {
         }
         
         articleInfo +=
-            "<div><a href='url'> \(article.URL) </a></div>" +
+            "<div><a href='\(article.URL)'> \(article.URL) </a></div>" +
         "</div>"
         
         let body = "<body>" + articleInfo + article.content + "</body>"
         
         let html = head + body
-                
+        
         webView.loadHTMLString(html, baseURL: nil)
     }
     
@@ -126,4 +164,19 @@ class ReadabilityViewContoller: UIViewController {
         presentViewController(UIActivityViewController(activityItems: [articleURL, story], applicationActivities: [storyActivity]), animated: true, completion: nil)
     }
     
+}
+
+extension ReadabilityViewContoller: UIWebViewDelegate {
+    
+    func webView(webView: UIWebView, shouldStartLoadWithRequest request: NSURLRequest, navigationType: UIWebViewNavigationType) -> Bool {
+        if htmlLoaded {
+            presentViewController(UINavigationController(rootViewController: WebViewController(url: request.URL!)), animated: true, completion: nil)
+            return false
+        }
+        return true
+    }
+    
+    func webViewDidFinishLoad(webView: UIWebView) {
+        htmlLoaded = true
+    }
 }
