@@ -90,7 +90,7 @@ class StoriesViewController: UIViewController {
     }
     
     func getStories(refresh: Bool) {
-        if stories.count < 1 { ProgressHUD.showHUDAddedTo(view, animated: true) }
+        ProgressHUD.showHUDAddedTo(view, animated: true)
         if refresh { offset = 0 }
         
         if storiesType == .Saved {

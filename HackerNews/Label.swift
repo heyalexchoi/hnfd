@@ -22,7 +22,7 @@ class Label: UILabel {
                 let attributedString = NSAttributedString(string: text, attributes: TextAttributes.textAttributes)
                 attributedText = attributedString
             } else {
-                text = nil
+                attributedText = nil
             }
         }
     }
@@ -31,7 +31,7 @@ class Label: UILabel {
         if let string = string {
             attributedText = NSAttributedString(string: string, attributes: attributes)
         } else {
-            text = nil
+            attributedText = nil
         }
     }
 }
