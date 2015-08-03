@@ -30,8 +30,8 @@ struct Appearance {
         UINavigationBar.appearance().setBackgroundImage(UIImage(color: UIColor.backgroundColor()), forBarMetrics: .Default)
         UINavigationBar.appearance().titleTextAttributes = TextAttributes.titleAttributes
         UINavigationBar.appearance().tintColor = UIColor.textColor()
-        
         UIBarButtonItem.appearance().setTitleTextAttributes(TextAttributes.textAttributes, forState: .Normal)
+        UIApplication.sharedApplication().statusBarStyle = .LightContent
     }
     
 }
