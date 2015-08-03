@@ -85,9 +85,9 @@ class ReadabilityViewContoller: UIViewController {
             && shouldScroll,
             let article = article {
                 webView.scrollView.setContentOffset(CGPoint(x:0, y: article.readingProgress * webView.scrollView.contentSize.height), animated: false)
-                webView.hidden = false
                 shouldScroll = false
         }
+        webView.hidden = false
     }
     
     func getReadabilityArticle() {
@@ -173,10 +173,11 @@ extension ReadabilityViewContoller: UIWebViewDelegate {
             presentViewController(UINavigationController(rootViewController: WebViewController(url: request.URL!)), animated: true, completion: nil)
             return false
         }
-        return true
+        return true        
     }
     
     func webViewDidFinishLoad(webView: UIWebView) {
         htmlLoaded = true
+        scrollToReadingProgress()
     }
 }
