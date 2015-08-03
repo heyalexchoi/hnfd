@@ -13,7 +13,13 @@ class StoriesViewController: UIViewController {
     
     var task: NSURLSessionTask?
     var stories = [Story]()
-    var storiesType: StoriesType = .Top
+    var storiesType: StoriesType = .Top {
+        didSet {
+            if storiesType != oldValue {
+                tableView.scrollToRowAtIndexPath(NSIndexPath(forRow: 0, inSection: 0), atScrollPosition: .Top, animated: false)
+            }
+        }
+    }
     let apiClient = HNAPIClient()
     let cache = Cache.sharedCache()
     let tableView = UITableView(frame: CGRectZero, style: .Plain)
