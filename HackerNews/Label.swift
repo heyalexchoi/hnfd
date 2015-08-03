@@ -8,6 +8,8 @@
 
 class Label: UILabel {
     
+    let defaultTextAttributes = TextAttributes.textAttributes
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
     }
@@ -19,7 +21,7 @@ class Label: UILabel {
     override var text: String? {
         didSet {
             if let text = text {
-                let attributedString = NSAttributedString(string: text, attributes: TextAttributes.textAttributes)
+                let attributedString = NSAttributedString(string: text, attributes: defaultTextAttributes)
                 attributedText = attributedString
             } else {
                 attributedText = nil

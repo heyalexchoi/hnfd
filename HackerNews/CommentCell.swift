@@ -58,10 +58,24 @@ class CommentCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
+    func estimatedHeight(width: CGFloat, attributedText: NSAttributedString, level: Int) -> CGFloat {
+        let textBoundingRect = attributedText.boundingRectWithSize(CGSize(width: width - indentationWidthForLevel(level) - 15, height: CGFloat.max),
+            options: .UsesLineFragmentOrigin | .UsesFontLeading,
+            context: nil)
+        let textHeight = textBoundingRect.height
+        let detailFont: UIFont = TextAttributes.textAttributes[NSFontAttributeName] as! UIFont
+        let detailHeight = detailFont.lineHeight
+        return 15 + detailHeight + 15 + textHeight + 15
+    }
+    
     func prepare(comment: Comment, level: Int) {
-        indentationWidthConstraint.constant = CGFloat((level + 2) * 15)
+        indentationWidthConstraint.constant = indentationWidthForLevel(level)
         byLabel.text = comment.by
         timeLabel.text = comment.date.timeAgoSinceNow()
         textView.attributedText = comment.attributedText
+    }
+    
+    func indentationWidthForLevel(level: Int) -> CGFloat {
+        return CGFloat((level + 2) * 15)
     }
 }

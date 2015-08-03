@@ -21,6 +21,8 @@ class CommentsViewController: UIViewController {
     let cache = Cache.sharedCache()
     let treeView = UITableView(frame: CGRectZero, style: .Plain)
     let header: CommentsHeaderView
+    let prototypeCell = CommentCell(frame: CGRectZero)
+    var cachedCellHeights = [Int: CGFloat]() // id: cell height
     
     init(story: Story) {
         self.story = story
@@ -39,13 +41,12 @@ class CommentsViewController: UIViewController {
             navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .Action, target: self, action: "actionButtonDidPress")
         }
         
-        treeView.rowHeight = UITableViewAutomaticDimension
-        treeView.estimatedRowHeight = 200
         treeView.separatorInset = UIEdgeInsetsZero
         treeView.separatorColor = UIColor.separatorColor()
         treeView.backgroundColor = UIColor.backgroundColor()
         treeView.registerClass(CommentCell.self, forCellReuseIdentifier: CommentCell.identifier)
         treeView.dataSource = self
+        treeView.delegate = self
         treeView.tableFooterView = UIView() // avoid empty cells
         treeView.setTranslatesAutoresizingMaskIntoConstraints(false)
         view.addSubview(treeView)
@@ -111,9 +112,19 @@ class CommentsViewController: UIViewController {
         // TO DO: manage navigation stack so user can go back and forth between article and comments without making huge chain
         navigationController?.pushViewController(ReadabilityViewContoller(story: story), animated: true)
     }
+    
+    func cachedHeightForRowAtIndexPath(indexPath: NSIndexPath) -> CGFloat {
+        let comment = flattenedComments[indexPath.row]
+        if let cachedHeight = cachedCellHeights[comment.id] {
+            return cachedHeight
+        }
+        let estimatedHeight = prototypeCell.estimatedHeight(treeView.bounds.width, attributedText: comment.attributedText, level: comment.level)
+        cachedCellHeights[comment.id] = estimatedHeight
+        return estimatedHeight
+    }
 }
 
-extension CommentsViewController: UITableViewDataSource {
+extension CommentsViewController: UITableViewDataSource, UITableViewDelegate {
     
     func numberOfSectionsInTableView(tableView: UITableView) -> Int {
         return 1
@@ -121,6 +132,14 @@ extension CommentsViewController: UITableViewDataSource {
     
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return flattenedComments.count
+    }
+    
+    func tableView(tableView: UITableView, estimatedHeightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
+        return cachedHeightForRowAtIndexPath(indexPath)
+    }
+    
+    func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
+        return cachedHeightForRowAtIndexPath(indexPath)
     }
     
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {

@@ -17,6 +17,8 @@ class StoriesViewController: UIViewController {
     let apiClient = HNAPIClient()
     let cache = Cache.sharedCache()
     let tableView = UITableView(frame: CGRectZero, style: .Plain)
+    let prototypeCell = StoryCell(frame: CGRectZero)
+    var cachedCellHeights = [Int: CGFloat]() // id: cell height
     
     let savedStoriesController = SavedStoriesController.sharedController
     
@@ -53,10 +55,9 @@ class StoriesViewController: UIViewController {
         }
         
         tableView.backgroundColor = UIColor.backgroundColor()
-        tableView.rowHeight = UITableViewAutomaticDimension
-        tableView.estimatedRowHeight = 100
         tableView.registerClass(StoryCell.self, forCellReuseIdentifier: StoryCell.identifier)
         tableView.dataSource = self
+        tableView.delegate = self
         tableView.tableFooterView = UIView() // avoid empty cells
         tableView.setTranslatesAutoresizingMaskIntoConstraints(false)
         view.addSubview(tableView)
@@ -179,9 +180,19 @@ class StoriesViewController: UIViewController {
         tableView.endUpdates()
     }
     
+    func cachedHeightForRowAtIndexPath(indexPath: NSIndexPath) -> CGFloat {
+        let story = storyForIndexPath(indexPath)
+        if let cachedHeight = cachedCellHeights[story.id] {
+            return cachedHeight
+        }
+        let estimatedHeight = prototypeCell.estimatedHeight(tableView.bounds.width, title: storyForIndexPath(indexPath).title)
+        cachedCellHeights[story.id] = estimatedHeight
+        return estimatedHeight
+    }
+    
 }
 
-extension StoriesViewController: UITableViewDataSource {
+extension StoriesViewController: UITableViewDataSource, UITableViewDelegate {
     
     func numberOfSectionsInTableView(tableView: UITableView) -> Int {
         return 1
@@ -189,6 +200,14 @@ extension StoriesViewController: UITableViewDataSource {
     
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return stories.count
+    }
+    
+    func tableView(tableView: UITableView, estimatedHeightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
+        return cachedHeightForRowAtIndexPath(indexPath)
+    }
+    
+    func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
+        return cachedHeightForRowAtIndexPath(indexPath)
     }
     
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
