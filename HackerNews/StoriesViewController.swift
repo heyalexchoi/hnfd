@@ -13,13 +13,13 @@ class StoriesViewController: UIViewController {
     
     var task: NSURLSessionTask?
     var stories = [Story]()
-    var storiesType: StoriesType = .Top {
+    var storiesType: StoriesType = .Top /*{
         didSet {
             if storiesType != oldValue {
                 tableView.scrollToRowAtIndexPath(NSIndexPath(forRow: 0, inSection: 0), atScrollPosition: .Top, animated: false)
             }
         }
-    }
+    }*/
     let apiClient = HNAPIClient()
     let cache = Cache.sharedCache()
     let tableView = UITableView(frame: CGRectZero, style: .Plain)
@@ -103,6 +103,7 @@ class StoriesViewController: UIViewController {
         if storiesType == .Saved {
             stories = savedStories
             tableView.reloadData()
+            tableView.scrollToRowAtIndexPath(NSIndexPath(forRow: 0, inSection: 0), atScrollPosition: .Top, animated: false)
             ProgressHUD.hideHUDForView(view, animated: true)
             tableView.pullToRefreshView.stopAnimating()
             tableView.infiniteScrollingView.stopAnimating()
@@ -124,6 +125,7 @@ class StoriesViewController: UIViewController {
                     self?.stories = refresh ? stories : self!.stories + filteredStories
                     self?.offset = self!.offset + self!.limit
                     self?.tableView.reloadData()
+                    self?.tableView.scrollToRowAtIndexPath(NSIndexPath(forRow: 0, inSection: 0), atScrollPosition: .Top, animated: false)
             } else {
                 UIAlertView(title: "Stories Error",
                     message: error?.localizedDescription,
