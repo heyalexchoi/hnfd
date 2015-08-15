@@ -7,6 +7,7 @@
 //
 
 import DTCoreText
+import TSMessages
 
 struct TextAttributes {
     
@@ -32,7 +33,9 @@ struct Appearance {
         UINavigationBar.appearance().tintColor = UIColor.textColor()
         UIBarButtonItem.appearance().setTitleTextAttributes(TextAttributes.textAttributes, forState: .Normal)
         UIApplication.sharedApplication().statusBarStyle = .LightContent
+        
+        HNAppearance.setAppearances() // for appearances that weren't accessible from swift
     }
-    
+
 }
 

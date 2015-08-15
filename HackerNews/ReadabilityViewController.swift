@@ -99,10 +99,7 @@ class ReadabilityViewContoller: UIViewController {
             if let article = article {
                 self?.finishLoadingArticle(article)
             } else if let error = error {
-                UIAlertView(title: "Readability Article Error",
-                    message: error.localizedDescription,
-                    delegate: nil,
-                    cancelButtonTitle: "OK").show()
+                ErrorController.showErrorNotification(error)
             }
             })
     }

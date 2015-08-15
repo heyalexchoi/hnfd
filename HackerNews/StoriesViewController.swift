@@ -126,11 +126,8 @@ class StoriesViewController: UIViewController {
                     self?.offset = self!.offset + self!.limit
                     self?.tableView.reloadData()
                     self?.tableView.scrollToRowAtIndexPath(NSIndexPath(forRow: 0, inSection: 0), atScrollPosition: .Top, animated: false)
-            } else {
-                UIAlertView(title: "Stories Error",
-                    message: error?.localizedDescription,
-                    delegate: nil,
-                    cancelButtonTitle: "OK").show()
+            } else if let error = error {
+                ErrorController.showErrorNotification(error)
             }
             }.task
     }

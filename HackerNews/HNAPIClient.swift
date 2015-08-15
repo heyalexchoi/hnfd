@@ -26,7 +26,7 @@ enum StoriesType: String {
 
 class HNAPIClient {
     
-    let baseURLString = Constants.HNAPIBaseURLString
+    let baseURLString = Private.Constants.HNAPIBaseURLString
     let responseProcessingQueue = NSOperationQueue()
     
     func getStories(type: StoriesType, limit: Int, offset: Int, completion: (stories: [Story]?, error: NSError?) -> Void) -> Request {

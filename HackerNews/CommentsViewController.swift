@@ -78,10 +78,7 @@ class CommentsViewController: UIViewController {
             ProgressHUD.hideAllHUDsForView(self?.view, animated: true)
             self?.treeView.pullToRefreshView.stopAnimating()
             if let error = error {
-                UIAlertView(title: "Comments Error",
-                    message: error.localizedDescription,
-                    delegate: nil,
-                    cancelButtonTitle: "OK").show()
+                ErrorController.showErrorNotification(error)
             } else if let story = story {
                 self?.story = story
                 self?.treeView.reloadData()
