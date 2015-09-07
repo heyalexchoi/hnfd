@@ -13,13 +13,7 @@ class StoriesViewController: UIViewController {
     
     var task: NSURLSessionTask?
     var stories = [Story]()
-    var storiesType: StoriesType = .Top /*{
-        didSet {
-            if storiesType != oldValue {
-                tableView.scrollToRowAtIndexPath(NSIndexPath(forRow: 0, inSection: 0), atScrollPosition: .Top, animated: false)
-            }
-        }
-    }*/
+    var storiesType: StoriesType = .Top
     let apiClient = HNAPIClient()
     let cache = Cache.sharedCache()
     let tableView = UITableView(frame: CGRectZero, style: .Plain)
@@ -96,14 +90,16 @@ class StoriesViewController: UIViewController {
         getStories(true)
     }
     
-    func getStories(refresh: Bool) {
+    func getStories(refresh: Bool, scrollToTop: Bool = false) {
         ProgressHUD.showHUDAddedTo(view, animated: true)
         if refresh { offset = 0 }
         
         if storiesType == .Saved {
             stories = savedStories
             tableView.reloadData()
-            tableView.scrollToRowAtIndexPath(NSIndexPath(forRow: 0, inSection: 0), atScrollPosition: .Top, animated: false)
+            if scrollToTop {
+                tableView.scrollToRowAtIndexPath(NSIndexPath(forRow: 0, inSection: 0), atScrollPosition: .Top, animated: false)
+            }
             ProgressHUD.hideHUDForView(view, animated: true)
             tableView.pullToRefreshView.stopAnimating()
             tableView.infiniteScrollingView.stopAnimating()
@@ -125,7 +121,9 @@ class StoriesViewController: UIViewController {
                     self?.stories = refresh ? stories : self!.stories + filteredStories
                     self?.offset = self!.offset + self!.limit
                     self?.tableView.reloadData()
-                    self?.tableView.scrollToRowAtIndexPath(NSIndexPath(forRow: 0, inSection: 0), atScrollPosition: .Top, animated: false)
+                    if scrollToTop {
+                        self?.tableView.scrollToRowAtIndexPath(NSIndexPath(forRow: 0, inSection: 0), atScrollPosition: .Top, animated: false)
+                    }
             } else if let error = error {
                 ErrorController.showErrorNotification(error)
             }
@@ -153,7 +151,7 @@ class StoriesViewController: UIViewController {
     func menuDidFinishSelection(type: StoriesType) {
         storiesType = type
         title = type.title
-        getStories(true)
+        getStories(true, scrollToTop: true)
         menu.close()
     }
     
