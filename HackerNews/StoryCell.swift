@@ -65,33 +65,34 @@ class StoryCell: UITableViewCell {
         titleLabel.lineBreakMode = .ByWordWrapping
         
         for label in [titleLabel, byLabel, scoreLabel, timeLabel, URLLabel] {
-            label.setTranslatesAutoresizingMaskIntoConstraints(false)
+            label.translatesAutoresizingMaskIntoConstraints = false
             articleContainer.addSubview(label)
         }
         
-        scoreBySpace.setTranslatesAutoresizingMaskIntoConstraints(false)
+        scoreBySpace.translatesAutoresizingMaskIntoConstraints = false
         articleContainer.addSubview(scoreBySpace)
-        byTimeSpace.setTranslatesAutoresizingMaskIntoConstraints(false)
+        
+        byTimeSpace.translatesAutoresizingMaskIntoConstraints = false
         articleContainer.addSubview(byTimeSpace)
         
-        commentsLabel.setTranslatesAutoresizingMaskIntoConstraints(false)
+        commentsLabel.translatesAutoresizingMaskIntoConstraints = false
         commentsContainer.addSubview(commentsLabel)
         
-        pinnedImageView.setTranslatesAutoresizingMaskIntoConstraints(false)
+        pinnedImageView.translatesAutoresizingMaskIntoConstraints = false
         commentsContainer.addSubview(pinnedImageView)
         
-        articleContainer.setTranslatesAutoresizingMaskIntoConstraints(false)
+        articleContainer.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(articleContainer)
         
-        commentsContainer.setTranslatesAutoresizingMaskIntoConstraints(false)
+        commentsContainer.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(commentsContainer)
         
         articleButton.addTarget(self, action: "articleButtonDidPress", forControlEvents: .TouchUpInside)
-        articleButton.setTranslatesAutoresizingMaskIntoConstraints(false)
+        articleButton.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(articleButton)
         
         commentsButton.addTarget(self, action: "commentsButtonDidPress", forControlEvents: .TouchUpInside)
-        commentsButton.setTranslatesAutoresizingMaskIntoConstraints(false)
+        commentsButton.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(commentsButton)
         
         articleContainer.twt_addConstraintsWithVisualFormatStrings([
@@ -139,7 +140,7 @@ class StoryCell: UITableViewCell {
     func estimatedHeight(width: CGFloat, title: String) -> CGFloat {
         let attributedTitle = NSAttributedString(string: title, attributes: titleLabel.defaultTextAttributes)
         let titleBoundingRect = attributedTitle.boundingRectWithSize(CGSize(width: width - 60, height: CGFloat.max),
-            options: .UsesLineFragmentOrigin | .UsesFontLeading,
+            options: [.UsesLineFragmentOrigin, .UsesFontLeading],
             context: nil)
         let titleHeight = titleBoundingRect.height
         let detailFont: UIFont = TextAttributes.detailAttributes[NSFontAttributeName] as! UIFont

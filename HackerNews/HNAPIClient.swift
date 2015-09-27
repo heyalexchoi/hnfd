@@ -33,16 +33,17 @@ class HNAPIClient {
         return Alamofire
             .request(.GET, baseURLString + "/\(type.rawValue)", parameters: ["limit": limit, "offset": offset])
             .validate()
-            .responseJSON { [weak self] (_, _, json, error) -> Void in
-                if let error = error {
-                    completion(stories: nil, error: error)
-                } else if let json: AnyObject = json {
+            .responseJSON { [weak self] (req, res, result) -> Void in
+                switch result {
+                case .Success(let data):
                     self?.responseProcessingQueue.addOperationWithBlock({ () -> Void in
-                        let stories = JSON(json).arrayValue.map { Story(json: $0) }
+                        let stories = JSON(data).arrayValue.map { Story(json: $0) }
                         NSOperationQueue.mainQueue().addOperationWithBlock({ () -> Void in
                             completion(stories: stories, error: nil)
                         })
                     })
+                case .Failure(_, let error):
+                    completion(stories: nil, error: error as NSError)
                 }
         }
     }
@@ -51,16 +52,17 @@ class HNAPIClient {
         return Alamofire
             .request(.GET, baseURLString + "/items/\(id)")
             .validate()
-            .responseJSON { [weak self] (_, _, json, error) -> Void in
-                if let error = error {
-                    completion(story: nil, error: error)
-                } else if let json: AnyObject = json {
+            .responseJSON { [weak self] (req, res, result) -> Void in
+                switch result {
+                case .Success(let data):
                     self?.responseProcessingQueue.addOperationWithBlock({ () -> Void in
-                        let story = Story(json: JSON(json))
+                        let story = Story(json: JSON(data))
                         NSOperationQueue.mainQueue().addOperationWithBlock({ () -> Void in
                             completion(story: story, error: nil)
                         })
                     })
+                case .Failure(_, let error):
+                    completion(story: nil, error: error as NSError)
                 }
         }
     }

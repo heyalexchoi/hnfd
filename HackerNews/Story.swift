@@ -14,7 +14,7 @@ func ==(l: Story, r: Story) -> Bool {
     return l.id == r.id
 }
 
-extension Story: Hashable {
+extension Story { // HASHABLE
     override var hashValue: Int {
         return id.hashValue
     }

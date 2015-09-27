@@ -27,7 +27,7 @@ class CommentsHeaderView: UIView {
                 label.numberOfLines = 0
                 label.textAlignment = .Center
             }
-            subview.setTranslatesAutoresizingMaskIntoConstraints(false)
+            subview.translatesAutoresizingMaskIntoConstraints = false
             addSubview(subview)
         }
         
@@ -64,7 +64,7 @@ class CommentsHeaderView: UIView {
     func prepare(story: Story) {
         titleLabel.setText(story.title, attributes: TextAttributes.titleAttributes)
         if let URL = story.URL {
-            linkLabel.attributedText = NSAttributedString(string: URL.absoluteString!, attributes: merge(TextAttributes.URLAttributes(URL), TextAttributes.textAttributes, TextAttributes.centerAlignment))
+            linkLabel.attributedText = NSAttributedString(string: URL.absoluteString, attributes: merge(TextAttributes.URLAttributes(URL), TextAttributes.textAttributes, TextAttributes.centerAlignment))
         } else {
             linkLabel.text = nil
         }

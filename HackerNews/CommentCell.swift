@@ -30,7 +30,7 @@ class CommentCell: UITableViewCell {
         preservesSuperviewLayoutMargins = false
         
         for view in [indentation, byLabel, timeLabel, textView] {
-            view.setTranslatesAutoresizingMaskIntoConstraints(false)
+            view.translatesAutoresizingMaskIntoConstraints = false
             contentView.addSubview(view)
         }
         
@@ -60,7 +60,7 @@ class CommentCell: UITableViewCell {
     
     func estimatedHeight(width: CGFloat, attributedText: NSAttributedString, level: Int) -> CGFloat {
         let textBoundingRect = attributedText.boundingRectWithSize(CGSize(width: width - indentationWidthForLevel(level) - 15, height: CGFloat.max),
-            options: .UsesLineFragmentOrigin | .UsesFontLeading,
+            options: [.UsesLineFragmentOrigin, .UsesFontLeading],
             context: nil)
         let textHeight = textBoundingRect.height
         let detailFont: UIFont = TextAttributes.textAttributes[NSFontAttributeName] as! UIFont

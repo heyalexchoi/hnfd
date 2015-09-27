@@ -59,7 +59,7 @@ class StoriesViewController: UIViewController {
         tableView.dataSource = self
         tableView.delegate = self
         tableView.tableFooterView = UIView() // avoid empty cells
-        tableView.setTranslatesAutoresizingMaskIntoConstraints(false)
+        tableView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(tableView)
         
         tableView.addPullToRefreshWithActionHandler { [weak self] () -> Void in
@@ -135,7 +135,7 @@ class StoriesViewController: UIViewController {
     }
     
     func indexPathForStory(story: Story) -> NSIndexPath {
-        return NSIndexPath(forRow: find(stories, story)!, inSection: 0)
+        return NSIndexPath(forRow: stories.indexOf(story)!, inSection: 0)
     }
     
     // MARK: - Menu
@@ -233,7 +233,7 @@ extension StoriesViewController: StoryCellDelegate {
         let story = storyForCell(cell)
         if story.type == .Story
             && story.URL != nil
-            && !story.URL!.absoluteString!.isEmpty {
+            && !story.URL!.absoluteString.isEmpty {
                 navigationController?.pushViewController(ReadabilityViewContoller(story: story), animated: true)
         } else {
             navigationController?.pushViewController(CommentsViewController(story: story), animated: true)

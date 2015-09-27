@@ -40,7 +40,7 @@ class ReadabilityViewContoller: UIViewController {
         webView.delegate = self
         
         for view in [webView] {
-            view.setTranslatesAutoresizingMaskIntoConstraints(false)
+            view.translatesAutoresizingMaskIntoConstraints = false
             self.view.addSubview(view)
         }
         
@@ -107,7 +107,7 @@ class ReadabilityViewContoller: UIViewController {
     func finishLoadingArticle(article: ReadabilityArticle) {
         
         let cssPath = NSBundle.mainBundle().pathForResource("readability_article", ofType: "css")!
-        let css = String(contentsOfFile:cssPath, encoding: NSUTF8StringEncoding, error: nil)!
+        let css = try! String(contentsOfFile: cssPath)
         
         // swift compiler choking on string concatenations. had to break them into more statements
         var customCSS =

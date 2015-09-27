@@ -37,7 +37,7 @@ class CommentsViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        if let URL = story.URL {
+        if story.URL != nil {
             navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .Action, target: self, action: "actionButtonDidPress")
         }
         
@@ -48,7 +48,7 @@ class CommentsViewController: UIViewController {
         treeView.dataSource = self
         treeView.delegate = self
         treeView.tableFooterView = UIView() // avoid empty cells
-        treeView.setTranslatesAutoresizingMaskIntoConstraints(false)
+        treeView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(treeView)
         
         treeView.addPullToRefreshWithActionHandler { [weak self] () -> Void in

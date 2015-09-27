@@ -20,28 +20,24 @@ class ReadabilityAPIClient {
                 baseURLString + "/content/v1/parser",
                 parameters: ["url": URL, "token": Private.Keys.readabilityParserAPIToken])
             .validate()
-            .responseJSON { [weak self] (req, res, json, error) -> Void in
-                if let error = error {
-                    // grab error message if there is one, and return new error with that message in user info
-                    if let errorJSON: AnyObject = json,
-                        let messages: String = JSON(errorJSON)["messages"].string {
-                        let errorWithMessage = NSError(domain: Public.Constants.hackerNewsErrorDomain, code: 1, userInfo: [NSUnderlyingErrorKey: error, Public.Constants.errorMessagesKey: messages])
-                        completion(article: nil, error: errorWithMessage)
-                        return
-                    }
-
-                    completion(article: nil, error: error)
-                } else if let json: AnyObject = json {
+            .responseJSON { [weak self] (req, res, result) -> Void in
+                switch result {
+                case .Success(let json):
                     self?.responseProcessingQueue.addOperationWithBlock({ () -> Void in
                         let article = ReadabilityArticle(json: JSON(json))
                         NSOperationQueue.mainQueue().addOperationWithBlock({ () -> Void in
                             completion(article: article, error: nil)
                         })
                     })
+                case .Failure(let data, let error):
+                    if let data = data,
+                        messages = JSON(data: data)["messages"].string {
+                            let messagedError = NSError(domain: Public.Constants.hackerNewsErrorDomain, code: 1, userInfo: [NSUnderlyingErrorKey: error as NSError, Public.Constants.errorMessagesKey: messages])
+                            completion(article: nil, error: messagedError)
+                    } else {
+                        completion(article: nil, error: error as NSError)
+                    }                    
                 }
         }
     }
-    
 }
-
-

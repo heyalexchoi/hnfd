@@ -1,30 +1,30 @@
 PODS:
-  - Alamofire (1.2.0)
-  - Colours (5.6.2)
-  - DateTools (1.5.0)
+  - Alamofire (2.0.2)
+  - Colours (5.8.0)
+  - DateTools (1.7.0)
   - DTCoreText (1.6.15):
     - DTFoundation/Core (~> 1.7.5)
     - DTFoundation/DTAnimatedGIF (~> 1.7.5)
     - DTFoundation/DTHTMLParser (~> 1.7.5)
     - DTFoundation/UIKit (~> 1.7.5)
-  - DTFoundation/Core (1.7.5)
-  - DTFoundation/DTAnimatedGIF (1.7.5)
-  - DTFoundation/DTHTMLParser (1.7.5):
+  - DTFoundation/Core (1.7.7)
+  - DTFoundation/DTAnimatedGIF (1.7.7)
+  - DTFoundation/DTHTMLParser (1.7.7):
     - DTFoundation/Core
-  - DTFoundation/UIKit (1.7.5):
+  - DTFoundation/UIKit (1.7.7):
     - DTFoundation/Core
   - HexColors (2.3.0)
   - MBProgressHUD (0.9.1)
   - NYXImagesKit (2.3)
   - REMenu (1.10)
-  - SnapKit (0.11.0)
+  - SnapKit (0.15.0)
   - SVPullToRefresh (0.4.1)
-  - SwiftyJSON (2.2.0)
+  - SwiftyJSON (2.3.0)
   - TMCache (2.1.0)
   - TSMessages (0.9.13):
     - HexColors (~> 2.3.0)
   - TWTToast/UIKit/AutoLayout (0.15)
-  - UIImage+Additions (2.0.1)
+  - UIImage+Additions (2.1.0)
   - UIImage-Helpers (0.0.3)
 
 DEPENDENCIES:
@@ -59,35 +59,35 @@ EXTERNAL SOURCES:
 
 CHECKOUT OPTIONS:
   DTCoreText:
-    :commit: f9a3d9cb72b305a298566f1093a8943367a8e782
+    :commit: 968e1808a11d35aa64b47ad0dd3ce11f698b7a41
     :git: https://github.com/davbeck/DTCoreText.git
   SwiftyJSON:
-    :commit: 87fa9e2432187629aae80cf89027f2a615af2c31
+    :commit: 3b5d0d4e0c19173b1bf0dc823bde25ad870f70c0
     :git: https://github.com/SwiftyJSON/SwiftyJSON.git
   TSMessages:
     :commit: 7ef3990de3c626e8f3e50bfabb53f76997e374ce
     :git: https://github.com/KrauseFx/TSMessages.git
   TWTToast:
-    :commit: 5d1ec37e523a6c4959fbff02404b59a154c5958f
+    :commit: 548a8f9020868da776b3a77186f724cf4d8bbe66
     :git: https://github.com/twotoasters/Toast.git
 
 SPEC CHECKSUMS:
-  Alamofire: d765c5c1713aa64106b0228aaa600a1e6851f68d
-  Colours: 0afd4c3429656880fd4cff350ca3bf0ab86ca348
-  DateTools: b93a2c2017747329c6077c7d7e8a75106e23d0d7
-  DTCoreText: f64c23e99805671621cc059e7502c8bb08aad14f
-  DTFoundation: 1d28080c20c3da041706545363f8238ab53a6204
+  Alamofire: 8edbab00802a752bb5240cc2abe70e7e881488ad
+  Colours: c186cc76afa2ca86f5ca5e68f610f9be17b48337
+  DateTools: 53288ee8b905fdc75897a1e6b5cc0144b14cba60
+  DTCoreText: fc230af3d5ee6e53275cb0cd2cbe8abf71750dc4
+  DTFoundation: c9b3362b83f0017389082ec067ede719826a579d
   HexColors: 6ad3947c3447a055a3aa8efa859def096351fe5f
   MBProgressHUD: c47f2c166c126cf2ce36498d80f33e754d4e93ad
   NYXImagesKit: 8163e3335a40eaa173ca5bbbf81fafb57d3947eb
   REMenu: 30dad195930adf6c5eeb8041e3257aa60bf9fa49
-  SnapKit: 5194d53cee209d337a989919ff66a70b7aa3dda3
+  SnapKit: 4962eed2ee18e48cbd2b2292fffc57efe7235f87
   SVPullToRefresh: ba2e718695a43253d8bea6852d2960097dc15d8c
-  SwiftyJSON: 0b3e6c07af17ff745e77e8e9984097b55c956e5c
+  SwiftyJSON: 8d6b61a70277ef2a5d710d372e06e7e2d87fb9e4
   TMCache: 95ebcc9b3c7e90fb5fd8fc3036cba3aa781c9bed
   TSMessages: 6e403b790139636c15ab4f51946537095e03e79c
   TWTToast: 0da7f209a5f2410332ac84b0e0d6f63964c1ff2a
-  UIImage+Additions: e4e15b8dae4aea5fa9016964c1af6344431fd1e3
+  UIImage+Additions: 6181430b139099649e56171d58a52d6c37d57e42
   UIImage-Helpers: 06b04a42bdd222844035602e87e936765c80f620
 
 COCOAPODS: 0.38.2
