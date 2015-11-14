@@ -154,7 +154,7 @@ extension CommentsViewController: UITextViewDelegate {
         if URL == story.URL {
             goToArticle()
         } else {
-            presentViewController(UINavigationController(rootViewController: WebViewController(url: URL)), animated: true, completion: nil)
+            presentWebViewController(URL)
         }        
         return false
     }

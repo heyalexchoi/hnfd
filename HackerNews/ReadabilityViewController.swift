@@ -166,8 +166,8 @@ class ReadabilityViewContoller: UIViewController {
 extension ReadabilityViewContoller: UIWebViewDelegate {
     
     func webView(webView: UIWebView, shouldStartLoadWithRequest request: NSURLRequest, navigationType: UIWebViewNavigationType) -> Bool {
-        if htmlLoaded {
-            presentViewController(UINavigationController(rootViewController: WebViewController(url: request.URL!)), animated: true, completion: nil)
+        if let URL = request.URL where htmlLoaded {
+            presentWebViewController(URL)
             return false
         }
         return true        

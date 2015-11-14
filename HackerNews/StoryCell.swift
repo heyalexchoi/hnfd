@@ -6,8 +6,7 @@
 //  Copyright (c) 2015 Alex Choi. All rights reserved.
 //
 
-import NYXImagesKit
-import UIImage_Additions
+import SnapKit
 
 protocol StoryCellDelegate: class {
     func cellDidSelectStoryArticle(cell: StoryCell)
