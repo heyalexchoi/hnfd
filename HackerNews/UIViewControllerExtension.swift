@@ -7,11 +7,18 @@
 //
 
 import Foundation
+import SafariServices
 
-extension UIViewController {
+extension UIViewController: SFSafariViewControllerDelegate {
     
     func presentWebViewController(URL: NSURL, animated: Bool = true, completion: (() -> Void)? = nil) {
-        presentViewController(WebViewController(URL: URL), animated: animated, completion: completion)
+        let webViewController = WebViewController(URL: URL)
+        webViewController.delegate = self
+        presentViewController(webViewController, animated: animated, completion: completion)
+    }
+    
+    public func safariViewControllerDidFinish(controller: SFSafariViewController) {
+        dismissViewControllerAnimated(true, completion: nil)
     }
     
 }
