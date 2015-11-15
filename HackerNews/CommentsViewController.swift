@@ -21,6 +21,8 @@ class CommentsViewController: UIViewController {
     let cache = Cache.sharedCache()
     let treeView = UITableView(frame: CGRectZero, style: .Plain)
     let header: CommentsHeaderView
+    let prototypeCell = CommentCell(frame: CGRectZero)
+    var cachedCellHeights = [Int: CGFloat]() // id: cell height
     
     init(story: Story) {
         self.story = story
@@ -35,19 +37,18 @@ class CommentsViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        if let URL = story.URL {
+        if story.URL != nil {
             navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .Action, target: self, action: "actionButtonDidPress")
         }
         
-        treeView.rowHeight = UITableViewAutomaticDimension
-        treeView.estimatedRowHeight = 200
         treeView.separatorInset = UIEdgeInsetsZero
         treeView.separatorColor = UIColor.separatorColor()
         treeView.backgroundColor = UIColor.backgroundColor()
         treeView.registerClass(CommentCell.self, forCellReuseIdentifier: CommentCell.identifier)
         treeView.dataSource = self
+        treeView.delegate = self
         treeView.tableFooterView = UIView() // avoid empty cells
-        treeView.setTranslatesAutoresizingMaskIntoConstraints(false)
+        treeView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(treeView)
         
         treeView.addPullToRefreshWithActionHandler { [weak self] () -> Void in
@@ -77,10 +78,7 @@ class CommentsViewController: UIViewController {
             ProgressHUD.hideAllHUDsForView(self?.view, animated: true)
             self?.treeView.pullToRefreshView.stopAnimating()
             if let error = error {
-                UIAlertView(title: "Comments Error",
-                    message: error.localizedDescription,
-                    delegate: nil,
-                    cancelButtonTitle: "OK").show()
+                ErrorController.showErrorNotification(error)
             } else if let story = story {
                 self?.story = story
                 self?.treeView.reloadData()
@@ -111,9 +109,19 @@ class CommentsViewController: UIViewController {
         // TO DO: manage navigation stack so user can go back and forth between article and comments without making huge chain
         navigationController?.pushViewController(ReadabilityViewContoller(story: story), animated: true)
     }
+    
+    func cachedHeightForRowAtIndexPath(indexPath: NSIndexPath) -> CGFloat {
+        let comment = flattenedComments[indexPath.row]
+        if let cachedHeight = cachedCellHeights[comment.id] {
+            return cachedHeight
+        }
+        let estimatedHeight = prototypeCell.estimatedHeight(treeView.bounds.width, attributedText: comment.attributedText, level: comment.level)
+        cachedCellHeights[comment.id] = estimatedHeight
+        return estimatedHeight
+    }
 }
 
-extension CommentsViewController: UITableViewDataSource {
+extension CommentsViewController: UITableViewDataSource, UITableViewDelegate {
     
     func numberOfSectionsInTableView(tableView: UITableView) -> Int {
         return 1
@@ -121,6 +129,14 @@ extension CommentsViewController: UITableViewDataSource {
     
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return flattenedComments.count
+    }
+    
+    func tableView(tableView: UITableView, estimatedHeightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
+        return cachedHeightForRowAtIndexPath(indexPath)
+    }
+    
+    func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
+        return cachedHeightForRowAtIndexPath(indexPath)
     }
     
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
@@ -138,7 +154,7 @@ extension CommentsViewController: UITextViewDelegate {
         if URL == story.URL {
             goToArticle()
         } else {
-            presentViewController(UINavigationController(rootViewController: WebViewController(url: URL)), animated: true, completion: nil)
+            presentWebViewController(URL)
         }        
         return false
     }

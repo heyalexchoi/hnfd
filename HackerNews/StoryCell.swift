@@ -6,8 +6,7 @@
 //  Copyright (c) 2015 Alex Choi. All rights reserved.
 //
 
-import NYXImagesKit
-import UIImage_Additions
+import SnapKit
 
 protocol StoryCellDelegate: class {
     func cellDidSelectStoryArticle(cell: StoryCell)
@@ -43,7 +42,7 @@ class StoryCell: UITableViewCell {
     
     let leftSwipeRecognizer = UISwipeGestureRecognizer()
     let rightSwipeRecognizer = UISwipeGestureRecognizer()
-
+    
     
     override init(style: UITableViewCellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -62,37 +61,37 @@ class StoryCell: UITableViewCell {
         contentView.addGestureRecognizer(rightSwipeRecognizer)
         
         titleLabel.numberOfLines = 0
-        titleLabel.preferredMaxLayoutWidth = contentView.bounds.size.width - 60 // comments container width 40 + 5 + 15 padding
         titleLabel.lineBreakMode = .ByWordWrapping
         
         for label in [titleLabel, byLabel, scoreLabel, timeLabel, URLLabel] {
-            label.setTranslatesAutoresizingMaskIntoConstraints(false)
+            label.translatesAutoresizingMaskIntoConstraints = false
             articleContainer.addSubview(label)
         }
         
-        scoreBySpace.setTranslatesAutoresizingMaskIntoConstraints(false)
+        scoreBySpace.translatesAutoresizingMaskIntoConstraints = false
         articleContainer.addSubview(scoreBySpace)
-        byTimeSpace.setTranslatesAutoresizingMaskIntoConstraints(false)
+        
+        byTimeSpace.translatesAutoresizingMaskIntoConstraints = false
         articleContainer.addSubview(byTimeSpace)
         
-        commentsLabel.setTranslatesAutoresizingMaskIntoConstraints(false)
+        commentsLabel.translatesAutoresizingMaskIntoConstraints = false
         commentsContainer.addSubview(commentsLabel)
         
-        pinnedImageView.setTranslatesAutoresizingMaskIntoConstraints(false)
+        pinnedImageView.translatesAutoresizingMaskIntoConstraints = false
         commentsContainer.addSubview(pinnedImageView)
         
-        articleContainer.setTranslatesAutoresizingMaskIntoConstraints(false)
+        articleContainer.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(articleContainer)
         
-        commentsContainer.setTranslatesAutoresizingMaskIntoConstraints(false)
+        commentsContainer.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(commentsContainer)
         
         articleButton.addTarget(self, action: "articleButtonDidPress", forControlEvents: .TouchUpInside)
-        articleButton.setTranslatesAutoresizingMaskIntoConstraints(false)
+        articleButton.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(articleButton)
         
         commentsButton.addTarget(self, action: "commentsButtonDidPress", forControlEvents: .TouchUpInside)
-        commentsButton.setTranslatesAutoresizingMaskIntoConstraints(false)
+        commentsButton.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(commentsButton)
         
         articleContainer.twt_addConstraintsWithVisualFormatStrings([
@@ -135,6 +134,17 @@ class StoryCell: UITableViewCell {
     
     required init(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    func estimatedHeight(width: CGFloat, title: String) -> CGFloat {
+        let attributedTitle = NSAttributedString(string: title, attributes: titleLabel.defaultTextAttributes)
+        let titleBoundingRect = attributedTitle.boundingRectWithSize(CGSize(width: width - 60, height: CGFloat.max),
+            options: [.UsesLineFragmentOrigin, .UsesFontLeading],
+            context: nil)
+        let titleHeight = titleBoundingRect.height
+        let detailFont: UIFont = TextAttributes.detailAttributes[NSFontAttributeName] as! UIFont
+        let detailHeight = detailFont.lineHeight
+        return 15 + titleHeight + 5 + detailHeight + 5 + detailHeight + 15
     }
     
     func prepare(story: Story) {

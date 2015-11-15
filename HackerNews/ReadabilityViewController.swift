@@ -40,7 +40,7 @@ class ReadabilityViewContoller: UIViewController {
         webView.delegate = self
         
         for view in [webView] {
-            view.setTranslatesAutoresizingMaskIntoConstraints(false)
+            view.translatesAutoresizingMaskIntoConstraints = false
             self.view.addSubview(view)
         }
         
@@ -85,9 +85,9 @@ class ReadabilityViewContoller: UIViewController {
             && shouldScroll,
             let article = article {
                 webView.scrollView.setContentOffset(CGPoint(x:0, y: article.readingProgress * webView.scrollView.contentSize.height), animated: false)
-                webView.hidden = false
                 shouldScroll = false
         }
+        webView.hidden = false
     }
     
     func getReadabilityArticle() {
@@ -99,10 +99,7 @@ class ReadabilityViewContoller: UIViewController {
             if let article = article {
                 self?.finishLoadingArticle(article)
             } else if let error = error {
-                UIAlertView(title: "Readability Article Error",
-                    message: error.localizedDescription,
-                    delegate: nil,
-                    cancelButtonTitle: "OK").show()
+                ErrorController.showErrorNotification(error)
             }
             })
     }
@@ -110,7 +107,7 @@ class ReadabilityViewContoller: UIViewController {
     func finishLoadingArticle(article: ReadabilityArticle) {
         
         let cssPath = NSBundle.mainBundle().pathForResource("readability_article", ofType: "css")!
-        let css = String(contentsOfFile:cssPath, encoding: NSUTF8StringEncoding, error: nil)!
+        let css = try! String(contentsOfFile: cssPath)
         
         // swift compiler choking on string concatenations. had to break them into more statements
         var customCSS =
@@ -169,14 +166,15 @@ class ReadabilityViewContoller: UIViewController {
 extension ReadabilityViewContoller: UIWebViewDelegate {
     
     func webView(webView: UIWebView, shouldStartLoadWithRequest request: NSURLRequest, navigationType: UIWebViewNavigationType) -> Bool {
-        if htmlLoaded {
-            presentViewController(UINavigationController(rootViewController: WebViewController(url: request.URL!)), animated: true, completion: nil)
+        if let URL = request.URL where htmlLoaded {
+            presentWebViewController(URL)
             return false
         }
-        return true
+        return true        
     }
     
     func webViewDidFinishLoad(webView: UIWebView) {
         htmlLoaded = true
+        scrollToReadingProgress()
     }
 }

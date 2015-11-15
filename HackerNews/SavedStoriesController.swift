@@ -38,7 +38,7 @@ class SavedStoriesController {
     func filterStories(stories: [Story]) -> [Story] {
         return stories.map { [weak self] (story) -> Story in
             if let strong_self = self {
-                if let index = find(strong_self.savedStories, story) {
+                if let index = strong_self.savedStories.indexOf(story) {
                     story.saved = true
                     strong_self.savedStories[index] = story
                     strong_self.fetchAffiliatedStoryData(story)

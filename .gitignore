@@ -18,5 +18,5 @@ DerivedData
 *.xcuserstate
 
 Pods
-/HackerNews/PrivateKeys.swift
+/HackerNews/Private.swift
 *.DS_Store

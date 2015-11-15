@@ -7,6 +7,7 @@
 //
 
 import DTCoreText
+import TSMessages
 
 struct TextAttributes {
     
@@ -14,7 +15,7 @@ struct TextAttributes {
     static let detailAttributes = [NSFontAttributeName: UIFont.detailFont(), NSForegroundColorAttributeName: UIColor.textColor()]
     static let textReaderAttributes = [NSFontAttributeName: UIFont.textReaderFont(), NSForegroundColorAttributeName: UIColor.textColor()]
     static let titleAttributes = [NSFontAttributeName: UIFont.titleFont(), NSForegroundColorAttributeName: UIColor.textColor()]
-    static let centerAlignment: [NSObject: AnyObject] = {
+    static let centerAlignment: [String: AnyObject] = {
         let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.alignment = .Center
         return [NSParagraphStyleAttributeName: paragraphStyle]
@@ -30,9 +31,11 @@ struct Appearance {
         UINavigationBar.appearance().setBackgroundImage(UIImage(color: UIColor.backgroundColor()), forBarMetrics: .Default)
         UINavigationBar.appearance().titleTextAttributes = TextAttributes.titleAttributes
         UINavigationBar.appearance().tintColor = UIColor.textColor()
-        
         UIBarButtonItem.appearance().setTitleTextAttributes(TextAttributes.textAttributes, forState: .Normal)
+        UIApplication.sharedApplication().statusBarStyle = .LightContent
+        
+        HNAppearance.setAppearances() // for appearances that weren't accessible from swift
     }
-    
+
 }
 

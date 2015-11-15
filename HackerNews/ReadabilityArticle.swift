@@ -52,7 +52,7 @@ class ReadabilityArticle: NSObject, NSCoding {
             "content": content,
             "domain": domain,
             "author": author,
-            "url": URL.absoluteString!,
+            "url": URL.absoluteString,
             "short_url": shortURL?.absoluteString ?? "",
             "title": title,
             "excerpt": excerpt,
@@ -75,7 +75,7 @@ class ReadabilityArticle: NSObject, NSCoding {
     }
     
     class func cacheKeyForURL(url: NSURL) -> String {
-        return "cached_article_\(url.absoluteString!)"
+        return "cached_article_\(url.absoluteString)"
     }
     
     func save() {
