@@ -96,63 +96,13 @@ class ReadabilityViewContoller: UIViewController {
         task = cache.articleForStory(story, completion: { [weak self] (article, error) -> Void in
             ProgressHUD.hideHUDForView(self?.view, animated: true)
             self?.article = article
-            if let article = article {
-                self?.finishLoadingArticle(article)
-            } else if let error = error {
-                ErrorController.showErrorNotification(error)
-            }
+            self?.finishLoadingArticle()
+            ErrorController.showErrorNotification(error)
             })
     }
     
-    func finishLoadingArticle(article: ReadabilityArticle) {
-        
-        let cssPath = NSBundle.mainBundle().pathForResource("readability_article", ofType: "css")!
-        let css = try! String(contentsOfFile: cssPath)
-        
-        // swift compiler choking on string concatenations. had to break them into more statements
-        var customCSS =
-        "body {"
-        customCSS +=
-            "font-size: \(UIFont.textReaderFont().pointSize);" +
-            "font-family: \(UIFont.textReaderFont().fontName);" +
-            "background-color: \(UIColor.backgroundColor().hexString());" +
-        "color: \(UIColor.textColor().hexString());"
-        customCSS +=
-        " }"
-        
-        customCSS +=
-        "a {" +
-            "color: \(UIColor.textColor().hexString());" +
-        "}"
-        
-        let head = "<head><style type='text/css'>" + css + customCSS + "</style></head>"
-        
-        var articleInfo =
-        "<div class='article_info'>" +
-        "<h1>\(article.title)</h1>"
-        
-        if !article.author.isEmpty {
-            articleInfo +=
-                "<div>" +
-                "<span class='by'>By </span>" +
-                "<span class='author'>\(article.author), </span>" +
-                "<span class='domain'>\(article.domain)</span>" +
-            "</div>"
-        }
-        
-        if let date = article.datePublished {
-            let string = DateFormatter.stringFromDate(date, format: "MMM d, yyyy")
-            articleInfo += "<div>\(string)</div>"
-        }
-        
-        articleInfo +=
-            "<div><a href='\(article.URL)'> \(article.URL) </a></div>" +
-        "</div>"
-        
-        let body = "<body>" + articleInfo + article.content + "</body>"
-        
+    func finishLoadingArticle() {
         let html = head + body
-        
         webView.loadHTMLString(html, baseURL: nil)
     }
     
@@ -163,6 +113,91 @@ class ReadabilityViewContoller: UIViewController {
     
 }
 
+extension ReadabilityViewContoller {
+    
+    var CSS: String {
+        let cssPath = NSBundle.mainBundle().pathForResource("readability_article", ofType: "css")!
+        let css = try! String(contentsOfFile: cssPath)
+        // swift compiler choking on string concatenations. had to break them into more statements
+        var customCSS =
+        "body {"
+        customCSS +=
+            "font-size: \(UIFont.textReaderFont().pointSize);" +
+            "font-family: \(UIFont.textReaderFont().fontName);" +
+            "background-color: \(UIColor.backgroundColor().hexString());" +
+            "color: \(UIColor.textColor().hexString());"
+        customCSS +=
+        "}"
+        customCSS +=
+        "a {" +
+            "color: \(UIColor.textColor().hexString());" +
+        "}"
+        
+        return css + customCSS
+    }
+    
+    var head: String {
+        return "<head><style type='text/css'>" + CSS + "</style></head>"
+    }
+    
+    var body: String {
+        
+        if let article = article {
+            var articleInfo =
+            "<div class='article_info'>" +
+            "<h1>\(article.title)</h1>"
+            
+            if !article.author.isEmpty {
+                articleInfo +=
+                    "<div>" +
+                    "<span class='by'>By </span>" +
+                    "<span class='author'>\(article.author), </span>" +
+                    "<span class='domain'>\(article.domain)</span>" +
+                "</div>"
+            }
+            
+            if let date = article.datePublished {
+                let string = DateFormatter.stringFromDate(date, format: "MMM d, yyyy")
+                articleInfo += "<div>\(string)</div>"
+            }
+            
+            articleInfo +=
+                "<div><a href='\(article.URL)'> \(article.URL) </a></div>" +
+            "</div>"
+            
+            let body = "<body>" + articleInfo + article.content + "</body>"
+            
+            return body
+            
+        }
+        
+        var articleInfo =
+        "<div class='article_info'>" +
+        "<h1>\(story.title)</h1>"
+        
+        if !story.by.isEmpty {
+            articleInfo +=
+                "<div>" +
+                "<span class='by'>Posted by </span>" +
+                "<span class='author'>\(story.by)</span>" +
+            "</div>"
+        }
+        
+        let string = DateFormatter.stringFromDate(story.date, format: "MMM d, yyyy")
+        articleInfo += "<div>\(string)</div>"
+        
+        if let URL = story.URL {
+            articleInfo +=
+                "<div><a href='\(URL)'> \(URL) </a></div>" +
+            "</div>"
+        }
+        
+        let body = "<body>" + articleInfo + "Was not able to parse this article. :(" + "</body>"
+        
+        return body
+    }
+}
+
 extension ReadabilityViewContoller: UIWebViewDelegate {
     
     func webView(webView: UIWebView, shouldStartLoadWithRequest request: NSURLRequest, navigationType: UIWebViewNavigationType) -> Bool {
@@ -170,7 +205,7 @@ extension ReadabilityViewContoller: UIWebViewDelegate {
             presentWebViewController(URL)
             return false
         }
-        return true        
+        return true
     }
     
     func webViewDidFinishLoad(webView: UIWebView) {

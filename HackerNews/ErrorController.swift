@@ -10,7 +10,10 @@ import TSMessages
 
 class ErrorController {
     
-    class func showErrorNotification(error: NSError) {
+    class func showErrorNotification(error: NSError?) {
+        
+        guard let error = error else { return }
+        
         if error.code == NSURLErrorCancelled {
             return
         }
