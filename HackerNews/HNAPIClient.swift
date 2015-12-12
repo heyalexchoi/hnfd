@@ -37,7 +37,9 @@ class HNAPIClient {
                 switch result {
                 case .Success(let data):
                     self?.responseProcessingQueue.addOperationWithBlock({ () -> Void in
-                        let stories = JSON(data).arrayValue.map { Story(json: $0) }
+                        let stories = JSON(data).arrayValue
+                            .filter { return $0 != nil } // dirty fix for cleaning out null stories from response. did not go with failable initializer on Story  because there's a bug in the swift compiler that makes it hard to fail initializer on class objects.
+                            .map { Story(json: $0) }
                         NSOperationQueue.mainQueue().addOperationWithBlock({ () -> Void in
                             completion(stories: stories, error: nil)
                         })
