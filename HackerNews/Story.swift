@@ -45,6 +45,7 @@ class Story: NSObject, NSCoding {
     let URL: NSURL?
     let children: [Comment]
     let date: NSDate
+    let updated: String
     var saved = false
     var cacheKey: String {
         return "cached_story_\(id)"
@@ -54,6 +55,9 @@ class Story: NSObject, NSCoding {
             return ReadabilityArticle.cacheKeyForURL(URL)
         }
         return ""
+    }
+    var isCached: Bool {
+        return Cache.sharedCache().diskCache.fileURLForKey(cacheKey) != nil
     }
     
     init(json: JSON) {
@@ -71,6 +75,7 @@ class Story: NSObject, NSCoding {
         self.URL = json["url"].URL
         self.children = json["children"].arrayValue.map { Comment(json: $0, level: 1) } .filter { !$0.deleted }
         self.date = NSDate(timeIntervalSince1970: NSTimeInterval(self.time))
+        self.updated = json["updated"].stringValue
     }
     
     func toJSON() -> AnyObject {
@@ -109,5 +114,6 @@ class Story: NSObject, NSCoding {
         }
         return false
     }
+    
 }
 

@@ -33,7 +33,7 @@ class CommentsHeaderView: UIView {
         
         bottomBorder.backgroundColor = UIColor.separatorColor()
         
-        twt_addConstraintsWithVisualFormatStrings([
+        addConstraintsWithVisualFormatStrings([
             "V:|-15-[titleLabel]-10-[detailLabel]-10-[linkLabel][linkLabelTextViewSpacing][textView]-15-[bottomBorder(==1)]|",
             "H:|-15-[titleLabel]-15-|",
             "H:|-15-[detailLabel]-15-|",
@@ -47,8 +47,8 @@ class CommentsHeaderView: UIView {
                 "linkLabelTextViewSpacing": linkLabelTextViewSpacing,
                 "bottomBorder": bottomBorder])
         
-        widthConstraint = twt_addWidthConstraintWithConstant(999)
-        linkLabelTextViewSpacingHeightConstraint = linkLabelTextViewSpacing.twt_addHeightConstraintWithConstant(10)
+        widthConstraint = anchorWidthToConstant(999)
+        linkLabelTextViewSpacingHeightConstraint = linkLabelTextViewSpacing.anchorHeightToConstant(999)
         
     }
     

@@ -29,7 +29,7 @@ class ReadabilityViewContoller: UIViewController {
         self.articleURL = story.URL!
         super.init(nibName: nil, bundle: nil)
         
-        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .Action, target: self, action: "actionButtonDidPress")
+        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .Action, target: self, action: #selector(ReadabilityViewContoller.actionButtonDidPress))
         
         // hides white flash. for whatever reason setting webview's background color doesnt prevent white flash.
         view.backgroundColor = UIColor.backgroundColor()
@@ -44,12 +44,12 @@ class ReadabilityViewContoller: UIViewController {
             self.view.addSubview(view)
         }
         
-        view.twt_addConstraintsWithVisualFormatStrings([
+        view.addConstraintsWithVisualFormatStrings([
             "H:|[webView]|",
             "V:|[webView]|"], views: [
                 "webView": webView])
         
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: "saveReadingProgress", name: UIApplicationWillResignActiveNotification, object: nil)
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(ReadabilityViewContoller.saveReadingProgress), name: UIApplicationWillResignActiveNotification, object: nil)
         
         getReadabilityArticle()
     }

@@ -20,7 +20,7 @@ class CommentCell: UITableViewCell {
     let textView = TextView()
     
     override init(style: UITableViewCellStyle, reuseIdentifier: String?) {
-        indentationWidthConstraint = indentation.twt_addWidthConstraintWithConstant(15)
+        indentationWidthConstraint = indentation.anchorWidthToConstant(15)
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         
         backgroundColor = UIColor.backgroundColor()
@@ -41,7 +41,7 @@ class CommentCell: UITableViewCell {
         textView.textContainer.lineFragmentPadding = 0
         textView.dataDetectorTypes = .All
         
-        contentView.twt_addConstraintsWithVisualFormatStrings([
+        contentView.addConstraintsWithVisualFormatStrings([
             "H:|[indentation][byLabel]-30-[timeLabel]-(>=0)-|",
             "H:|[indentation][textView]-15-|",
             "V:|-15-[byLabel]-15-[textView]-15-|",

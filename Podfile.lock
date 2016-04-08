@@ -16,6 +16,7 @@ PODS:
   - HexColors (2.3.0)
   - MBProgressHUD (0.9.1)
   - NYXImagesKit (2.3)
+  - ReachabilitySwift (2.3.3)
   - REMenu (1.10)
   - SnapKit (0.15.0)
   - SVPullToRefresh (0.4.1)
@@ -23,7 +24,6 @@ PODS:
   - TMCache (2.1.0)
   - TSMessages (0.9.13):
     - HexColors (~> 2.3.0)
-  - TWTToast/UIKit/AutoLayout (0.15)
   - UIImage+Additions (2.1.0)
   - UIImage-Helpers (0.0.3)
 
@@ -34,42 +34,40 @@ DEPENDENCIES:
   - DTCoreText (from `https://github.com/davbeck/DTCoreText.git`)
   - MBProgressHUD
   - NYXImagesKit
+  - ReachabilitySwift (from `https://github.com/ashleymills/Reachability.swift`)
   - REMenu
   - SnapKit
   - SVPullToRefresh
   - SwiftyJSON (from `https://github.com/SwiftyJSON/SwiftyJSON.git`)
   - TMCache
   - TSMessages (from `https://github.com/KrauseFx/TSMessages.git`, commit `7ef3990de3c626e8f3e50bfabb53f76997e374ce`)
-  - TWTToast/UIKit/AutoLayout (from `https://github.com/twotoasters/Toast.git`, branch
-    `master`)
   - UIImage+Additions
   - UIImage-Helpers
 
 EXTERNAL SOURCES:
   DTCoreText:
     :git: https://github.com/davbeck/DTCoreText.git
+  ReachabilitySwift:
+    :git: https://github.com/ashleymills/Reachability.swift
   SwiftyJSON:
     :git: https://github.com/SwiftyJSON/SwiftyJSON.git
   TSMessages:
     :commit: 7ef3990de3c626e8f3e50bfabb53f76997e374ce
     :git: https://github.com/KrauseFx/TSMessages.git
-  TWTToast:
-    :branch: master
-    :git: https://github.com/twotoasters/Toast.git
 
 CHECKOUT OPTIONS:
   DTCoreText:
     :commit: 968e1808a11d35aa64b47ad0dd3ce11f698b7a41
     :git: https://github.com/davbeck/DTCoreText.git
+  ReachabilitySwift:
+    :commit: 217ba79579efbfebd66691666b782ecd04fe5f5b
+    :git: https://github.com/ashleymills/Reachability.swift
   SwiftyJSON:
     :commit: 3b5d0d4e0c19173b1bf0dc823bde25ad870f70c0
     :git: https://github.com/SwiftyJSON/SwiftyJSON.git
   TSMessages:
     :commit: 7ef3990de3c626e8f3e50bfabb53f76997e374ce
     :git: https://github.com/KrauseFx/TSMessages.git
-  TWTToast:
-    :commit: 548a8f9020868da776b3a77186f724cf4d8bbe66
-    :git: https://github.com/twotoasters/Toast.git
 
 SPEC CHECKSUMS:
   Alamofire: 8edbab00802a752bb5240cc2abe70e7e881488ad
@@ -80,14 +78,14 @@ SPEC CHECKSUMS:
   HexColors: 6ad3947c3447a055a3aa8efa859def096351fe5f
   MBProgressHUD: c47f2c166c126cf2ce36498d80f33e754d4e93ad
   NYXImagesKit: 8163e3335a40eaa173ca5bbbf81fafb57d3947eb
+  ReachabilitySwift: e0f6b6f280effb47731acfaaa2d5ffe223703793
   REMenu: 30dad195930adf6c5eeb8041e3257aa60bf9fa49
   SnapKit: 4962eed2ee18e48cbd2b2292fffc57efe7235f87
   SVPullToRefresh: ba2e718695a43253d8bea6852d2960097dc15d8c
   SwiftyJSON: 8d6b61a70277ef2a5d710d372e06e7e2d87fb9e4
   TMCache: 95ebcc9b3c7e90fb5fd8fc3036cba3aa781c9bed
   TSMessages: 6e403b790139636c15ab4f51946537095e03e79c
-  TWTToast: 0da7f209a5f2410332ac84b0e0d6f63964c1ff2a
   UIImage+Additions: 6181430b139099649e56171d58a52d6c37d57e42
   UIImage-Helpers: 06b04a42bdd222844035602e87e936765c80f620
 
-COCOAPODS: 0.38.2
+COCOAPODS: 0.39.0

@@ -9,6 +9,7 @@
 import UIKit
 
 
+
 class CommentsViewController: UIViewController {
     
     var story: Story {
@@ -28,6 +29,7 @@ class CommentsViewController: UIViewController {
         self.story = story
         header = CommentsHeaderView(story: story)
         super.init(nibName:nil, bundle: nil)
+        title = "Comments"
     }
     
     required init(coder aDecoder: NSCoder) {
@@ -38,7 +40,7 @@ class CommentsViewController: UIViewController {
         super.viewDidLoad()
         
         if story.URL != nil {
-            navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .Action, target: self, action: "actionButtonDidPress")
+            navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .Action, target: self, action: #selector(CommentsViewController.actionButtonDidPress))
         }
         
         treeView.separatorInset = UIEdgeInsetsZero
@@ -57,7 +59,7 @@ class CommentsViewController: UIViewController {
         
         header.linkLabel.delegate = self
         
-        view.twt_addConstraintsWithVisualFormatStrings([
+        view.addConstraintsWithVisualFormatStrings([
             "H:|[treeView]|",
             "V:|[treeView]|"], views: [
                 "treeView": treeView])

@@ -6,6 +6,7 @@
 //  Copyright (c) 2015 Alex Choi. All rights reserved.
 //
 
+import AutolayoutExtensions
 
 struct Shared {
     static let prototypeView = UIView()

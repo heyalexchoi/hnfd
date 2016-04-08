@@ -27,12 +27,12 @@ class Cache: TMCache {
             })
         })
     }
-    
-    func isStoryCached(story: Story, completion: (Bool) -> Void) {
-        diskCache.fileURLForKey(story.cacheKey, block: { (Cache, key, value, url) -> Void in
-            completion(url != nil)
-        })
-    }
+//    
+//    func isStoryCached(story: Story, completion: (Bool) -> Void) {
+//        diskCache.fileURLForKey(story.cacheKey, block: { (Cache, key, value, url) -> Void in
+//            completion(url != nil)
+//        })
+//    }
     
     func cachedArticle(story: Story, completion: (ReadabilityArticle?) -> Void) {
         objectForKey(story.articleCacheKey, block: { (cache, key, value) -> Void in
@@ -42,11 +42,11 @@ class Cache: TMCache {
         })
     }
     
-    func isArticleCached(story: Story, completion: (Bool) -> Void) {
-        diskCache.fileURLForKey(story.articleCacheKey, block: { (_, _, _, url) -> Void in
-            completion(url != nil)
-        })
-    }
+//    func isArticleCached(story: Story, completion: (Bool) -> Void) {
+//        diskCache.fileURLForKey(story.articleCacheKey, block: { (_, _, _, url) -> Void in
+//            completion(url != nil)
+//        })
+//    }
     
     /*!
     Returns cached article if available, otherwise fetches from network.

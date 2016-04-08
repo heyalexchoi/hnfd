@@ -1,3 +1,4 @@
+
 //
 //  TopStoriesCell.swift
 //  HackerNews
@@ -55,8 +56,8 @@ class StoryCell: UITableViewCell {
         
         leftSwipeRecognizer.direction = .Left
         rightSwipeRecognizer.direction = .Right
-        leftSwipeRecognizer.addTarget(self, action: "didSwipeLeft")
-        rightSwipeRecognizer.addTarget(self, action: "didSwipeRight")
+        leftSwipeRecognizer.addTarget(self, action: #selector(StoryCell.didSwipeLeft))
+        rightSwipeRecognizer.addTarget(self, action: #selector(StoryCell.didSwipeRight))
         contentView.addGestureRecognizer(leftSwipeRecognizer)
         contentView.addGestureRecognizer(rightSwipeRecognizer)
         
@@ -86,15 +87,15 @@ class StoryCell: UITableViewCell {
         commentsContainer.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(commentsContainer)
         
-        articleButton.addTarget(self, action: "articleButtonDidPress", forControlEvents: .TouchUpInside)
+        articleButton.addTarget(self, action: #selector(StoryCell.articleButtonDidPress), forControlEvents: .TouchUpInside)
         articleButton.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(articleButton)
         
-        commentsButton.addTarget(self, action: "commentsButtonDidPress", forControlEvents: .TouchUpInside)
+        commentsButton.addTarget(self, action: #selector(StoryCell.commentsButtonDidPress), forControlEvents: .TouchUpInside)
         commentsButton.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(commentsButton)
         
-        articleContainer.twt_addConstraintsWithVisualFormatStrings([
+        articleContainer.addConstraintsWithVisualFormatStrings([
             "H:|[titleLabel]|",
             "H:|[scoreLabel][scoreBySpace(==byTimeSpace)][byLabel][byTimeSpace][timeLabel]|",
             "H:|[URLLabel]|",
@@ -109,17 +110,16 @@ class StoryCell: UITableViewCell {
                 "scoreBySpace": scoreBySpace,
                 "byTimeSpace": byTimeSpace])
         
-        commentsContainer.twt_addHorizontalCenteringConstraintWithView(commentsLabel)
-        commentsContainer.twt_addVerticalCenteringConstraintWithView(commentsLabel)
-        
+        commentsLabel.anchorCenterToCenterOfView(commentsContainer)
+    
         pinnedImageView.snp_makeConstraints { (make) -> Void in
             make.top.equalTo(commentsContainer).offset(10)
             make.right.equalTo(commentsContainer).offset(-10)
         }
         
-        contentView.backgroundColor = UIColor.backgroundColor()
-        contentView.twt_addVerticalCenteringConstraintWithView(articleContainer)
-        contentView.twt_addConstraintsWithVisualFormatStrings([
+        contentView.backgroundColor = UIColor.backgroundColor()        
+        articleContainer.anchorCenterYToCenterYOfView(contentView)
+        contentView.addConstraintsWithVisualFormatStrings([
             "H:|-15-[articleContainer]-5-[commentsContainer(==40)]|",
             "V:|[commentsContainer]|",
             "H:|[articleButton][commentsButton(==commentsContainer)]|",
