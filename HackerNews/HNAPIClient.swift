@@ -36,6 +36,7 @@ class HNAPIClient {
             .responseJSON { [weak self] (req, res, result) -> Void in
                 switch result {
                 case .Success(let data):
+                    print("\nreq: \(req)\nres: \(res)\nresult: \(result)\ndata: \(data)")
                     self?.responseProcessingQueue.addOperationWithBlock({ () -> Void in
                         let stories = JSON(data).arrayValue
                             .filter { return $0 != nil } // dirty fix for cleaning out null stories from response. did not go with failable initializer on Story  because there's a bug in the swift compiler that makes it hard to fail initializer on class objects.

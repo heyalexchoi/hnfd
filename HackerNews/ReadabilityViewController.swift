@@ -9,11 +9,10 @@
 class ReadabilityViewContoller: UIViewController {
     
     var article: ReadabilityArticle?
-    var task: NSURLSessionTask?
-    
-    let cache = Cache.sharedCache()
     let story: Story
-    let articleURL: NSURL
+    let articleURL: NSURL?
+    
+    let dataSource = DataSource()
     
     let webView = UIWebView()
     
@@ -26,11 +25,28 @@ class ReadabilityViewContoller: UIViewController {
     
     init(story: Story) {
         self.story = story
-        self.articleURL = story.URL!
+        self.articleURL = story.URL
         super.init(nibName: nil, bundle: nil)
         
         navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .Action, target: self, action: #selector(ReadabilityViewContoller.actionButtonDidPress))
+
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(ReadabilityViewContoller.saveReadingProgress), name: UIApplicationWillResignActiveNotification, object: nil)
         
+        getReadabilityArticle()
+    }
+    
+    required init(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    deinit {
+        NSNotificationCenter.defaultCenter().removeObserver(self)
+    }
+    
+    // MARK: - UIViewController
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
         // hides white flash. for whatever reason setting webview's background color doesnt prevent white flash.
         view.backgroundColor = UIColor.backgroundColor()
         webView.hidden = true
@@ -48,19 +64,6 @@ class ReadabilityViewContoller: UIViewController {
             "H:|[webView]|",
             "V:|[webView]|"], views: [
                 "webView": webView])
-        
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(ReadabilityViewContoller.saveReadingProgress), name: UIApplicationWillResignActiveNotification, object: nil)
-        
-        getReadabilityArticle()
-    }
-    
-    required init(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
-    deinit {
-        task?.cancel()
-        NSNotificationCenter.defaultCenter().removeObserver(self)
     }
     
     override func viewWillDisappear(animated: Bool) {
@@ -73,6 +76,10 @@ class ReadabilityViewContoller: UIViewController {
         scrollToReadingProgress()
     }
     
+}
+
+extension ReadabilityViewContoller {
+    
     func saveReadingProgress() {
         if story.saved {
             article?.readingProgress = readingProgress
@@ -84,16 +91,15 @@ class ReadabilityViewContoller: UIViewController {
         if webView.scrollView.contentSize.height > webView.scrollView.bounds.size.height
             && shouldScroll,
             let article = article {
-                webView.scrollView.setContentOffset(CGPoint(x:0, y: article.readingProgress * webView.scrollView.contentSize.height), animated: false)
-                shouldScroll = false
+            webView.scrollView.setContentOffset(CGPoint(x:0, y: article.readingProgress * webView.scrollView.contentSize.height), animated: false)
+            shouldScroll = false
         }
         webView.hidden = false
     }
     
     func getReadabilityArticle() {
-        task?.cancel()
         ProgressHUD.showHUDAddedTo(view, animated: true)
-        task = cache.articleForStory(story, completion: { [weak self] (article, error) -> Void in
+        dataSource.articleForStory(story, completion: { [weak self] (article, error) -> Void in
             ProgressHUD.hideHUDForView(self?.view, animated: true)
             self?.article = article
             self?.finishLoadingArticle()
@@ -107,10 +113,10 @@ class ReadabilityViewContoller: UIViewController {
     }
     
     func actionButtonDidPress() {
+        guard let articleURL = articleURL else { return }
         let storyActivity = StoryActivity()
         presentViewController(UIActivityViewController(activityItems: [articleURL, story], applicationActivities: [storyActivity]), animated: true, completion: nil)
     }
-    
 }
 
 extension ReadabilityViewContoller {
