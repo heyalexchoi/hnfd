@@ -10,7 +10,6 @@
 		0C1EE00F1AE0B3E8009BD94E /* Global.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C1EE00E1AE0B3E8009BD94E /* Global.swift */; };
 		0C1EE0111AE0C0B4009BD94E /* ReadabilityViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C1EE0101AE0C0B4009BD94E /* ReadabilityViewController.swift */; };
 		0C2CF6141AEF21E70055ADC8 /* Private.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C2CF6131AEF21E70055ADC8 /* Private.swift */; };
-		0CABDA8D1B4B6A4C00B0C1C4 /* SavedStoriesController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CABDA8C1B4B6A4C00B0C1C4 /* SavedStoriesController.swift */; };
 		0CD3C88C1AD781DF005CC6C1 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CD3C88B1AD781DF005CC6C1 /* AppDelegate.swift */; };
 		0CD3C88E1AD781DF005CC6C1 /* StoriesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CD3C88D1AD781DF005CC6C1 /* StoriesViewController.swift */; };
 		0CD3C8931AD781DF005CC6C1 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0CD3C8921AD781DF005CC6C1 /* Images.xcassets */; };
@@ -64,7 +63,6 @@
 		0C1EE00E1AE0B3E8009BD94E /* Global.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Global.swift; sourceTree = "<group>"; };
 		0C1EE0101AE0C0B4009BD94E /* ReadabilityViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReadabilityViewController.swift; sourceTree = "<group>"; };
 		0C2CF6131AEF21E70055ADC8 /* Private.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Private.swift; sourceTree = "<group>"; };
-		0CABDA8C1B4B6A4C00B0C1C4 /* SavedStoriesController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SavedStoriesController.swift; sourceTree = "<group>"; };
 		0CD3C8861AD781DF005CC6C1 /* HackerNews.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HackerNews.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		0CD3C88A1AD781DF005CC6C1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		0CD3C88B1AD781DF005CC6C1 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -138,7 +136,6 @@
 				17922A211B005CF1001460B2 /* Cache.swift */,
 				1714DC041CB73EBB0059E88E /* DataSource.swift */,
 				174A9A241AE1A001008CB6FC /* ViewControllers */,
-				0CABDA8C1B4B6A4C00B0C1C4 /* SavedStoriesController.swift */,
 				1768BEC91B7EC35000497790 /* ErrorController.swift */,
 			);
 			name = Controllers;
@@ -476,7 +473,6 @@
 				17183A3A1AE202CC007F7163 /* ProgressHUD.swift in Sources */,
 				1768BEC81B7EBF6A00497790 /* HNAppearance.m in Sources */,
 				178327981B1C09BE003C580A /* CommentsHeaderView.swift in Sources */,
-				0CABDA8D1B4B6A4C00B0C1C4 /* SavedStoriesController.swift in Sources */,
 				0C1EE0111AE0C0B4009BD94E /* ReadabilityViewController.swift in Sources */,
 				1714DC051CB73EBB0059E88E /* DataSource.swift in Sources */,
 				17FB84D91AE20B7500C87786 /* Appearance.swift in Sources */,
