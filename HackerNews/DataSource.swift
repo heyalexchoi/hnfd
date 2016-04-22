@@ -108,29 +108,34 @@ extension DataSource {
 
 extension DataSource {
     
-    static func refreshAll() {
+    static func refreshAll(intervalHandler: ((intervalResult: Any?) -> Void)? = nil, completion: (() -> Void)? = nil) {
         // get top stories and maybe selected kinds of stories
         // get all stories and article for each
         let storiesType = StoriesType.Top
         getStories(storiesType, refresh: true) { (stories, error) in
+            intervalHandler?(intervalResult: stories)
             guard let stories = stories else {
                 // ?
+                completion?()
                 return
             }
             
             for story in stories {
                 getStory(story.id, refresh: true, completion: { (story, error) in
+                    intervalHandler?(intervalResult: story)
                     guard let story = story else {
                         // would i even do anything?
                         return
                     }
                 })
                 getArticle(story, refresh: false, completion: { (article, error) in
+                    intervalHandler?(intervalResult: article)
                     guard let article = article else {
                         // ?
                         return
                     }
                 })
+                // oops i don't have the promise shit to call completion properly
             }
         }
     }

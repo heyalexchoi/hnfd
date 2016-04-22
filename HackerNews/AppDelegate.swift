@@ -26,7 +26,26 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         Appearance.setAppearances()
         
+        UIApplication.sharedApplication().setMinimumBackgroundFetchInterval(14400) // 4 hours must pass before another background fetch will be initiated
+        
+        DataSource.refreshAll({ (intervalResult) in
+            print("\(NSDate()) interval result! \(intervalResult)")
+            }, completion: nil)
+        
         return true
+    }
+    
+    func application(application: UIApplication, performFetchWithCompletionHandler completionHandler: (UIBackgroundFetchResult) -> Void) {
+//        // 30 seconds to do the shit
+//        print("start! \(NSDate())")
+//        let start = NSDate()
+//        DataSource.refreshAll({ (intervalResult) in
+//            let time = NSDate()
+//            
+//            print("\(NSDate()) interval result! \(intervalResult)")
+//            }, completion: nil)
+//        
+//        print("end! \(NSDate())")
     }
 
     func applicationWillResignActive(application: UIApplication) {
