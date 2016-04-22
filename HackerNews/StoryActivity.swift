@@ -35,9 +35,9 @@ class StoryActivity: UIActivity {
     }
     
     override func performActivity() {
-        if let story = story {
-//            SavedStoriesController.sharedController.saveStory(story)
-//            TO DO: mark the story as pinned
-        }
+//        if let story = story {
+////            SavedStoriesController.sharedController.saveStory(story)
+////            TO DO: mark the story as pinned
+//        }
     }
 }

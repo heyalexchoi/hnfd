@@ -13,16 +13,11 @@ class StoriesViewController: UIViewController {
     
     var stories = [Story]()
     var storiesType: StoriesType = .Top
-    
-    let dataSource = DataSource()
 
     let tableView = UITableView(frame: CGRectZero, style: .Plain)
     
     let prototypeCell = StoryCell(frame: CGRectZero)
     var cachedCellHeights = [Int: CGFloat]() // id: cell height
-    
-    let limit = 25
-    var offset = 0
     
     let titleView = StoriesTitleView()
     let menu = REMenu()
@@ -58,11 +53,6 @@ class StoriesViewController: UIViewController {
         }
         tableView.pullToRefreshView.activityIndicatorViewStyle = .White
         
-        tableView.addInfiniteScrollingWithActionHandler { [weak self] () -> Void in
-            self?.getStories(refresh: false)
-        }
-        tableView.infiniteScrollingView.activityIndicatorViewStyle = .White
-        
         view.addConstraintsWithVisualFormatStrings([
             "H:|[tableView]|",
             "V:|[tableView]|"], views: [
@@ -85,19 +75,14 @@ extension StoriesViewController {
     
     func getStories(refresh refresh: Bool = false, scrollToTop: Bool = false) {
         
-        if refresh {
-            offset = 0
-        } else {
+        if !refresh {
             ProgressHUD.showHUDAddedTo(view, animated: true)
         }
-        
-        //        task?.cancel() // how should i or should i even wrap fetches / transactions?
-        
-        dataSource.getStories(storiesType, limit:limit, offset: offset) { [weak self] (stories, error) -> Void in
+
+        DataSource.getStories(storiesType) { [weak self] (stories, error) -> Void in
             
             ProgressHUD.hideAllHUDsForView(self?.view, animated: true)
             self?.tableView.pullToRefreshView.stopAnimating()
-            self?.tableView.infiniteScrollingView.stopAnimating()
             
             guard let stories = stories else {
                 ErrorController.showErrorNotification(error)
@@ -110,7 +95,6 @@ extension StoriesViewController {
             
             self?.title = self?.storiesType.title
             self?.stories += stories
-            self?.offset = self!.offset + self!.limit // perhaps page / offset should come in the response
             
             self?.tableView.reloadData()
             

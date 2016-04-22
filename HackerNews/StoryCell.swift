@@ -111,7 +111,7 @@ class StoryCell: UITableViewCell {
                 "byTimeSpace": byTimeSpace])
         
         commentsLabel.anchorCenterToCenterOfView(commentsContainer)
-    
+        
         pinnedImageView.snp_makeConstraints { (make) -> Void in
             make.top.equalTo(commentsContainer).offset(10)
             make.right.equalTo(commentsContainer).offset(-10)
@@ -149,12 +149,13 @@ class StoryCell: UITableViewCell {
     
     func prepare(story: Story) {
         titleLabel.text = story.title
-        byLabel.setText(story.by, attributes: TextAttributes.detailAttributes)
-        commentsLabel.setText(String(story.descendants), attributes: TextAttributes.detailAttributes)
-        scoreLabel.setText(String(story.score), attributes: TextAttributes.detailAttributes)
+        byLabel.setText("by \(story.by)", attributes: TextAttributes.detailAttributes)
+        commentsLabel.setText("\(story.descendants) comments", attributes: TextAttributes.detailAttributes)
+        scoreLabel.setText("\(story.score) points", attributes: TextAttributes.detailAttributes)
         timeLabel.setText(String(story.date.timeAgoSinceNow()), attributes: TextAttributes.detailAttributes)
         URLLabel.setText(story.URL?.absoluteString, attributes: TextAttributes.detailAttributes)
-        pinnedImageView.hidden = !story.saved
+//        pinnedImageView.hidden = !story.saved
+        pinnedImageView.hidden = true
     }
     
     func articleButtonDidPress() {

@@ -10,6 +10,20 @@
 import SwiftyJSON
 import DTCoreText
 
+enum StoriesType: String {
+    case
+    Top = "topstories",
+    New = "newstories",
+    Show = "showstories",
+    Ask = "askstories",
+    Job = "jobstories",
+    Saved = "savedstories"
+    static var allValues = [Top, New, Show, Ask, Job, Saved]
+    var title: String {
+        return rawValue.stringByReplacingOccurrencesOfString("stories", withString: " stories").capitalizedString
+    }
+}
+
 func ==(l: Story, r: Story) -> Bool {
     return l.id == r.id
 }
@@ -46,8 +60,12 @@ class Story: NSObject, NSCoding {
     let children: [Comment]
     let date: NSDate
     let updated: String
-    var saved = false
+    // want var to see if full story exists in cache
+    // want var to track if user 'pinned' story
     var cacheKey: String {
+        return Story.cacheKey(id)
+    }
+    class func cacheKey(id: Int) -> String {
         return "cached_story_\(id)"
     }
     var articleCacheKey: String {
@@ -97,7 +115,6 @@ class Story: NSObject, NSCoding {
     required convenience init(coder decoder: NSCoder) {
         let json: AnyObject = decoder.decodeObjectForKey("json")!
         self.init(json:JSON(json))
-        saved = true
     }
     
     func encodeWithCoder(coder: NSCoder) {

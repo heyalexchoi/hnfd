@@ -19,7 +19,6 @@ class CommentsViewController: UIViewController {
     }
     
     var flattenedComments = [Comment]()
-    let cache = Cache.sharedCache()
     let treeView = UITableView(frame: CGRectZero, style: .Plain)
     let header: CommentsHeaderView
     let prototypeCell = CommentCell(frame: CGRectZero)
@@ -76,7 +75,7 @@ class CommentsViewController: UIViewController {
     
     func getFullStory(refresh: Bool) {
         if !refresh { ProgressHUD.showHUDAddedTo(view, animated: true) }
-        cache.fullStoryForStory(story, preference: refresh ? .FetchRemoteDataAndUpdateCache : .ReturnCacheDataElseLoad) { [weak self] (story, error) -> Void in
+        DataSource.getStory(story.id) { [weak self] (story, error) in
             ProgressHUD.hideAllHUDsForView(self?.view, animated: true)
             self?.treeView.pullToRefreshView.stopAnimating()
             if let error = error {

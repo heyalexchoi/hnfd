@@ -12,8 +12,6 @@ class ReadabilityViewContoller: UIViewController {
     let story: Story
     let articleURL: NSURL?
     
-    let dataSource = DataSource()
-    
     let webView = UIWebView()
     
     var shouldScroll = true
@@ -81,10 +79,8 @@ class ReadabilityViewContoller: UIViewController {
 extension ReadabilityViewContoller {
     
     func saveReadingProgress() {
-        if story.saved {
-            article?.readingProgress = readingProgress
-            article?.save()
-        }
+        article?.readingProgress = readingProgress
+        article?.save()
     }
     
     func scrollToReadingProgress() {
@@ -99,7 +95,7 @@ extension ReadabilityViewContoller {
     
     func getReadabilityArticle() {
         ProgressHUD.showHUDAddedTo(view, animated: true)
-        dataSource.articleForStory(story, completion: { [weak self] (article, error) -> Void in
+        DataSource.articleForStory(story, completion: { [weak self] (article, error) -> Void in
             ProgressHUD.hideHUDForView(self?.view, animated: true)
             self?.article = article
             self?.finishLoadingArticle()

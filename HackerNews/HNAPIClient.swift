@@ -10,19 +10,7 @@ import Foundation
 import Alamofire
 import SwiftyJSON
 
-enum StoriesType: String {
-    case
-    Top = "topstories",
-    New = "newstories",
-    Show = "showstories",
-    Ask = "askstories",
-    Job = "jobstories",
-    Saved = "savedstories"
-    static var allValues = [Top, New, Show, Ask, Job, Saved]
-    var title: String {
-        return rawValue.stringByReplacingOccurrencesOfString("stories", withString: " stories").capitalizedString
-    }
-}
+let errorDomain = "HNFD Error Domain"
 
 class HNAPIClient {
     
