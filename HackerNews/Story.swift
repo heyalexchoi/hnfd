@@ -22,6 +22,12 @@ enum StoriesType: String {
     var title: String {
         return rawValue.stringByReplacingOccurrencesOfString("stories", withString: " stories").capitalizedString
     }
+    var cacheKey: String {
+        return rawValue
+    }
+    var isCached: Bool {
+        return Cache.sharedCache().hasFileCachedItemForKey(cacheKey)
+    }
 }
 
 func ==(l: Story, r: Story) -> Bool {
@@ -63,19 +69,23 @@ class Story: NSObject, NSCoding {
     // want var to see if full story exists in cache
     // want var to track if user 'pinned' story
     var cacheKey: String {
-        return Story.cacheKey(id)
+        return self.dynamicType.cacheKey(id)
     }
     class func cacheKey(id: Int) -> String {
         return "cached_story_\(id)"
     }
-    var articleCacheKey: String {
-        if let URL = URL {
-            return ReadabilityArticle.cacheKeyForURL(URL)
-        }
-        return ""
+    class func isCached(id: Int) -> Bool {
+        return Cache.sharedCache().hasFileCachedItemForKey(cacheKey(id))
+    }
+    var articleCacheKey: String? {
+        guard let URL = URL else { return nil }
+        return ReadabilityArticle.cacheKeyForURL(URL)        
     }
     var isCached: Bool {
-        return Cache.sharedCache().diskCache.fileURLForKey(cacheKey) != nil
+        return Cache.sharedCache().hasFileCachedItemForKey(cacheKey)
+    }
+    var isArticleCached: Bool {
+        return Cache.sharedCache().hasFileCachedItemForKey(articleCacheKey)
     }
     
     init(json: JSON) {

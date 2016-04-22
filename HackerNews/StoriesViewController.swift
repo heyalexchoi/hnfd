@@ -79,7 +79,7 @@ extension StoriesViewController {
             ProgressHUD.showHUDAddedTo(view, animated: true)
         }
 
-        DataSource.getStories(storiesType) { [weak self] (stories, error) -> Void in
+        DataSource.getStories(storiesType, refresh: refresh) { [weak self] (stories, error) -> Void in
             
             ProgressHUD.hideAllHUDsForView(self?.view, animated: true)
             self?.tableView.pullToRefreshView.stopAnimating()

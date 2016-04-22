@@ -75,7 +75,7 @@ class CommentsViewController: UIViewController {
     
     func getFullStory(refresh: Bool) {
         if !refresh { ProgressHUD.showHUDAddedTo(view, animated: true) }
-        DataSource.getStory(story.id) { [weak self] (story, error) in
+        DataSource.getStory(story.id, refresh: refresh) { [weak self] (story, error) in
             ProgressHUD.hideAllHUDsForView(self?.view, animated: true)
             self?.treeView.pullToRefreshView.stopAnimating()
             if let error = error {

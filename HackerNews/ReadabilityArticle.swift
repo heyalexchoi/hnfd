@@ -78,8 +78,8 @@ class ReadabilityArticle: NSObject, NSCoding {
         return "cached_article_\(url.absoluteString)"
     }
     
-    func save() {
-        Cache.sharedCache().setObject(self, forKey: cacheKey, block: nil)
+    func save() {        
+        Cache.sharedCache().setArticle(self, completion: nil)
     }
     
 }

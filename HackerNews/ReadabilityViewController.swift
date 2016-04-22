@@ -95,7 +95,7 @@ extension ReadabilityViewContoller {
     
     func getReadabilityArticle() {
         ProgressHUD.showHUDAddedTo(view, animated: true)
-        DataSource.articleForStory(story, completion: { [weak self] (article, error) -> Void in
+        DataSource.getArticle(story, completion: { [weak self] (article, error) -> Void in
             ProgressHUD.hideHUDForView(self?.view, animated: true)
             self?.article = article
             self?.finishLoadingArticle()

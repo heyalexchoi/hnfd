@@ -34,8 +34,9 @@ extension DataSource {
     
     // MARK: - Stories
     
-    static func getStories(type: StoriesType, completion: (stories: [Story]?, error: NSError?) -> Void) {
-        if shouldMakeNetworkRequest {
+    static func getStories(type: StoriesType, refresh: Bool = false, completion: (stories: [Story]?, error: NSError?) -> Void) {
+        // will use cached stories unless refresh requested (and network available)
+        if (!type.isCached || refresh) && shouldMakeNetworkRequest {
             hnAPIClient.getStories(type, limit: 100, offset: 0) { (stories, error) in
                 guard let stories = stories else {
                     NSOperationQueue.mainQueue().addOperationWithBlock { completion(stories: nil, error: error) }
@@ -52,8 +53,9 @@ extension DataSource {
         }
     }
     
-    static func getStory(id: Int, completion: (story: Story?, error: NSError?) -> Void) {
-        if shouldMakeNetworkRequest {
+    static func getStory(id: Int, refresh: Bool = false, completion: (story: Story?, error: NSError?) -> Void) {
+        // will use cached story unless refresh requested (and network available)
+        if (!Story.isCached(id) || refresh) && shouldMakeNetworkRequest {
             hnAPIClient.getStory(id) { (story, error) in
                 guard let story = story else {
                     NSOperationQueue.mainQueue().addOperationWithBlock { completion(story: nil, error: error) }
@@ -75,7 +77,7 @@ extension DataSource {
     
     // MARK: - Articles
     
-    static func articleForStory(story: Story, completion: ((article: ReadabilityArticle?, error: NSError?) -> Void)) {
+    static func getArticle(story: Story, refresh: Bool = false, completion: ((article: ReadabilityArticle?, error: NSError?) -> Void)) {
         guard let URL = story.URL else {
             let error = NSError(domain: errorDomain,
                                 code: 420,
@@ -84,7 +86,52 @@ extension DataSource {
             completion(article: nil, error: error)
             return
         }
-        readabilityAPIClient.getParsedArticleForURL(URL, completion: completion)
+        // articles are generally static. it'll generally be safe (and faster) to grab the article from the cache. if network requests can be made then refresh can override the cache
+        if (!story.isArticleCached || refresh) && shouldMakeNetworkRequest {
+            readabilityAPIClient.getParsedArticleForURL(URL, completion: { (article, error) in
+                guard let article = article else {
+                    NSOperationQueue.mainQueue().addOperationWithBlock { completion(article: nil, error: error) }
+                    return
+                }
+                
+                cache.setArticle(article, completion: nil)
+                NSOperationQueue.mainQueue().addOperationWithBlock {completion(article: article, error: nil) }
+            })
+        } else {
+            cache.getArticle(story, completion: { (article) in
+                NSOperationQueue.mainQueue().addOperationWithBlock { completion(article: article, error: nil) }
+            })
+        }
     }
     
+}
+
+extension DataSource {
+    
+    static func refreshAll() {
+        // get top stories and maybe selected kinds of stories
+        // get all stories and article for each
+        let storiesType = StoriesType.Top
+        getStories(storiesType, refresh: true) { (stories, error) in
+            guard let stories = stories else {
+                // ?
+                return
+            }
+            
+            for story in stories {
+                getStory(story.id, refresh: true, completion: { (story, error) in
+                    guard let story = story else {
+                        // would i even do anything?
+                        return
+                    }
+                })
+                getArticle(story, refresh: false, completion: { (article, error) in
+                    guard let article = article else {
+                        // ?
+                        return
+                    }
+                })
+            }
+        }
+    }
 }
