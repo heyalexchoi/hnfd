@@ -17,6 +17,7 @@
 		0CD3C8A21AD781DF005CC6C1 /* HackerNewsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CD3C8A11AD781DF005CC6C1 /* HackerNewsTests.swift */; };
 		0CD3C8AC1AD786BC005CC6C1 /* HNAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CD3C8AB1AD786BC005CC6C1 /* HNAPIClient.swift */; };
 		170B18451B52502D00ECE833 /* readability_article.css in Resources */ = {isa = PBXBuildFile; fileRef = 170B18441B52502D00ECE833 /* readability_article.css */; };
+		17119D811CD6B3A100939C85 /* APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17119D801CD6B3A100939C85 /* APIClient.swift */; };
 		1714DC051CB73EBB0059E88E /* DataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1714DC041CB73EBB0059E88E /* DataSource.swift */; };
 		1716D1F21CC993ED0027EE3A /* Reachability.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1716D1F11CC993ED0027EE3A /* Reachability.framework */; };
 		17183A3A1AE202CC007F7163 /* ProgressHUD.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17183A391AE202CC007F7163 /* ProgressHUD.swift */; };
@@ -78,6 +79,7 @@
 		0CD3C8A11AD781DF005CC6C1 /* HackerNewsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HackerNewsTests.swift; sourceTree = "<group>"; };
 		0CD3C8AB1AD786BC005CC6C1 /* HNAPIClient.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HNAPIClient.swift; sourceTree = "<group>"; };
 		170B18441B52502D00ECE833 /* readability_article.css */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.css; path = readability_article.css; sourceTree = "<group>"; };
+		17119D801CD6B3A100939C85 /* APIClient.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = APIClient.swift; sourceTree = "<group>"; };
 		1714DC041CB73EBB0059E88E /* DataSource.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DataSource.swift; sourceTree = "<group>"; };
 		1716D1F11CC993ED0027EE3A /* Reachability.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Reachability.framework; path = Carthage/Build/iOS/Reachability.framework; sourceTree = "<group>"; };
 		17183A391AE202CC007F7163 /* ProgressHUD.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProgressHUD.swift; sourceTree = "<group>"; };
@@ -263,6 +265,7 @@
 		174A9A251AE1A00A008CB6FC /* APIClients */ = {
 			isa = PBXGroup;
 			children = (
+				17119D801CD6B3A100939C85 /* APIClient.swift */,
 				0CD3C8AB1AD786BC005CC6C1 /* HNAPIClient.swift */,
 				1722C0DE1AE17F8B00DCA87C /* ReadabilityAPIClient.swift */,
 			);
@@ -478,6 +481,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				176156CE1BF7F03A001D6ACA /* NSURLExtension.swift in Sources */,
+				17119D811CD6B3A100939C85 /* APIClient.swift in Sources */,
 				175997821B52419B00E3F263 /* DateFormatter.swift in Sources */,
 				176156CC1BF7F02D001D6ACA /* StringExtension.swift in Sources */,
 				1783279A1B1C0C84003C580A /* StoryActivity.swift in Sources */,

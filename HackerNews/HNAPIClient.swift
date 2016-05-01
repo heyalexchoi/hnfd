@@ -17,11 +17,6 @@ struct HNAPIClient {
     let baseURLString = Private.Constants.HNAPIBaseURLString
     let responseProcessingQueue = NSOperationQueue()
     
-    let backgroundManager: Alamofire.Manager = {
-        let configuration = NSURLSessionConfiguration.backgroundSessionConfigurationWithIdentifier("com.hnfd.background")
-        return Alamofire.Manager(configuration: configuration)
-    }()
-    
     func getStories(type: StoriesType, limit: Int, offset: Int, completion: (stories: [Story]?, error: NSError?) -> Void) -> Request {
         return Alamofire
             .request(.GET, baseURLString + "/\(type.rawValue)", parameters: ["limit": limit, "offset": offset])
