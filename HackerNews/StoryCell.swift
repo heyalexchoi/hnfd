@@ -7,7 +7,7 @@
 //  Copyright (c) 2015 Alex Choi. All rights reserved.
 //
 
-import SnapKit
+import AutolayoutExtensions
 
 protocol StoryCellDelegate: class {
     func cellDidSelectStoryArticle(cell: StoryCell)
@@ -112,10 +112,8 @@ class StoryCell: UITableViewCell {
         
         commentsLabel.anchorCenterToCenterOfView(commentsContainer)
         
-        pinnedImageView.snp_makeConstraints { (make) -> Void in
-            make.top.equalTo(commentsContainer).offset(10)
-            make.right.equalTo(commentsContainer).offset(-10)
-        }
+        pinnedImageView.anchorTopToTopEdgeOfView(commentsContainer, constant: 10)
+        pinnedImageView.anchorRightToRightEdgeOfView(commentsContainer, constant: -10)
         
         contentView.backgroundColor = UIColor.backgroundColor()        
         articleContainer.anchorCenterYToCenterYOfView(contentView)

@@ -28,13 +28,11 @@ class StoriesTitleView: UIView {
         
         label.textAlignment = .Center
         
-        tapRecognizer.addTarget(self, action: "handleTap")
+        tapRecognizer.addTarget(self, action: #selector(StoriesTitleView.handleTap))
         addGestureRecognizer(tapRecognizer)
         addSubview(label)
         
-        label.snp_makeConstraints { (make) -> Void in
-            make.edges.equalTo(self)
-        }
+        label.anchorAllEdgesToView(self)
     }
     
     required init(coder aDecoder: NSCoder) {

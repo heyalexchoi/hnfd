@@ -1,2 +1,5 @@
 github "heyalexchoi/AutolayoutExtensions" "master"
 github "ashleymills/Reachability.swift" "master"
+github "Alamofire/Alamofire" "master"
+github "SwiftyJSON/SwiftyJSON" "master"
+github "heyalexchoi/PINCache" "fix-subscripting-header"

@@ -33,6 +33,9 @@
 		176654A71AE08B7500B97098 /* StoryCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 176654A61AE08B7500B97098 /* StoryCell.swift */; };
 		1768BEC81B7EBF6A00497790 /* HNAppearance.m in Sources */ = {isa = PBXBuildFile; fileRef = 1768BEC71B7EBF6A00497790 /* HNAppearance.m */; };
 		1768BECA1B7EC35000497790 /* ErrorController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1768BEC91B7EC35000497790 /* ErrorController.swift */; };
+		177CF2FF1CD6A12700F373CD /* Alamofire.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 177CF2FC1CD6A12700F373CD /* Alamofire.framework */; };
+		177CF3001CD6A12700F373CD /* PINCache.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 177CF2FD1CD6A12700F373CD /* PINCache.framework */; };
+		177CF3011CD6A12700F373CD /* SwiftyJSON.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 177CF2FE1CD6A12700F373CD /* SwiftyJSON.framework */; };
 		178327981B1C09BE003C580A /* CommentsHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 178327971B1C09BE003C580A /* CommentsHeaderView.swift */; };
 		1783279A1B1C0C84003C580A /* StoryActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 178327991B1C0C84003C580A /* StoryActivity.swift */; };
 		17922A1C1B005B9B001460B2 /* Story.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17922A1B1B005B9B001460B2 /* Story.swift */; };
@@ -93,6 +96,9 @@
 		1768BEC61B7EBF6A00497790 /* HNAppearance.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HNAppearance.h; sourceTree = "<group>"; };
 		1768BEC71B7EBF6A00497790 /* HNAppearance.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HNAppearance.m; sourceTree = "<group>"; };
 		1768BEC91B7EC35000497790 /* ErrorController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ErrorController.swift; sourceTree = "<group>"; };
+		177CF2FC1CD6A12700F373CD /* Alamofire.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Alamofire.framework; path = Carthage/Build/iOS/Alamofire.framework; sourceTree = "<group>"; };
+		177CF2FD1CD6A12700F373CD /* PINCache.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = PINCache.framework; path = Carthage/Build/iOS/PINCache.framework; sourceTree = "<group>"; };
+		177CF2FE1CD6A12700F373CD /* SwiftyJSON.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftyJSON.framework; path = Carthage/Build/iOS/SwiftyJSON.framework; sourceTree = "<group>"; };
 		178327971B1C09BE003C580A /* CommentsHeaderView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CommentsHeaderView.swift; sourceTree = "<group>"; };
 		178327991B1C0C84003C580A /* StoryActivity.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StoryActivity.swift; sourceTree = "<group>"; };
 		17922A1B1B005B9B001460B2 /* Story.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Story.swift; sourceTree = "<group>"; };
@@ -120,6 +126,9 @@
 				8D904113588597FF9685D5CB /* Pods.framework in Frameworks */,
 				17DEB0461CB1C86100D3246E /* AutolayoutExtensions.framework in Frameworks */,
 				1716D1F21CC993ED0027EE3A /* Reachability.framework in Frameworks */,
+				177CF2FF1CD6A12700F373CD /* Alamofire.framework in Frameworks */,
+				177CF3001CD6A12700F373CD /* PINCache.framework in Frameworks */,
+				177CF3011CD6A12700F373CD /* SwiftyJSON.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -216,6 +225,9 @@
 		14AE43D8DF032F9A10DDB7A7 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				177CF2FC1CD6A12700F373CD /* Alamofire.framework */,
+				177CF2FD1CD6A12700F373CD /* PINCache.framework */,
+				177CF2FE1CD6A12700F373CD /* SwiftyJSON.framework */,
 				1716D1F11CC993ED0027EE3A /* Reachability.framework */,
 				17DEB0451CB1C86100D3246E /* AutolayoutExtensions.framework */,
 				96BFE55567A6A1DA056DBE61 /* Pods.framework */,
@@ -417,6 +429,9 @@
 			inputPaths = (
 				"$(PROJECT_DIR)/Carthage/Build/iOS/AutolayoutExtensions.framework",
 				"$(PROJECT_DIR)/Carthage/Build/iOS/Reachability.framework",
+				"$(PROJECT_DIR)/Carthage/Build/iOS/Alamofire.framework",
+				"$(PROJECT_DIR)/Carthage/Build/iOS/SwiftyJSON.framework",
+				"$(PROJECT_DIR)/Carthage/Build/iOS/PINCache.framework",
 			);
 			name = Carthage;
 			outputPaths = (

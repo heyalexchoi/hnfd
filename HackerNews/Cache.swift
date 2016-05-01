@@ -5,10 +5,9 @@
 //  Created by Alex Choi on 5/10/15.
 //  Copyright (c) 2015 Alex Choi. All rights reserved.
 //
+import PINCache
 
-import TMCache
-
-class Cache: TMCache {
+class Cache: PINCache {
     
     // MARK: - STORIES 
     
@@ -18,7 +17,7 @@ class Cache: TMCache {
         }
     }
     
-    func setStories(type: StoriesType, stories: [Story], completion: TMCacheObjectBlock?) {
+    func setStories(type: StoriesType, stories: [Story], completion: PINCacheObjectBlock?) {
         setObject(stories, forKey: type.rawValue, block: completion)
     }
     
@@ -30,19 +29,23 @@ class Cache: TMCache {
         })
     }
     
-    func setStory(story: Story, completion: TMCacheObjectBlock?) {
+    func setStory(story: Story, completion: PINCacheObjectBlock?) {
         setObject(story, forKey: story.cacheKey, block: completion)
     }
     
     // MARK: - ARTICLES
     
     func getArticle(story: Story, completion: (ReadabilityArticle?) -> Void) {
-        objectForKey(story.articleCacheKey, block: { (cache, key, value) -> Void in
+        guard let cacheKey = story.articleCacheKey else {
+            completion(nil)
+            return
+        }
+        objectForKey(cacheKey, block: { (cache, key, value) -> Void in
             completion(value as? ReadabilityArticle)
         })
     }
     
-    func setArticle(article: ReadabilityArticle, completion: TMCacheObjectBlock?) {
+    func setArticle(article: ReadabilityArticle, completion: PINCacheObjectBlock?) {
         setObject(article, forKey: article.cacheKey, block: completion)
     }
 

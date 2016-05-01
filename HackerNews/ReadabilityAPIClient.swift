@@ -20,8 +20,8 @@ class ReadabilityAPIClient {
                 baseURLString + "/content/v1/parser",
                 parameters: ["url": URL, "token": Private.Keys.readabilityParserAPIToken])
             .validate()
-            .responseJSON { [weak self] (req, res, result) -> Void in
-                switch result {
+            .responseJSON { [weak self] (response) -> Void in
+                switch response.result {
                 case .Success(let json):
                     self?.responseProcessingQueue.addOperationWithBlock({ () -> Void in
                         let article = ReadabilityArticle(json: JSON(json))
@@ -29,14 +29,8 @@ class ReadabilityAPIClient {
                             completion(article: article, error: nil)
                         })
                     })
-                case .Failure(let data, let error):
-                    if let data = data,
-                        messages = JSON(data: data)["messages"].string {
-                            let messagedError = NSError(domain: Public.Constants.hackerNewsErrorDomain, code: 1, userInfo: [NSUnderlyingErrorKey: error as NSError, Public.Constants.errorMessagesKey: messages])
-                            completion(article: nil, error: messagedError)
-                    } else {
-                        completion(article: nil, error: error as NSError)
-                    }                    
+                case .Failure(let error):
+                    completion(article: nil, error: error as NSError)                    
                 }
         }
     }
