@@ -30,7 +30,7 @@ class StoriesTitleView: UIView {
         
         tapRecognizer.addTarget(self, action: #selector(StoriesTitleView.handleTap))
         addGestureRecognizer(tapRecognizer)
-        addSubview(label)
+        addSubviewsWithAutoLayout(label)
         
         label.anchorAllEdgesToView(self)
     }
