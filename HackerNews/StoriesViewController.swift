@@ -193,8 +193,7 @@ extension StoriesViewController: StoryCellDelegate {
     func cellDidSelectStoryArticle(cell: StoryCell) {
         let story = storyForCell(cell)
         if story.type == .Story
-            && story.URL != nil
-            && !story.URL!.absoluteString.isEmpty {
+            && story.URLString != nil {
                 navigationController?.pushViewController(ReadabilityViewContoller(story: story), animated: true)
         } else {
             navigationController?.pushViewController(CommentsViewController(story: story), animated: true)

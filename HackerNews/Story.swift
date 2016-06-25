@@ -63,6 +63,7 @@ class Story: NSObject, NSCoding {
     let title: String
     let type: Type
     let URL: NSURL?
+    let URLString: String? // the percent encoded URL is inappropriate for several use cases including sending to readability and a working href in a webview
     let children: [Comment]
     let date: NSDate
     let updated: String
@@ -78,8 +79,8 @@ class Story: NSObject, NSCoding {
         return Cache.sharedCache().hasFileCachedItemForKey(cacheKey(id))
     }
     var articleCacheKey: String? {
-        guard let URL = URL else { return nil }
-        return ReadabilityArticle.cacheKeyForURL(URL)        
+        guard let URLString = URLString else { return nil }
+        return ReadabilityArticle.cacheKeyForURLString(URLString)
     }
     var isCached: Bool {
         return Cache.sharedCache().hasFileCachedItemForKey(cacheKey)
@@ -100,6 +101,7 @@ class Story: NSObject, NSCoding {
         self.time = json["time"].intValue
         self.title = json["title"].stringValue
         self.type = Type(rawValue: json["type"].stringValue)!
+        self.URLString = json["url"].string
         self.URL = json["url"].URL
         self.children = json["children"].arrayValue.map { Comment(json: $0, level: 1) } .filter { !$0.deleted }
         self.date = NSDate(timeIntervalSince1970: NSTimeInterval(self.time))

@@ -13,7 +13,7 @@ class ReadabilityArticle: NSObject, NSCoding {
     let content: String
     let domain: String
     let author: String
-    let URL: NSURL
+    let URLString: String
     let shortURL: NSURL?
     let title : String
     let excerpt: String
@@ -26,7 +26,7 @@ class ReadabilityArticle: NSObject, NSCoding {
     var readingProgress: CGFloat
     
     var cacheKey: String {
-        return self.dynamicType.cacheKeyForURL(URL)
+        return self.dynamicType.cacheKeyForURLString(URLString)
     }
     
     let readabilityDateFormat = "yyyy-MM-dd HH:mm:ss"
@@ -35,7 +35,7 @@ class ReadabilityArticle: NSObject, NSCoding {
         content = json["content"].stringValue
         domain = json["domain"].stringValue
         author = json["author"].stringValue
-        URL = json["url"].URL!
+        URLString = json["url"].stringValue
         shortURL = json["short_url"].URL
         title = json["title"].stringValue
         excerpt = json["excerpt"].stringValue
@@ -52,7 +52,7 @@ class ReadabilityArticle: NSObject, NSCoding {
             "content": content,
             "domain": domain,
             "author": author,
-            "url": URL.absoluteString,
+            "url": URLString,
             "short_url": shortURL?.absoluteString ?? "",
             "title": title,
             "excerpt": excerpt,
@@ -74,8 +74,8 @@ class ReadabilityArticle: NSObject, NSCoding {
         coder.encodeObject(toJSON(), forKey: "json")
     }
     
-    class func cacheKeyForURL(url: NSURL) -> String {
-        return "cached_article_\(url.absoluteString)"
+    class func cacheKeyForURLString(urlString: String) -> String {
+        return "cached_article_\(urlString)"
     }
     
     func save() {        

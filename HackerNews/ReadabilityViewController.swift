@@ -164,7 +164,7 @@ extension ReadabilityViewContoller {
             }
             
             articleInfo +=
-                "<div><a href='\(article.URL)'> \(article.URL) </a></div>" +
+                "<div><a href='\(article.URLString)'> \(article.URLString) </a></div>" +
             "</div>"
             
             let body = "<body>" + articleInfo + article.content + "</body>"
@@ -188,9 +188,9 @@ extension ReadabilityViewContoller {
         let string = DateFormatter.stringFromDate(story.date, format: "MMM d, yyyy")
         articleInfo += "<div>\(string)</div>"
         
-        if let URL = story.URL {
+        if let URLString = story.URLString {
             articleInfo +=
-                "<div><a href='\(URL)'> \(URL) </a></div>" +
+                "<div><a href='\(URLString)'> \(URLString) </a></div>" +
             "</div>"
         }
         

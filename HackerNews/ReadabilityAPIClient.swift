@@ -15,10 +15,11 @@ class ReadabilityAPIClient {
     let responseProcessingQueue = NSOperationQueue()
     
     func getParsedArticleForURL(URL: NSURL, completion: (article: ReadabilityArticle?, error: NSError?) -> Void) -> Request {
+        let URLString = URL.absoluteString.stringByRemovingPercentEncoding ?? URL.absoluteString
         return Alamofire
             .request(.GET,
                 baseURLString + "/content/v1/parser",
-                parameters: ["url": URL, "token": Private.Keys.readabilityParserAPIToken])
+                parameters: ["url": URLString, "token": Private.Keys.readabilityParserAPIToken])
             .validate()
             .responseJSON { [weak self] (response) -> Void in
                 switch response.result {
