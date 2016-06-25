@@ -58,7 +58,7 @@ enum HNFDRouter: URLRequestConvertible {
         let URL = NSURL(string: Private.Constants.HNAPIBaseURLString)!
         let mutableURLRequest = NSMutableURLRequest(URL: URL.URLByAppendingPathComponent(path))
         mutableURLRequest.HTTPMethod = method.rawValue
-        //            mutableURLRequest.setValue("", forHTTPHeaderField: "field") // clever header shit?
+//        todo: clever header shit for caching?
         return Alamofire.ParameterEncoding.URL.encode(mutableURLRequest, parameters: parameters).0
     }
 }
@@ -97,7 +97,6 @@ enum ReadabilityRouter: URLRequestConvertible {
         let URL = NSURL(string: "https://readability.com/api")!
         let mutableURLRequest = NSMutableURLRequest(URL: URL.URLByAppendingPathComponent(path))
         mutableURLRequest.HTTPMethod = method.rawValue
-        //            mutableURLRequest.setValue("", forHTTPHeaderField: "field") // clever header shit?
         return Alamofire.ParameterEncoding.URL.encode(mutableURLRequest, parameters: parameters).0
     }
 }
