@@ -10,6 +10,14 @@ import Foundation
 import Alamofire
 import SwiftyJSON
 
+protocol Downloadable {
+    var cacheKey: String { get }
+}
+
+protocol JSONSerializable {
+    init?(json: JSON)
+}
+
 struct Downloader {
     
     static let backgroundManager: Alamofire.Manager = {
@@ -31,7 +39,7 @@ struct Downloader {
             }
             return destinationURL
         }
-        let request =  backgroundManager.download(request, destination: downloadDestination)
+        let request = backgroundManager.download(request, destination: downloadDestination)
         
         return request
     }

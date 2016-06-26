@@ -10,6 +10,17 @@
 import SwiftyJSON
 import DTCoreText
 
+extension StoriesType: Downloadable {
+    var cacheKey: String {
+        return rawValue
+    }
+}
+extension Story: Downloadable {
+    var cacheKey: String {
+        return self.dynamicType.cacheKey(id)
+    }
+}
+
 enum StoriesType: String {
     case
     Top = "topstories",
@@ -22,22 +33,19 @@ enum StoriesType: String {
     var title: String {
         return rawValue.stringByReplacingOccurrencesOfString("stories", withString: " stories").capitalizedString
     }
-    var cacheKey: String {
-        return rawValue
-    }
     var isCached: Bool {
         return Cache.sharedCache().hasFileCachedItemForKey(cacheKey)
     }
 }
 
-func ==(l: Story, r: Story) -> Bool {
-    return l.id == r.id
-}
+//func ==(l: Story, r: Story) -> Bool {
+//    return l.id == r.id
+//}
 
 extension Story { // HASHABLE
-    override var hashValue: Int {
-        return id.hashValue
-    }
+//    override var hashValue: Int {
+//        return id.hashValue
+//    }
 }
 
 class Story: NSObject, NSCoding {
@@ -69,9 +77,7 @@ class Story: NSObject, NSCoding {
     let updated: String
     // want var to see if full story exists in cache
     // want var to track if user 'pinned' story
-    var cacheKey: String {
-        return self.dynamicType.cacheKey(id)
-    }
+    
     class func cacheKey(id: Int) -> String {
         return "cached_story_\(id)"
     }
@@ -134,16 +140,16 @@ class Story: NSObject, NSCoding {
         coder.encodeObject(toJSON(), forKey: "json")
     }
     
-    override var hash: Int {
-        return hashValue
-    }
+//    override var hash: Int {
+//        return hashValue
+//    }
     
-    override func isEqual(object: AnyObject?) -> Bool {
-        if let object = object as? Story {
-            return id == object.id
-        }
-        return false
-    }
+//    override func isEqual(object: AnyObject?) -> Bool {
+//        if let object = object as? Story {
+//            return id == object.id
+//        }
+//        return false
+//    }
     
 }
 

@@ -108,12 +108,13 @@ extension StoriesViewController {
         return stories[indexPath.item]
     }
     
-    func indexPathForStory(story: Story) -> NSIndexPath {
-        return NSIndexPath(forRow: stories.indexOf(story)!, inSection: 0)
+    func indexPathForStory(story: Story) -> NSIndexPath? {
+        guard let index = stories.indexOf(story) else { return nil }
+        return NSIndexPath(forRow: index, inSection: 0)
     }
     
-    func storyForCell(cell: StoryCell) -> Story {
-        let indexPath = tableView.indexPathForCell(cell)!
+    func storyForCell(cell: StoryCell) -> Story? {
+        guard let indexPath = tableView.indexPathForCell(cell) else { return nil }
         return storyForIndexPath(indexPath)
     }
 
@@ -191,7 +192,7 @@ extension StoriesViewController: UITableViewDataSource, UITableViewDelegate {
 extension StoriesViewController: StoryCellDelegate {
     
     func cellDidSelectStoryArticle(cell: StoryCell) {
-        let story = storyForCell(cell)
+        guard let story = storyForCell(cell) else { return }
         if story.type == .Story
             && story.URLString != nil {
                 navigationController?.pushViewController(ReadabilityViewContoller(story: story), animated: true)
@@ -201,16 +202,19 @@ extension StoriesViewController: StoryCellDelegate {
     }
     
     func cellDidSelectStoryComments(cell: StoryCell) {
-        navigationController?.pushViewController(CommentsViewController(story: storyForCell(cell)), animated: true)
+        guard let story = storyForCell(cell) else { return }
+        navigationController?.pushViewController(CommentsViewController(story: story), animated: true)
     }
     
     func cellDidSwipeLeft(cell: StoryCell) {
         // TO DO: unpin
-        tableView.reloadRowsAtIndexPaths([indexPathForStory(storyForCell(cell))], withRowAnimation: .Left)
+        guard let indexPath = tableView.indexPathForCell(cell) else { return }
+        tableView.reloadRowsAtIndexPaths([indexPath], withRowAnimation: .Left)
     }
     
     func cellDidSwipeRight(cell: StoryCell) {
        // TO DO: pin
-        tableView.reloadRowsAtIndexPaths([indexPathForStory(storyForCell(cell))], withRowAnimation: .Right)
+        guard let indexPath = tableView.indexPathForCell(cell) else { return }
+        tableView.reloadRowsAtIndexPaths([indexPath], withRowAnimation: .Right)
     }
 }
