@@ -20,6 +20,7 @@ struct DataSource {
             reachability = try Reachability.reachabilityForInternetConnection()
             return reachability
         } catch {
+            ErrorController.showErrorNotification(Error.UnableToCreateReachability)
             print("Unable to create Reachability")
             return nil
         }

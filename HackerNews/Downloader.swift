@@ -9,19 +9,50 @@
 import Foundation
 import Alamofire
 
-struct APIClient {
+struct Downloader {
     
-    let backgroundManager: Alamofire.Manager = {
+    static let backgroundManager: Alamofire.Manager = {
         let configuration = NSURLSessionConfiguration.backgroundSessionConfigurationWithIdentifier("com.hnfd.background")
-        return Alamofire.Manager(configuration: configuration)
+        let manager =  Alamofire.Manager(configuration: configuration)
+        return manager
     }()
     
-    func download(request: URLRequestConvertible, destinationURL: NSURL) {
+    static func download(request: URLRequestConvertible, destinationURL: NSURL) -> Request {
         let downloadDestination: Request.DownloadFileDestination = { (_,_) -> NSURL in
             return destinationURL
         }
-        backgroundManager.download(request, destination: downloadDestination)
-    }    
+        return backgroundManager.download(request, destination: downloadDestination)
+    }
+}
+
+extension Downloader {
+    
+    static func downloadStories(type: StoriesType, completion: (result: Result<[Story], Error>) -> Void) {
+        let request = HNFDRouter.Stories(type: type)
+        Cache.sharedCache().diskCache.fileURLForKey(type.cacheKey) { (cache, key, result, fileURL) in
+            guard let fileURL = fileURL else {
+                print("downloader failed to get file path for storie type \(type.title)")
+                return
+            }
+            self.download(request, destinationURL: fileURL)
+                .progress { bytesRead, totalBytesRead, totalBytesExpectedToRead in
+                    print(totalBytesRead)
+                    // probs wont keep this
+                    // This closure is NOT called on the main queue for performance
+                    // reasons. To update your ui, dispatch to the main queue.
+                    dispatch_async(dispatch_get_main_queue()) {
+                        print("Total bytes read on main queue: \(totalBytesRead)")
+                    }
+            }
+                .response { request, response, data, error in
+                    if let error = error {
+                        print("Failed with error: \(error)")
+                    } else {
+                        print("Downloaded file successfully \nrequest: \(request)\nresponse: \(response)\ndata: \(data)")
+                    }
+            }
+        }
+    }
 }
 
 enum HNFDRouter: URLRequestConvertible {
@@ -44,7 +75,7 @@ enum HNFDRouter: URLRequestConvertible {
             return "/items/\(id)"
         }
     }
-        
+    
     var parameters: [String: AnyObject] {
         switch self {
         default:
@@ -58,7 +89,7 @@ enum HNFDRouter: URLRequestConvertible {
         let URL = NSURL(string: Private.Constants.HNAPIBaseURLString)!
         let mutableURLRequest = NSMutableURLRequest(URL: URL.URLByAppendingPathComponent(path))
         mutableURLRequest.HTTPMethod = method.rawValue
-//        todo: clever header shit for caching?
+        //        todo: clever header shit for caching?
         return Alamofire.ParameterEncoding.URL.encode(mutableURLRequest, parameters: parameters).0
     }
 }

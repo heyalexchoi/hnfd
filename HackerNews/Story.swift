@@ -96,6 +96,7 @@ class Story: NSObject, NSCoding {
         self.kids = json["kids"].arrayValue.map { $0.intValue }
         self.score = json["score"].intValue
         self.text = json["text"].stringValue
+        // could probably make this a lazy var:
         let data = text.dataUsingEncoding(NSUTF8StringEncoding)!
         self.attributedText = data.length > 0 ? NSAttributedString(HTMLData: data, options: [DTUseiOS6Attributes: true, DTDefaultFontName: UIFont.textReaderFont().fontName, DTDefaultFontSize: UIFont.textReaderFont().pointSize, DTDefaultTextColor: UIColor.textColor(), DTDefaultLinkColor: UIColor.tintColor()], documentAttributes: nil) : NSAttributedString(string: "")
         self.time = json["time"].intValue
