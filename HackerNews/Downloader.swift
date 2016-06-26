@@ -8,6 +8,7 @@
 
 import Foundation
 import Alamofire
+import SwiftyJSON
 
 struct Downloader {
     
@@ -18,20 +19,33 @@ struct Downloader {
     }()
     
     static func download(request: URLRequestConvertible, destinationURL: NSURL) -> Request {
-        let downloadDestination: Request.DownloadFileDestination = { (_,_) -> NSURL in
+        let downloadDestination: Request.DownloadFileDestination = { (tempURL, response) -> NSURL in
+            let fileManager = NSFileManager.defaultManager()
+            if let destinationPath = destinationURL.path
+                where fileManager.fileExistsAtPath(destinationPath) {
+                do {
+                    try fileManager.removeItemAtPath(destinationPath)
+                } catch {
+                    print("file manager could not remove item at path \(destinationPath)")
+                }
+            }
             return destinationURL
         }
-        return backgroundManager.download(request, destination: downloadDestination)
+        let request =  backgroundManager.download(request, destination: downloadDestination)
+        
+        return request
     }
 }
 
 extension Downloader {
     
-    static func downloadStories(type: StoriesType, completion: (result: Result<[Story], Error>) -> Void) {
+    static let responseProcessingQueue = NSOperationQueue()
+    
+    static func downloadStories(type: StoriesType, completion: ((Result<[Story], Error>) -> Void)?) {
         let request = HNFDRouter.Stories(type: type)
         Cache.sharedCache().diskCache.fileURLForKey(type.cacheKey) { (cache, key, result, fileURL) in
             guard let fileURL = fileURL else {
-                print("downloader failed to get file path for storie type \(type.title)")
+                print("downloader failed to get file path for stories type \(type.title)")
                 return
             }
             self.download(request, destinationURL: fileURL)
@@ -43,15 +57,37 @@ extension Downloader {
                     dispatch_async(dispatch_get_main_queue()) {
                         print("Total bytes read on main queue: \(totalBytesRead)")
                     }
-            }
+                }
+                .validate()
                 .response { request, response, data, error in
                     if let error = error {
-                        print("Failed with error: \(error)")
-                    } else {
-                        print("Downloaded file successfully \nrequest: \(request)\nresponse: \(response)\ndata: \(data)")
+                        completion?(Result.Failure(Error.External(underlying: error)))
                     }
-            }
+                    // seems data is reserved for resumes...
+                    // if there is a completion, serialize object at path
+                    if let completion = completion,
+                        let filePath = fileURL.path,
+                        let data = NSFileManager.defaultManager().contentsAtPath(filePath) {
+                        
+                        self.responseProcessingQueue.addOperationWithBlock({ () -> Void in
+                            let stories = JSON(data: data).arrayValue
+                                .filter { return $0 != nil } // dirty fix for cleaning out null stories from response. did not go with failable initializer on Story  because there's a bug in the swift compiler that makes it hard to fail initializer on class objects.
+                                .map { Story(json: $0) }
+                            NSOperationQueue.mainQueue().addOperationWithBlock({ () -> Void in
+                                completion(Result.Success(stories))
+                            })
+                        })
+                    }
+                }
+                .debugPrint()
         }
+    }
+}
+
+extension Request {
+    func debugPrint() -> Request {
+        print("debug description: \(debugDescription)")
+        return self
     }
 }
 

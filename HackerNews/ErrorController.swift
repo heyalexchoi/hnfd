@@ -30,7 +30,8 @@ class ErrorController {
         }
     }
     
-    class func showErrorNotification(error: Error) {
+    class func showErrorNotification(error: Error?) {
+        guard let error = error else { return }
         showErrorNotification(error.error)
     }    
 }

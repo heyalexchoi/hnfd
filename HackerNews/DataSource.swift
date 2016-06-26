@@ -35,22 +35,16 @@ extension DataSource {
     
     // MARK: - Stories
     
-    static func getStories(type: StoriesType, refresh: Bool = false, completion: (stories: [Story]?, error: NSError?) -> Void) {
-        // will use cached stories unless refresh requested (and network available)
-        if (!type.isCached || refresh) && shouldMakeNetworkRequest {
-            hnAPIClient.getStories(type, limit: 100, offset: 0) { (stories, error) in
-                guard let stories = stories else {
-                    NSOperationQueue.mainQueue().addOperationWithBlock { completion(stories: nil, error: error) }
-                    return
-                }
-                
-                cache.setStories(type, stories: stories, completion: nil)
-                NSOperationQueue.mainQueue().addOperationWithBlock { completion(stories: stories, error: nil) }
-            }
-        } else {
+    static func getStories(type: StoriesType, refresh: Bool = false, completion: (stories: [Story]?, error: Error?) -> Void) {
+        if type.isCached && !refresh {
             cache.getStories(type, completion: { (stories) in
                 NSOperationQueue.mainQueue().addOperationWithBlock { completion(stories: stories, error: nil) }
             })
+            return
+        }
+        
+        Downloader.downloadStories(type) { (result) in
+            completion(stories: result.value, error: result.error)
         }
     }
     
