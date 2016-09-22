@@ -14,19 +14,19 @@ class ReadabilityArticle: NSObject, NSCoding {
     let domain: String
     let author: String
     let URLString: String
-    let shortURL: NSURL?
+    let shortURL: URL?
     let title : String
     let excerpt: String
     let wordCount: Int
     let totalPages: Int
     let dek: String
-    let leadImageURL: NSURL?
-    let datePublished: NSDate?
+    let leadImageURL: URL?
+    let datePublished: Date?
     
     var readingProgress: CGFloat
     
     var cacheKey: String {
-        return self.dynamicType.cacheKeyForURLString(URLString)
+        return type(of: self).cacheKeyForURLString(URLString)
     }
     
     let readabilityDateFormat = "yyyy-MM-dd HH:mm:ss"
@@ -66,20 +66,20 @@ class ReadabilityArticle: NSObject, NSCoding {
     }
     
     required convenience init(coder decoder: NSCoder) {
-        let json: AnyObject = decoder.decodeObjectForKey("json")!
+        let json: AnyObject = decoder.decodeObject(forKey: "json")! as AnyObject
         self.init(json:JSON(json))
     }
     
-    func encodeWithCoder(coder: NSCoder) {
-        coder.encodeObject(toJSON(), forKey: "json")
+    func encode(with coder: NSCoder) {
+        coder.encode(toJSON(), forKey: "json")
     }
     
-    class func cacheKeyForURLString(urlString: String) -> String {
+    class func cacheKeyForURLString(_ urlString: String) -> String {
         return "cached_article_\(urlString)"
     }
     
     func save() {        
-        Cache.sharedCache().setArticle(self, completion: nil)
+        Cache.shared().setArticle(self, completion: nil)
     }
     
 }

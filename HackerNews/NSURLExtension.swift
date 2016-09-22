@@ -8,9 +8,9 @@
 
 import Foundation
 
-extension NSURL {
+extension URL {
     
-    func hyperlinkWithText(text: String) -> String {
+    func hyperlinkWithText(_ text: String) -> String {
         return String.htmlStringHyperlink(self, text: text)
     }
     

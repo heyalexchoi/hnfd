@@ -10,10 +10,10 @@
 import AutolayoutExtensions
 
 protocol StoryCellDelegate: class {
-    func cellDidSelectStoryArticle(cell: StoryCell)
-    func cellDidSelectStoryComments(cell: StoryCell)
-    func cellDidSwipeLeft(cell: StoryCell)
-    func cellDidSwipeRight(cell: StoryCell)
+    func cellDidSelectStoryArticle(_ cell: StoryCell)
+    func cellDidSelectStoryComments(_ cell: StoryCell)
+    func cellDidSwipeLeft(_ cell: StoryCell)
+    func cellDidSwipeRight(_ cell: StoryCell)
 }
 
 class StoryCell: UITableViewCell {
@@ -49,20 +49,20 @@ class StoryCell: UITableViewCell {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         
         backgroundColor = UIColor.backgroundColor()
-        selectionStyle = .None
-        separatorInset = UIEdgeInsetsZero
-        layoutMargins = UIEdgeInsetsZero
+        selectionStyle = .none
+        separatorInset = UIEdgeInsets.zero
+        layoutMargins = UIEdgeInsets.zero
         preservesSuperviewLayoutMargins = false
         
-        leftSwipeRecognizer.direction = .Left
-        rightSwipeRecognizer.direction = .Right
+        leftSwipeRecognizer.direction = .left
+        rightSwipeRecognizer.direction = .right
         leftSwipeRecognizer.addTarget(self, action: #selector(StoryCell.didSwipeLeft))
         rightSwipeRecognizer.addTarget(self, action: #selector(StoryCell.didSwipeRight))
         contentView.addGestureRecognizer(leftSwipeRecognizer)
         contentView.addGestureRecognizer(rightSwipeRecognizer)
         
         titleLabel.numberOfLines = 0
-        titleLabel.lineBreakMode = .ByWordWrapping
+        titleLabel.lineBreakMode = .byWordWrapping
         
         for label in [titleLabel, byLabel, scoreLabel, timeLabel, URLLabel] {
             label.translatesAutoresizingMaskIntoConstraints = false
@@ -87,11 +87,11 @@ class StoryCell: UITableViewCell {
         commentsContainer.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(commentsContainer)
         
-        articleButton.addTarget(self, action: #selector(StoryCell.articleButtonDidPress), forControlEvents: .TouchUpInside)
+        articleButton.addTarget(self, action: #selector(StoryCell.articleButtonDidPress), for: .touchUpInside)
         articleButton.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(articleButton)
         
-        commentsButton.addTarget(self, action: #selector(StoryCell.commentsButtonDidPress), forControlEvents: .TouchUpInside)
+        commentsButton.addTarget(self, action: #selector(StoryCell.commentsButtonDidPress), for: .touchUpInside)
         commentsButton.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(commentsButton)
         
@@ -134,10 +134,10 @@ class StoryCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func estimatedHeight(width: CGFloat, title: String) -> CGFloat {
+    func estimatedHeight(_ width: CGFloat, title: String) -> CGFloat {
         let attributedTitle = NSAttributedString(string: title, attributes: titleLabel.defaultTextAttributes)
-        let titleBoundingRect = attributedTitle.boundingRectWithSize(CGSize(width: width - 60, height: CGFloat.max),
-            options: [.UsesLineFragmentOrigin, .UsesFontLeading],
+        let titleBoundingRect = attributedTitle.boundingRect(with: CGSize(width: width - 60, height: CGFloat.greatestFiniteMagnitude),
+            options: [.usesLineFragmentOrigin, .usesFontLeading],
             context: nil)
         let titleHeight = titleBoundingRect.height
         let detailFont: UIFont = TextAttributes.detailAttributes[NSFontAttributeName] as! UIFont
@@ -145,15 +145,15 @@ class StoryCell: UITableViewCell {
         return 15 + titleHeight + 5 + detailHeight + 5 + detailHeight + 15
     }
     
-    func prepare(story: Story) {
+    func prepare(_ story: Story) {
         titleLabel.text = story.title
         byLabel.setText("by \(story.by)", attributes: TextAttributes.detailAttributes)
         commentsLabel.setText("\(story.descendants) comments", attributes: TextAttributes.detailAttributes)
         scoreLabel.setText("\(story.score) points", attributes: TextAttributes.detailAttributes)
-        timeLabel.setText(String(story.date.timeAgoSinceNow()), attributes: TextAttributes.detailAttributes)
+        timeLabel.setText(String((story.date as NSDate).timeAgoSinceNow()), attributes: TextAttributes.detailAttributes)
         URLLabel.setText(story.URL?.absoluteString, attributes: TextAttributes.detailAttributes)
 //        pinnedImageView.hidden = !story.saved
-        pinnedImageView.hidden = true
+        pinnedImageView.isHidden = true
     }
     
     func articleButtonDidPress() {

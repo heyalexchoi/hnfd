@@ -12,15 +12,15 @@ import Foundation
 extension UIColor {
     
     class func textColor() -> UIColor {
-        return UIColor.icebergColor()
+        return UIColor.iceberg()
     }
     
     class func backgroundColor() -> UIColor {
-        return UIColor.charcoalColor()
+        return UIColor.charcoal()
     }
     
     class func separatorColor() -> UIColor {
-        return UIColor.coolGrayColor()
+        return UIColor.coolGray()
     }
     
     class func tintColor() -> UIColor {

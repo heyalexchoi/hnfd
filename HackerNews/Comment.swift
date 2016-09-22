@@ -21,7 +21,7 @@ class Comment: NSObject, NSCoding {
     let children: [Comment]
     let deleted: Bool
     let level: Int
-    let date: NSDate
+    let date: Date
     
     init(json: JSON, level: Int) {
         self.by = json["by"].stringValue
@@ -31,12 +31,12 @@ class Comment: NSObject, NSCoding {
         self.time = json["time"].intValue
         let text = json["text"].stringValue
         self.text = text
-        let data = text.dataUsingEncoding(NSUTF8StringEncoding)!
-        self.attributedText = data.length > 0 ? NSAttributedString(HTMLData: data, options: [DTUseiOS6Attributes: true, DTDefaultFontName: UIFont.textReaderFont().fontName, DTDefaultFontSize: UIFont.textReaderFont().pointSize, DTDefaultTextColor: UIColor.textColor(), DTDefaultLinkColor: UIColor.tintColor()], documentAttributes: nil) : NSAttributedString(string: "")
+        let data = text.data(using: String.Encoding.utf8)!
+        self.attributedText = data.count > 0 ? NSAttributedString(htmlData: data, options: [DTUseiOS6Attributes: true, DTDefaultFontName: UIFont.textReaderFont().fontName, DTDefaultFontSize: UIFont.textReaderFont().pointSize, DTDefaultTextColor: UIColor.textColor(), DTDefaultLinkColor: UIColor.tintColor()], documentAttributes: nil) : NSAttributedString(string: "")
         self.deleted = json["deleted"].boolValue
         self.children = json["children"].arrayValue.map { Comment(json: $0, level: level + 1) } .filter { !$0.deleted }
         self.level = level
-        self.date = NSDate(timeIntervalSince1970: NSTimeInterval(self.time))
+        self.date = Date(timeIntervalSince1970: TimeInterval(self.time))
     }
     
     func toJSON() -> AnyObject {
@@ -54,13 +54,13 @@ class Comment: NSObject, NSCoding {
     }
     
     required convenience init(coder decoder: NSCoder) {
-        let json: AnyObject = decoder.decodeObjectForKey("json")!
+        let json: AnyObject = decoder.decodeObject(forKey: "json")! as AnyObject
         let level = json["level"] as! Int
         self.init(json:JSON(json), level:level)
     }
     
-    func encodeWithCoder(coder: NSCoder) {
-        coder.encodeObject(toJSON(), forKey: "json")
+    func encode(with coder: NSCoder) {
+        coder.encode(toJSON(), forKey: "json")
     }
 }
 

@@ -14,9 +14,9 @@ class StoriesViewController: UIViewController {
     var stories = [Story]()
     var storiesType: StoriesType = .Top
 
-    let tableView = UITableView(frame: CGRectZero, style: .Plain)
+    let tableView = UITableView(frame: CGRect.zero, style: .plain)
     
-    let prototypeCell = StoryCell(frame: CGRectZero)
+    let prototypeCell = StoryCell(frame: CGRect.zero)
     var cachedCellHeights = [Int: CGFloat]() // id: cell height
     
     let titleView = StoriesTitleView()
@@ -41,17 +41,17 @@ class StoriesViewController: UIViewController {
         }
         
         tableView.backgroundColor = UIColor.backgroundColor()
-        tableView.registerClass(StoryCell.self, forCellReuseIdentifier: StoryCell.identifier)
+        tableView.register(StoryCell.self, forCellReuseIdentifier: StoryCell.identifier)
         tableView.dataSource = self
         tableView.delegate = self
         tableView.tableFooterView = UIView() // avoid empty cells
         tableView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(tableView)
         
-        tableView.addPullToRefreshWithActionHandler { [weak self] () -> Void in
+        tableView.addPullToRefresh { [weak self] () -> Void in
             self?.getStories(refresh: true)
         }
-        tableView.pullToRefreshView.activityIndicatorViewStyle = .White
+        tableView.pullToRefreshView.activityIndicatorViewStyle = .white
         
         view.addConstraintsWithVisualFormatStrings([
             "H:|[tableView]|",
@@ -62,7 +62,7 @@ class StoriesViewController: UIViewController {
         
     }
     
-    override func viewWillAppear(animated: Bool) {
+    override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         tableView.reloadData()
     }
@@ -73,15 +73,15 @@ class StoriesViewController: UIViewController {
 
 extension StoriesViewController {
     
-    func getStories(refresh refresh: Bool = false, scrollToTop: Bool = false) {
+    func getStories(refresh: Bool = false, scrollToTop: Bool = false) {
         
         if !refresh {
-            ProgressHUD.showHUDAddedTo(view, animated: true)
+            ProgressHUD.showAdded(to: view, animated: true)
         }
 
         DataSource.getStories(storiesType, refresh: refresh) { [weak self] (stories, error) -> Void in
             
-            ProgressHUD.hideAllHUDsForView(self?.view, animated: true)
+            ProgressHUD.hideAllHUDs(for: self?.view, animated: true)
             self?.tableView.pullToRefreshView.stopAnimating()
             
             guard let stories = stories else {
@@ -104,17 +104,17 @@ extension StoriesViewController {
         }
     }
     
-    func storyForIndexPath(indexPath: NSIndexPath) -> Story {
-        return stories[indexPath.item]
+    func storyForIndexPath(_ indexPath: IndexPath) -> Story {
+        return stories[(indexPath as NSIndexPath).item]
     }
     
-    func indexPathForStory(story: Story) -> NSIndexPath? {
-        guard let index = stories.indexOf(story) else { return nil }
-        return NSIndexPath(forRow: index, inSection: 0)
+    func indexPathForStory(_ story: Story) -> IndexPath? {
+        guard let index = stories.index(of: story) else { return nil }
+        return IndexPath(row: index, section: 0)
     }
     
-    func storyForCell(cell: StoryCell) -> Story? {
-        guard let indexPath = tableView.indexPathForCell(cell) else { return nil }
+    func storyForCell(_ cell: StoryCell) -> Story? {
+        guard let indexPath = tableView.indexPath(for: cell) else { return nil }
         return storyForIndexPath(indexPath)
     }
 
@@ -132,7 +132,7 @@ extension StoriesViewController {
         }
     }
     
-    func menuDidFinishSelection(type: StoriesType) {
+    func menuDidFinishSelection(_ type: StoriesType) {
         storiesType = type
         title = type.title
         getStories(refresh: true, scrollToTop: true)
@@ -143,7 +143,7 @@ extension StoriesViewController {
         if menu.isOpen {
             menu.close()
         } else {
-            menu.showInView(view)
+            menu.show(in: view)
         }
     }
 }
@@ -151,7 +151,7 @@ extension StoriesViewController {
 // MARK: - Cell heights
 extension StoriesViewController {
     
-    func cachedHeightForRowAtIndexPath(indexPath: NSIndexPath) -> CGFloat {
+    func cachedHeightForRowAtIndexPath(_ indexPath: IndexPath) -> CGFloat {
         let story = storyForIndexPath(indexPath)
         if let cachedHeight = cachedCellHeights[story.id] {
             return cachedHeight
@@ -165,24 +165,24 @@ extension StoriesViewController {
 
 extension StoriesViewController: UITableViewDataSource, UITableViewDelegate {
     
-    func numberOfSectionsInTableView(tableView: UITableView) -> Int {
+    func numberOfSections(in tableView: UITableView) -> Int {
         return 1
     }
     
-    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return stories.count
     }
     
-    func tableView(tableView: UITableView, estimatedHeightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
+    func tableView(_ tableView: UITableView, estimatedHeightForRowAt indexPath: IndexPath) -> CGFloat {
         return cachedHeightForRowAtIndexPath(indexPath)
     }
     
-    func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return cachedHeightForRowAtIndexPath(indexPath)
     }
     
-    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCellWithIdentifier(StoryCell.identifier, forIndexPath: indexPath) as! StoryCell
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: StoryCell.identifier, for: indexPath) as! StoryCell
         cell.delegate = self
         cell.prepare(storyForIndexPath(indexPath))
         return cell
@@ -191,7 +191,7 @@ extension StoriesViewController: UITableViewDataSource, UITableViewDelegate {
 
 extension StoriesViewController: StoryCellDelegate {
     
-    func cellDidSelectStoryArticle(cell: StoryCell) {
+    func cellDidSelectStoryArticle(_ cell: StoryCell) {
         guard let story = storyForCell(cell) else { return }
         if story.type == .Story
             && story.URLString != nil {
@@ -201,20 +201,20 @@ extension StoriesViewController: StoryCellDelegate {
         }
     }
     
-    func cellDidSelectStoryComments(cell: StoryCell) {
+    func cellDidSelectStoryComments(_ cell: StoryCell) {
         guard let story = storyForCell(cell) else { return }
         navigationController?.pushViewController(CommentsViewController(story: story), animated: true)
     }
     
-    func cellDidSwipeLeft(cell: StoryCell) {
+    func cellDidSwipeLeft(_ cell: StoryCell) {
         // TO DO: unpin
-        guard let indexPath = tableView.indexPathForCell(cell) else { return }
-        tableView.reloadRowsAtIndexPaths([indexPath], withRowAnimation: .Left)
+        guard let indexPath = tableView.indexPath(for: cell) else { return }
+        tableView.reloadRows(at: [indexPath], with: .left)
     }
     
-    func cellDidSwipeRight(cell: StoryCell) {
+    func cellDidSwipeRight(_ cell: StoryCell) {
        // TO DO: pin
-        guard let indexPath = tableView.indexPathForCell(cell) else { return }
-        tableView.reloadRowsAtIndexPaths([indexPath], withRowAnimation: .Right)
+        guard let indexPath = tableView.indexPath(for: cell) else { return }
+        tableView.reloadRows(at: [indexPath], with: .right)
     }
 }

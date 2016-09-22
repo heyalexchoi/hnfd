@@ -10,7 +10,7 @@ class ReadabilityViewContoller: UIViewController {
     
     var article: ReadabilityArticle?
     let story: Story
-    let articleURL: NSURL?
+    let articleURL: URL?
     
     let webView = UIWebView()
     
@@ -23,12 +23,12 @@ class ReadabilityViewContoller: UIViewController {
     
     init(story: Story) {
         self.story = story
-        self.articleURL = story.URL
+        self.articleURL = story.URL as URL?
         super.init(nibName: nil, bundle: nil)
         
-        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .Action, target: self, action: #selector(ReadabilityViewContoller.actionButtonDidPress))
+        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .action, target: self, action: #selector(ReadabilityViewContoller.actionButtonDidPress))
 
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(ReadabilityViewContoller.saveReadingProgress), name: UIApplicationWillResignActiveNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(ReadabilityViewContoller.saveReadingProgress), name: NSNotification.Name.UIApplicationWillResignActive, object: nil)
         
         getReadabilityArticle()
     }
@@ -38,7 +38,7 @@ class ReadabilityViewContoller: UIViewController {
     }
     
     deinit {
-        NSNotificationCenter.defaultCenter().removeObserver(self)
+        NotificationCenter.default.removeObserver(self)
     }
     
     // MARK: - UIViewController
@@ -47,9 +47,9 @@ class ReadabilityViewContoller: UIViewController {
         super.viewDidLoad()
         // hides white flash. for whatever reason setting webview's background color doesnt prevent white flash.
         view.backgroundColor = UIColor.backgroundColor()
-        webView.hidden = true
-        webView.opaque = false
-        webView.backgroundColor = UIColor.clearColor()
+        webView.isHidden = true
+        webView.isOpaque = false
+        webView.backgroundColor = UIColor.clear
         
         webView.delegate = self
         
@@ -64,7 +64,7 @@ class ReadabilityViewContoller: UIViewController {
                 "webView": webView])
     }
     
-    override func viewWillDisappear(animated: Bool) {
+    override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         saveReadingProgress()
     }
@@ -90,13 +90,13 @@ extension ReadabilityViewContoller {
             webView.scrollView.setContentOffset(CGPoint(x:0, y: article.readingProgress * webView.scrollView.contentSize.height), animated: false)
             shouldScroll = false
         }
-        webView.hidden = false
+        webView.isHidden = false
     }
     
     func getReadabilityArticle() {
-        ProgressHUD.showHUDAddedTo(view, animated: true)
+        ProgressHUD.showAdded(to: view, animated: true)
         DataSource.getArticle(story, completion: { [weak self] (article, error) -> Void in
-            ProgressHUD.hideHUDForView(self?.view, animated: true)
+            ProgressHUD.hide(for: self?.view, animated: true)
             self?.article = article
             self?.finishLoadingArticle()
             ErrorController.showErrorNotification(error)
@@ -111,14 +111,14 @@ extension ReadabilityViewContoller {
     func actionButtonDidPress() {
         guard let articleURL = articleURL else { return }
         let storyActivity = StoryActivity()
-        presentViewController(UIActivityViewController(activityItems: [articleURL, story], applicationActivities: [storyActivity]), animated: true, completion: nil)
+        present(UIActivityViewController(activityItems: [articleURL, story], applicationActivities: [storyActivity]), animated: true, completion: nil)
     }
 }
 
 extension ReadabilityViewContoller {
     
     var CSS: String {
-        let cssPath = NSBundle.mainBundle().pathForResource("readability_article", ofType: "css")!
+        let cssPath = Bundle.main.path(forResource: "readability_article", ofType: "css")!
         let css = try! String(contentsOfFile: cssPath)
         // swift compiler choking on string concatenations. had to break them into more statements
         var customCSS =
@@ -202,15 +202,15 @@ extension ReadabilityViewContoller {
 
 extension ReadabilityViewContoller: UIWebViewDelegate {
     
-    func webView(webView: UIWebView, shouldStartLoadWithRequest request: NSURLRequest, navigationType: UIWebViewNavigationType) -> Bool {
-        if let URL = request.URL where htmlLoaded {
+    func webView(_ webView: UIWebView, shouldStartLoadWith request: URLRequest, navigationType: UIWebViewNavigationType) -> Bool {
+        if let URL = request.url , htmlLoaded {
             presentWebViewController(URL)
             return false
         }
         return true
     }
     
-    func webViewDidFinishLoad(webView: UIWebView) {
+    func webViewDidFinishLoad(_ webView: UIWebView) {
         htmlLoaded = true
         scrollToReadingProgress()
     }

@@ -24,9 +24,9 @@ class CommentCell: UITableViewCell {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         
         backgroundColor = UIColor.backgroundColor()
-        selectionStyle = .None
-        separatorInset = UIEdgeInsetsZero
-        layoutMargins = UIEdgeInsetsZero
+        selectionStyle = .none
+        separatorInset = UIEdgeInsets.zero
+        layoutMargins = UIEdgeInsets.zero
         preservesSuperviewLayoutMargins = false
         
         for view in [indentation, byLabel, timeLabel, textView] {
@@ -35,11 +35,11 @@ class CommentCell: UITableViewCell {
         }
         
         textView.backgroundColor = UIColor.backgroundColor()
-        textView.editable = false
-        textView.scrollEnabled = false
-        textView.textContainerInset = UIEdgeInsetsZero
+        textView.isEditable = false
+        textView.isScrollEnabled = false
+        textView.textContainerInset = UIEdgeInsets.zero
         textView.textContainer.lineFragmentPadding = 0
-        textView.dataDetectorTypes = .All
+        textView.dataDetectorTypes = .all
         
         contentView.addConstraintsWithVisualFormatStrings([
             "H:|[indentation][byLabel]-30-[timeLabel]-(>=0)-|",
@@ -58,9 +58,9 @@ class CommentCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func estimatedHeight(width: CGFloat, attributedText: NSAttributedString, level: Int) -> CGFloat {
-        let textBoundingRect = attributedText.boundingRectWithSize(CGSize(width: width - indentationWidthForLevel(level) - 15, height: CGFloat.max),
-            options: [.UsesLineFragmentOrigin, .UsesFontLeading],
+    func estimatedHeight(_ width: CGFloat, attributedText: NSAttributedString, level: Int) -> CGFloat {
+        let textBoundingRect = attributedText.boundingRect(with: CGSize(width: width - indentationWidthForLevel(level) - 15, height: CGFloat.greatestFiniteMagnitude),
+            options: [.usesLineFragmentOrigin, .usesFontLeading],
             context: nil)
         let textHeight = textBoundingRect.height
         let detailFont: UIFont = TextAttributes.textAttributes[NSFontAttributeName] as! UIFont
@@ -68,14 +68,14 @@ class CommentCell: UITableViewCell {
         return 15 + detailHeight + 15 + textHeight + 15
     }
     
-    func prepare(comment: Comment, level: Int) {
+    func prepare(_ comment: Comment, level: Int) {
         indentationWidthConstraint.constant = indentationWidthForLevel(level)
         byLabel.text = comment.by
-        timeLabel.text = comment.date.timeAgoSinceNow()
+        timeLabel.text = (comment.date as NSDate).timeAgoSinceNow()
         textView.attributedText = comment.attributedText
     }
     
-    func indentationWidthForLevel(level: Int) -> CGFloat {
+    func indentationWidthForLevel(_ level: Int) -> CGFloat {
         return CGFloat((level + 2) * 15)
     }
 }

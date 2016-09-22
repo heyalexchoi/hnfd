@@ -25,7 +25,7 @@ class CommentsHeaderView: UIView {
         for subview in [titleLabel, linkLabel, detailLabel, textView, bottomBorder, linkLabelTextViewSpacing] {
             if let label = subview as? UILabel {
                 label.numberOfLines = 0
-                label.textAlignment = .Center
+                label.textAlignment = .center
             }
             subview.translatesAutoresizingMaskIntoConstraints = false
             addSubview(subview)
@@ -53,7 +53,7 @@ class CommentsHeaderView: UIView {
     }
     
     convenience init(story: Story) {
-        self.init(frame: CGRectZero)
+        self.init(frame: CGRect.zero)
         prepare(story)
     }
     
@@ -61,14 +61,14 @@ class CommentsHeaderView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func prepare(story: Story) {
+    func prepare(_ story: Story) {
         titleLabel.setText(story.title, attributes: TextAttributes.titleAttributes)
         if let URL = story.URL {
-            linkLabel.attributedText = NSAttributedString(string: URL.absoluteString, attributes: merge(TextAttributes.URLAttributes(URL), TextAttributes.textAttributes, TextAttributes.centerAlignment))
+            linkLabel.attributedText = NSAttributedString(string: URL.absoluteString!, attributes: merge(TextAttributes.URLAttributes(URL), TextAttributes.textAttributes, TextAttributes.centerAlignment))
         } else {
             linkLabel.text = nil
         }
-        detailLabel.setText("Submitted by \(story.by) \(story.date.timeAgoSinceNow())", attributes: TextAttributes.textAttributes)
+        detailLabel.setText("Submitted by \(story.by) \((story.date as NSDate).timeAgoSinceNow())", attributes: TextAttributes.textAttributes)
         textView.attributedText = story.attributedText
         
         linkLabelTextViewSpacingHeightConstraint.constant = story.attributedText.length > 0 ? 10 : 0

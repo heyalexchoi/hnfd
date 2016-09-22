@@ -13,8 +13,8 @@ class StoriesTitleView: UIView {
             let attachment = NSTextAttachment()
             attachment.image = UIImage.downChevron()
             let attributedTitle = NSMutableAttributedString(string: title ?? "", attributes: TextAttributes.titleAttributes)
-            attributedTitle.appendAttributedString(NSAttributedString(string: "  "))
-            attributedTitle.appendAttributedString(NSAttributedString(attachment: attachment))
+            attributedTitle.append(NSAttributedString(string: "  "))
+            attributedTitle.append(NSAttributedString(attachment: attachment))
             label.attributedText = attributedTitle
             label.tintColor = UIColor.textColor()
         }
@@ -26,7 +26,7 @@ class StoriesTitleView: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
         
-        label.textAlignment = .Center
+        label.textAlignment = .center
         
         tapRecognizer.addTarget(self, action: #selector(StoriesTitleView.handleTap))
         addGestureRecognizer(tapRecognizer)

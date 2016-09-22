@@ -8,15 +8,15 @@
 
 struct DateFormatter {
     
-    static let sharedFormatter = NSDateFormatter()
+    static let sharedFormatter = Foundation.DateFormatter()
     
-    static func dateFromString(string: String, format: String) -> NSDate? {
+    static func dateFromString(_ string: String, format: String) -> Date? {
         sharedFormatter.dateFormat = format
-        return sharedFormatter.dateFromString(string)
+        return sharedFormatter.date(from: string)
     }
     
-    static func stringFromDate(date: NSDate, format: String) -> String {
+    static func stringFromDate(_ date: Date, format: String) -> String {
         sharedFormatter.dateFormat = format
-        return sharedFormatter.stringFromDate(date)
+        return sharedFormatter.string(from: date)
     }
 }

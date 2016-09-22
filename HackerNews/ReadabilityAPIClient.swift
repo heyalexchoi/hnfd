@@ -12,9 +12,9 @@ import SwiftyJSON
 class ReadabilityAPIClient {
     
     let baseURLString = "https://readability.com/api"
-    let responseProcessingQueue = NSOperationQueue()
+    let responseProcessingQueue = OperationQueue()
     
-    func getParsedArticleForURL(URL: NSURL, completion: (article: ReadabilityArticle?, error: NSError?) -> Void) -> Request {
+    func getParsedArticleForURL(_ URL: Foundation.URL, completion: (_ article: ReadabilityArticle?, _ error: NSError?) -> Void) -> Request {
         let URLString = URL.absoluteString.stringByRemovingPercentEncoding ?? URL.absoluteString
         return Alamofire
             .request(.GET,
@@ -23,14 +23,14 @@ class ReadabilityAPIClient {
             .validate()
             .responseJSON { [weak self] (response) -> Void in
                 switch response.result {
-                case .Success(let json):
-                    self?.responseProcessingQueue.addOperationWithBlock({ () -> Void in
+                case .success(let json):
+                    self?.responseProcessingQueue.addOperation({ () -> Void in
                         let article = ReadabilityArticle(json: JSON(json))
-                        NSOperationQueue.mainQueue().addOperationWithBlock({ () -> Void in
+                        OperationQueue.main.addOperation({ () -> Void in
                             completion(article: article, error: nil)
                         })
                     })
-                case .Failure(let error):
+                case .failure(let error):
                     completion(article: nil, error: error as NSError)                    
                 }
         }
