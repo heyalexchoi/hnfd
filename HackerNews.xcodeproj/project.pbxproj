@@ -47,7 +47,7 @@
 		17CC03201AFEA8B4005719A7 /* StoriesTitleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17CC031F1AFEA8B4005719A7 /* StoriesTitleView.swift */; };
 		17DEB0461CB1C86100D3246E /* AutolayoutExtensions.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 17DEB0451CB1C86100D3246E /* AutolayoutExtensions.framework */; };
 		17E621151AED4C0B00FF84AC /* WebViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17E621141AED4C0B00FF84AC /* WebViewController.swift */; };
-		17F20FF11B7EE6E7005EB2FF /* Error.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17F20FF01B7EE6E7005EB2FF /* Error.swift */; };
+		17F20FF11B7EE6E7005EB2FF /* HNFDError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17F20FF01B7EE6E7005EB2FF /* HNFDError.swift */; };
 		17FB84D91AE20B7500C87786 /* Appearance.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17FB84D81AE20B7500C87786 /* Appearance.swift */; };
 		17FB84DB1AE20CB600C87786 /* CommentsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17FB84DA1AE20CB600C87786 /* CommentsViewController.swift */; };
 		17FB84DF1AE21A1C00C87786 /* CommentCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17FB84DE1AE21A1C00C87786 /* CommentCell.swift */; };
@@ -111,7 +111,7 @@
 		17CC031F1AFEA8B4005719A7 /* StoriesTitleView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StoriesTitleView.swift; sourceTree = "<group>"; };
 		17DEB0451CB1C86100D3246E /* AutolayoutExtensions.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AutolayoutExtensions.framework; path = Carthage/Build/iOS/AutolayoutExtensions.framework; sourceTree = "<group>"; };
 		17E621141AED4C0B00FF84AC /* WebViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WebViewController.swift; sourceTree = "<group>"; };
-		17F20FF01B7EE6E7005EB2FF /* Error.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Error.swift; sourceTree = "<group>"; };
+		17F20FF01B7EE6E7005EB2FF /* HNFDError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HNFDError.swift; sourceTree = "<group>"; };
 		17FB84D81AE20B7500C87786 /* Appearance.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Appearance.swift; sourceTree = "<group>"; };
 		17FB84DA1AE20CB600C87786 /* CommentsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CommentsViewController.swift; sourceTree = "<group>"; };
 		17FB84DE1AE21A1C00C87786 /* CommentCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CommentCell.swift; sourceTree = "<group>"; };
@@ -274,7 +274,7 @@
 		174A9A261AE1A017008CB6FC /* Models */ = {
 			isa = PBXGroup;
 			children = (
-				17F20FF01B7EE6E7005EB2FF /* Error.swift */,
+				17F20FF01B7EE6E7005EB2FF /* HNFDError.swift */,
 				17922A1B1B005B9B001460B2 /* Story.swift */,
 				178327991B1C0C84003C580A /* StoryActivity.swift */,
 				17922A1D1B005BA1001460B2 /* Comment.swift */,
@@ -507,7 +507,7 @@
 				1722C0DF1AE17F8B00DCA87C /* ReadabilityAPIClient.swift in Sources */,
 				0CD3C8AC1AD786BC005CC6C1 /* HNAPIClient.swift in Sources */,
 				174A9A221AE19F05008CB6FC /* Label.swift in Sources */,
-				17F20FF11B7EE6E7005EB2FF /* Error.swift in Sources */,
+				17F20FF11B7EE6E7005EB2FF /* HNFDError.swift in Sources */,
 				17922A201B005BAD001460B2 /* ReadabilityArticle.swift in Sources */,
 				17CC03201AFEA8B4005719A7 /* StoriesTitleView.swift in Sources */,
 				17E621151AED4C0B00FF84AC /* WebViewController.swift in Sources */,

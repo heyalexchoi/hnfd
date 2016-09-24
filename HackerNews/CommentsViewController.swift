@@ -58,7 +58,7 @@ class CommentsViewController: UIViewController {
         
         header.linkLabel.delegate = self
         
-        view.addConstraintsWithVisualFormatStrings([
+        _ = view.addConstraints(withVisualFormats: [
             "H:|[treeView]|",
             "V:|[treeView]|"], views: [
                 "treeView": treeView])
@@ -98,7 +98,7 @@ class CommentsViewController: UIViewController {
     }
     
     func actionButtonDidPress() {
-        var items: [AnyObject] = [story]
+        var items: [Any] = [story]
         if let URL = story.URL {
             items.append(URL)
         }

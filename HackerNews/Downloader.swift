@@ -39,7 +39,7 @@ extension Downloader {
     
     static let responseProcessingQueue = OperationQueue()
     
-    static func downloadStories(_ type: StoriesType, completion: ((Result<[Story]>) -> Void)?) {
+    static func downloadStories(_ type: StoriesType, completion: ((_ stories: [Story]?, _ error: HNFDError?) -> Void)?) {
         let request = HNFDRouter.stories(type: type)
         Cache.shared().diskCache.fileURL(forKey: type.cacheKey) { (cache, key, result, fileURL) in
             guard let fileURL = fileURL else {
@@ -66,12 +66,13 @@ extension Downloader {
                                 .filter { return $0 != nil } // dirty fix for cleaning out null stories from response. did not go with failable initializer on Story  because there's a bug in the swift compiler that makes it hard to fail initializer on class objects.
                                 .map { Story(json: $0) }
                             OperationQueue.main.addOperation({ () -> Void in
-                                completion?(Result.success(stories))
+                                completion?(stories, nil)
                             })
                         })
                     case .failure(let error):
                         // TO DO: better error handling?
                         debugPrint(error)
+                        completion?(nil, (error as! HNFDError)) // is this ok?
                     }
                     
                 })

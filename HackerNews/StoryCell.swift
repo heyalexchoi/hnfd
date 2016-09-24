@@ -95,7 +95,7 @@ class StoryCell: UITableViewCell {
         commentsButton.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(commentsButton)
         
-        articleContainer.addConstraintsWithVisualFormatStrings([
+        _ = articleContainer.addConstraints(withVisualFormats: [
             "H:|[titleLabel]|",
             "H:|[scoreLabel][scoreBySpace(==byTimeSpace)][byLabel][byTimeSpace][timeLabel]|",
             "H:|[URLLabel]|",
@@ -110,24 +110,25 @@ class StoryCell: UITableViewCell {
                 "scoreBySpace": scoreBySpace,
                 "byTimeSpace": byTimeSpace])
         
-        commentsLabel.anchorCenterToCenterOfView(commentsContainer)
+        _ = commentsLabel.anchorCenterToCenterOfView(commentsContainer)
         
-        pinnedImageView.anchorTopToTopEdgeOfView(commentsContainer, constant: 10)
-        pinnedImageView.anchorRightToRightEdgeOfView(commentsContainer, constant: -10)
+        _ = pinnedImageView.anchorTopToTopEdgeOfView(commentsContainer, constant: 10)
+        _ = pinnedImageView.anchorRightToRightEdgeOfView(commentsContainer, constant: -10)
         
         contentView.backgroundColor = UIColor.backgroundColor()        
-        articleContainer.anchorCenterYToCenterYOfView(contentView)
-        contentView.addConstraintsWithVisualFormatStrings([
+        _ = articleContainer.anchorCenterYToCenterYOfView(contentView)
+        _ = contentView.addConstraints(withVisualFormats: [
             "H:|-15-[articleContainer]-5-[commentsContainer(==40)]|",
             "V:|[commentsContainer]|",
             "H:|[articleButton][commentsButton(==commentsContainer)]|",
             "V:|[articleContainer]|",
             "V:|[articleButton]|",
-            "V:|[commentsButton]|"], views: [
-                "commentsContainer": commentsContainer,
-                "articleContainer": articleContainer,
-                "articleButton": articleButton,
-                "commentsButton": commentsButton])
+            "V:|[commentsButton]|"],
+                                       views: [
+                                        "commentsContainer": commentsContainer,
+                                        "articleContainer": articleContainer,
+                                        "articleButton": articleButton,
+                                        "commentsButton": commentsButton])
     }
     
     required init(coder aDecoder: NSCoder) {

@@ -21,8 +21,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             window.makeKeyAndVisible()
         }
         
-        let URLCache = Foundation.URLCache(memoryCapacity: 20 * 1024 * 1024, diskCapacity: 20 * 1024 * 1024, diskPath: nil)
-        Foundation.URLCache.setSharedURLCache(URLCache)
+        let urlCache = Foundation.URLCache(memoryCapacity: 20 * 1024 * 1024, diskCapacity: 20 * 1024 * 1024, diskPath: nil)        
+        URLCache.shared = urlCache
         
         Appearance.setAppearances()
         

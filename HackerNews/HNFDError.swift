@@ -6,20 +6,21 @@
 //  Copyright (c) 2015 Alex Choi. All rights reserved.
 //
 
-//extension Error: Error {}
-
-enum Error {
+enum HNFDError: Error {
     
     static let messagesKey = "messages"
     static let hnfdDomain = "hnfd"
     
     case external(underlying: NSError)
     case unableToCreateReachability
+    case storyHasNoArticleURL
     
     var description: String {
         switch self {
+        case .storyHasNoArticleURL:
+            return "Story has no article URL"
         case .unableToCreateReachability:
-            return "Unable to create reachabilitiy"
+            return "Unable to determine network connection (unable to create Reachability)"
         case .external(let underlying):
             return underlying.localizedDescription
         }
@@ -37,7 +38,7 @@ enum Error {
     var domain: String {
         switch self {
         default:
-            return Error.hnfdDomain
+            return HNFDError.hnfdDomain
         }
     }
     

@@ -53,7 +53,7 @@ class StoriesViewController: UIViewController {
         }
         tableView.pullToRefreshView.activityIndicatorViewStyle = .white
         
-        view.addConstraintsWithVisualFormatStrings([
+        _ = view.addConstraints(withVisualFormats: [
             "H:|[tableView]|",
             "V:|[tableView]|"], views: [
                 "tableView": tableView])
@@ -193,7 +193,7 @@ extension StoriesViewController: StoryCellDelegate {
     
     func cellDidSelectStoryArticle(_ cell: StoryCell) {
         guard let story = storyForCell(cell) else { return }
-        if story.type == .Story
+        if story.kind == .Story
             && story.URLString != nil {
                 navigationController?.pushViewController(ReadabilityViewContoller(story: story), animated: true)
         } else {

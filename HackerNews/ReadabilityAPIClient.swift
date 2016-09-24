@@ -14,12 +14,16 @@ class ReadabilityAPIClient {
     let baseURLString = "https://readability.com/api"
     let responseProcessingQueue = OperationQueue()
     
-    func getParsedArticleForURL(_ URL: Foundation.URL, completion: (_ article: ReadabilityArticle?, _ error: NSError?) -> Void) -> Request {
-        let URLString = URL.absoluteString.stringByRemovingPercentEncoding ?? URL.absoluteString
-        return Alamofire
-            .request(.GET,
-                baseURLString + "/content/v1/parser",
-                parameters: ["url": URLString, "token": Private.Keys.readabilityParserAPIToken])
+    func getParsedArticleForURL(_ articleURL: Foundation.URL, completion: @escaping (_ article: ReadabilityArticle?, _ error: HNFDError?) -> Void) -> DataRequest {
+        
+        let readabilityURLString = baseURLString + "/content/v1/parser"
+        let articleURLString = articleURL.absoluteString.removingPercentEncoding ?? articleURL.absoluteString
+        let parameters: [String: Any] = ["url": articleURLString, "token": Private.Keys.readabilityParserAPIToken]
+        let encoding = URLEncoding.default
+        
+        let request = Alamofire.request(readabilityURLString, method: .get, parameters: parameters, encoding: encoding, headers: nil)
+        
+        return request
             .validate()
             .responseJSON { [weak self] (response) -> Void in
                 switch response.result {
@@ -27,11 +31,11 @@ class ReadabilityAPIClient {
                     self?.responseProcessingQueue.addOperation({ () -> Void in
                         let article = ReadabilityArticle(json: JSON(json))
                         OperationQueue.main.addOperation({ () -> Void in
-                            completion(article: article, error: nil)
+                            completion(article, nil)
                         })
                     })
                 case .failure(let error):
-                    completion(article: nil, error: error as NSError)                    
+                    completion(nil, error as? HNFDError)
                 }
         }
     }

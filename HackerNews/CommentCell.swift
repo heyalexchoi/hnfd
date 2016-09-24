@@ -41,7 +41,7 @@ class CommentCell: UITableViewCell {
         textView.textContainer.lineFragmentPadding = 0
         textView.dataDetectorTypes = .all
         
-        contentView.addConstraintsWithVisualFormatStrings([
+        _ = contentView.addConstraints(withVisualFormats: [
             "H:|[indentation][byLabel]-30-[timeLabel]-(>=0)-|",
             "H:|[indentation][textView]-15-|",
             "V:|-15-[byLabel]-15-[textView]-15-|",

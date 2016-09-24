@@ -14,8 +14,8 @@ class StoryActivity: UIActivity {
         return activityItems.filter { $0.isKind(of: Story.self) }.first as? Story
     }
     
-    override var activityType : String? {
-        return "HNFD.ActivityType.Story"
+    override var activityType : UIActivityType? {        
+        return UIActivityType("HNFD.ActivityType.Story")
     }
     
     override var activityTitle : String? {

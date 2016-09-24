@@ -33,7 +33,7 @@ class CommentsHeaderView: UIView {
         
         bottomBorder.backgroundColor = UIColor.separatorColor()
         
-        addConstraintsWithVisualFormatStrings([
+        _ = addConstraints(withVisualFormats: [
             "V:|-15-[titleLabel]-10-[detailLabel]-10-[linkLabel][linkLabelTextViewSpacing][textView]-15-[bottomBorder(==1)]|",
             "H:|-15-[titleLabel]-15-|",
             "H:|-15-[detailLabel]-15-|",
@@ -64,7 +64,7 @@ class CommentsHeaderView: UIView {
     func prepare(_ story: Story) {
         titleLabel.setText(story.title, attributes: TextAttributes.titleAttributes)
         if let URL = story.URL {
-            linkLabel.attributedText = NSAttributedString(string: URL.absoluteString!, attributes: merge(TextAttributes.URLAttributes(URL), TextAttributes.textAttributes, TextAttributes.centerAlignment))
+            linkLabel.attributedText = NSAttributedString(string: URL.absoluteString, attributes: merge(TextAttributes.URLAttributes(URL), TextAttributes.textAttributes, TextAttributes.centerAlignment))
         } else {
             linkLabel.text = nil
         }

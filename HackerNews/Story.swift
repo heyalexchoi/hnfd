@@ -50,7 +50,7 @@ extension Story { // HASHABLE
 
 class Story: NSObject, NSCoding {
     
-    enum Type: String {
+    enum Kind: String {
         case Job = "job",
         Story = "story",
         Poll = "poll",
@@ -69,7 +69,7 @@ class Story: NSObject, NSCoding {
     let attributedText: NSAttributedString
     let time: Int
     let title: String
-    let type: Type
+    let kind: Kind
     let URL: Foundation.URL?
     let URLString: String? // the percent encoded URL is inappropriate for several use cases including sending to readability and a working href in a webview
     let children: [Comment]
@@ -107,9 +107,9 @@ class Story: NSObject, NSCoding {
         self.attributedText = data.count > 0 ? NSAttributedString(htmlData: data, options: [DTUseiOS6Attributes: true, DTDefaultFontName: UIFont.textReaderFont().fontName, DTDefaultFontSize: UIFont.textReaderFont().pointSize, DTDefaultTextColor: UIColor.textColor(), DTDefaultLinkColor: UIColor.tintColor()], documentAttributes: nil) : NSAttributedString(string: "")
         self.time = json["time"].intValue
         self.title = json["title"].stringValue
-        self.type = Type(rawValue: json["type"].stringValue)!
+        self.kind = Type(rawValue: json["type"].stringValue)!
         self.URLString = json["url"].string
-        self.URL = json["url"].URL
+        self.URL = json["url"].URL as URL
         self.children = json["children"].arrayValue.map { Comment(json: $0, level: 1) } .filter { !$0.deleted }
         self.date = Date(timeIntervalSince1970: TimeInterval(self.time))
         self.updated = json["updated"].stringValue

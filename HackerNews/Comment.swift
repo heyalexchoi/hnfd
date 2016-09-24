@@ -50,7 +50,7 @@ class Comment: NSObject, NSCoding {
             "deleted": deleted,
             "children": children.map{$0.toJSON()},
             "level": level
-        ]
+        ] as NSDictionary
     }
     
     required convenience init(coder decoder: NSCoder) {

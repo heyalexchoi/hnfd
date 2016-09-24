@@ -36,18 +36,18 @@ class ReadabilityArticle: NSObject, NSCoding {
         domain = json["domain"].stringValue
         author = json["author"].stringValue
         URLString = json["url"].stringValue
-        shortURL = json["short_url"].URL
+        shortURL = URL(string: json["short_url"].string ?? "")
         title = json["title"].stringValue
         excerpt = json["excerpt"].stringValue
         wordCount = json["word_count"].intValue
         totalPages = json["total_pages"].intValue
         dek = json["dek"].stringValue
-        leadImageURL = json["lead_image_url"].URL
+        leadImageURL = URL(string: json["lead_image_url"].string ?? "")
         datePublished = DateFormatter.dateFromString(json["date_published"].stringValue, format: readabilityDateFormat)
         readingProgress = CGFloat(json["reading_progress"].floatValue)
     }
     
-    func toJSON() -> AnyObject {
+    func toJSON() -> [String: Any] {
         return [
             "content": content,
             "domain": domain,

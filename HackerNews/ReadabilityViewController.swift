@@ -58,7 +58,7 @@ class ReadabilityViewContoller: UIViewController {
             self.view.addSubview(view)
         }
         
-        view.addConstraintsWithVisualFormatStrings([
+        _ = view.addConstraints(withVisualFormats: [
             "H:|[webView]|",
             "V:|[webView]|"], views: [
                 "webView": webView])

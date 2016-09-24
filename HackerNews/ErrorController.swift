@@ -22,7 +22,7 @@ class ErrorController {
             var title = error.localizedDescription
             
             if let userInfo = error.userInfo as? [String: AnyObject],
-                let messages = userInfo[Error.messagesKey] as? String {
+                let messages = userInfo[HNFDError.messagesKey] as? String {
                 title = messages
             }
             
@@ -30,7 +30,7 @@ class ErrorController {
         }
     }
     
-    class func showErrorNotification(_ error: Error?) {
+    class func showErrorNotification(_ error: HNFDError?) {
         guard let error = error else { return }
         showErrorNotification(error.error)
     }    
