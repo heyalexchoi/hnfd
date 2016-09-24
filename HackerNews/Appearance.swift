@@ -17,22 +17,22 @@ struct TextAttributes {
     static let titleAttributes = [NSFontAttributeName: UIFont.titleFont(), NSForegroundColorAttributeName: UIColor.textColor()]
     static let centerAlignment: [String: AnyObject] = {
         let paragraphStyle = NSMutableParagraphStyle()
-        paragraphStyle.alignment = .Center
+        paragraphStyle.alignment = .center
         return [NSParagraphStyleAttributeName: paragraphStyle]
     }()
-    static func URLAttributes(URL: NSURL) -> [String: AnyObject] {
-        return [DTLinkAttribute: URL]
+    static func URLAttributes(_ URL: Foundation.URL) -> [String: AnyObject] {
+        return [DTLinkAttribute: URL as AnyObject]
     }
 }
 
 struct Appearance {
     
     static func setAppearances() {
-        UINavigationBar.appearance().setBackgroundImage(UIImage(color: UIColor.backgroundColor()), forBarMetrics: .Default)
+        UINavigationBar.appearance().setBackgroundImage(UIImage(color: UIColor.backgroundColor()), for: .default)
         UINavigationBar.appearance().titleTextAttributes = TextAttributes.titleAttributes
         UINavigationBar.appearance().tintColor = UIColor.textColor()
-        UIBarButtonItem.appearance().setTitleTextAttributes(TextAttributes.textAttributes, forState: .Normal)
-        UIApplication.sharedApplication().statusBarStyle = .LightContent
+        UIBarButtonItem.appearance().setTitleTextAttributes(TextAttributes.textAttributes, for: UIControlState())
+        UIApplication.shared.statusBarStyle = .lightContent
         
         HNAppearance.setAppearances() // for appearances that weren't accessible from swift
     }

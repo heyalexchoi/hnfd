@@ -11,38 +11,24 @@ import REMenu
 
 class StoriesViewController: UIViewController {
     
-    var task: NSURLSessionTask?
     var stories = [Story]()
     var storiesType: StoriesType = .Top
-    let apiClient = HNAPIClient()
-    let cache = Cache.sharedCache()
-    let tableView = UITableView(frame: CGRectZero, style: .Plain)
-    let prototypeCell = StoryCell(frame: CGRectZero)
+
+    let tableView = UITableView(frame: CGRect.zero, style: .plain)
+    
+    let prototypeCell = StoryCell(frame: CGRect.zero)
     var cachedCellHeights = [Int: CGFloat]() // id: cell height
-    
-    let savedStoriesController = SavedStoriesController.sharedController
-    
-    let limit = 25
-    var offset = 0
     
     let titleView = StoriesTitleView()
     let menu = REMenu()
-    
-    var savedStories: [Story] {
-        get {
-            return savedStoriesController.savedStories
-        }
-        set {
-            savedStoriesController.savedStories = savedStories
-        }
-    }
-    
     
     override var title: String? {
         didSet {
             titleView.title = title
         }
     }
+
+    // MARK: - UIViewController
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -55,90 +41,88 @@ class StoriesViewController: UIViewController {
         }
         
         tableView.backgroundColor = UIColor.backgroundColor()
-        tableView.registerClass(StoryCell.self, forCellReuseIdentifier: StoryCell.identifier)
+        tableView.register(StoryCell.self, forCellReuseIdentifier: StoryCell.identifier)
         tableView.dataSource = self
         tableView.delegate = self
         tableView.tableFooterView = UIView() // avoid empty cells
         tableView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(tableView)
         
-        tableView.addPullToRefreshWithActionHandler { [weak self] () -> Void in
-            self?.getStories(true)
+        tableView.addPullToRefresh { [weak self] () -> Void in
+            self?.getStories(refresh: true)
         }
-        tableView.pullToRefreshView.activityIndicatorViewStyle = .White
+        tableView.pullToRefreshView.activityIndicatorViewStyle = .white
         
-        tableView.addInfiniteScrollingWithActionHandler { [weak self] () -> Void in
-            self?.getStories(false)
-        }
-        tableView.infiniteScrollingView.activityIndicatorViewStyle = .White
-        
-        view.twt_addConstraintsWithVisualFormatStrings([
+        _ = view.addConstraints(withVisualFormats: [
             "H:|[tableView]|",
             "V:|[tableView]|"], views: [
                 "tableView": tableView])
         
-        getStories(false)
+        getStories(refresh: true)
         
     }
     
-    override func viewWillAppear(animated: Bool) {
+    override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         tableView.reloadData()
     }
     
-    func refresh() {
-        getStories(true)
-    }
+}
+
+// MARK: - Stories
+
+extension StoriesViewController {
     
-    func getStories(refresh: Bool, scrollToTop: Bool = false) {
-        ProgressHUD.showHUDAddedTo(view, animated: true)
-        if refresh { offset = 0 }
+    func getStories(refresh: Bool = false, scrollToTop: Bool = false) {
         
-        if storiesType == .Saved {
-            stories = savedStories
-            tableView.reloadData()
-            if scrollToTop {
-                tableView.scrollToRowAtIndexPath(NSIndexPath(forRow: 0, inSection: 0), atScrollPosition: .Top, animated: false)
-            }
-            ProgressHUD.hideHUDForView(view, animated: true)
-            tableView.pullToRefreshView.stopAnimating()
-            tableView.infiniteScrollingView.stopAnimating()
-            if refresh {
-                savedStoriesController.updateAllSavedStories()
-            }
-            return
+        if !refresh {
+            ProgressHUD.showAdded(to: view, animated: true)
         }
-        
-        task?.cancel()
-        task = apiClient.getStories(storiesType, limit:limit, offset: offset) { [weak self] (stories, error) -> Void in
-            ProgressHUD.hideAllHUDsForView(self?.view, animated: true)
+
+        DataSource.getStories(storiesType, refresh: refresh) { [weak self] (stories, error) -> Void in
+            
+            ProgressHUD.hideAllHUDs(for: self?.view, animated: true)
             self?.tableView.pullToRefreshView.stopAnimating()
-            self?.tableView.infiniteScrollingView.stopAnimating()
-            self?.title = self?.storiesType.title
-            if let stories = stories,
-                strong_self = self {
-                    let filteredStories = strong_self.savedStoriesController.filterStories(stories)
-                    self?.stories = refresh ? stories : self!.stories + filteredStories
-                    self?.offset = self!.offset + self!.limit
-                    self?.tableView.reloadData()
-                    if scrollToTop {
-                        self?.tableView.scrollToRowAtIndexPath(NSIndexPath(forRow: 0, inSection: 0), atScrollPosition: .Top, animated: false)
-                    }
-            } else if let error = error {
+            
+            guard let stories = stories else {
                 ErrorController.showErrorNotification(error)
+                return
             }
-            }.task
+            
+            if refresh {
+                self?.stories = [Story]()
+            }
+            
+            self?.title = self?.storiesType.title
+            self?.stories += stories
+            
+            self?.tableView.reloadData()
+            
+            if scrollToTop {
+                self?.tableView.setContentOffset(CGPoint(x: 0, y: 0), animated: true)
+            }
+        }
     }
     
-    func storyForIndexPath(indexPath: NSIndexPath) -> Story {
-        return stories[indexPath.item]
+    func storyForIndexPath(_ indexPath: IndexPath) -> Story {
+        return stories[(indexPath as NSIndexPath).item]
     }
     
-    func indexPathForStory(story: Story) -> NSIndexPath {
-        return NSIndexPath(forRow: stories.indexOf(story)!, inSection: 0)
+    func indexPathForStory(_ story: Story) -> IndexPath? {
+        guard let index = stories.index(of: story) else { return nil }
+        return IndexPath(row: index, section: 0)
     }
     
-    // MARK: - Menu
+    func storyForCell(_ cell: StoryCell) -> Story? {
+        guard let indexPath = tableView.indexPath(for: cell) else { return nil }
+        return storyForIndexPath(indexPath)
+    }
+
+}
+
+// MARK: - Menu
+
+extension StoriesViewController {
     
     func setupMenu() {
         menu.items = StoriesType.allValues.map { (type) -> REMenuItem in
@@ -148,10 +132,10 @@ class StoriesViewController: UIViewController {
         }
     }
     
-    func menuDidFinishSelection(type: StoriesType) {
+    func menuDidFinishSelection(_ type: StoriesType) {
         storiesType = type
         title = type.title
-        getStories(true, scrollToTop: true)
+        getStories(refresh: true, scrollToTop: true)
         menu.close()
     }
     
@@ -159,31 +143,15 @@ class StoriesViewController: UIViewController {
         if menu.isOpen {
             menu.close()
         } else {
-            menu.showInView(view)
+            menu.show(in: view)
         }
     }
+}
+
+// MARK: - Cell heights
+extension StoriesViewController {
     
-    // MARK: - SAVED STORIES
-    
-    func saveStory(story: Story) {
-        savedStoriesController.saveStory(story)
-        tableView.reloadRowsAtIndexPaths([indexPathForStory(story)], withRowAnimation: .Right)
-    }
-    
-    func unsaveStory(story: Story) {
-        savedStoriesController.unsaveStory(story)
-        let indexPath = indexPathForStory(story)
-        tableView.beginUpdates()
-        if storiesType == .Saved {
-            stories = savedStories
-            tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .Left)
-        } else {
-            tableView.reloadRowsAtIndexPaths([indexPath], withRowAnimation: .Left)
-        }
-        tableView.endUpdates()
-    }
-    
-    func cachedHeightForRowAtIndexPath(indexPath: NSIndexPath) -> CGFloat {
+    func cachedHeightForRowAtIndexPath(_ indexPath: IndexPath) -> CGFloat {
         let story = storyForIndexPath(indexPath)
         if let cachedHeight = cachedCellHeights[story.id] {
             return cachedHeight
@@ -197,58 +165,56 @@ class StoriesViewController: UIViewController {
 
 extension StoriesViewController: UITableViewDataSource, UITableViewDelegate {
     
-    func numberOfSectionsInTableView(tableView: UITableView) -> Int {
+    func numberOfSections(in tableView: UITableView) -> Int {
         return 1
     }
     
-    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return stories.count
     }
     
-    func tableView(tableView: UITableView, estimatedHeightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
+    func tableView(_ tableView: UITableView, estimatedHeightForRowAt indexPath: IndexPath) -> CGFloat {
         return cachedHeightForRowAtIndexPath(indexPath)
     }
     
-    func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return cachedHeightForRowAtIndexPath(indexPath)
     }
     
-    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCellWithIdentifier(StoryCell.identifier, forIndexPath: indexPath) as! StoryCell
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: StoryCell.identifier, for: indexPath) as! StoryCell
         cell.delegate = self
         cell.prepare(storyForIndexPath(indexPath))
         return cell
     }
-    
 }
 
 extension StoriesViewController: StoryCellDelegate {
     
-    func storyForCell(cell: StoryCell) -> Story {
-        let indexPath = tableView.indexPathForCell(cell)!
-        return storyForIndexPath(indexPath)
-    }
-    
-    func cellDidSelectStoryArticle(cell: StoryCell) {
-        let story = storyForCell(cell)
-        if story.type == .Story
-            && story.URL != nil
-            && !story.URL!.absoluteString.isEmpty {
+    func cellDidSelectStoryArticle(_ cell: StoryCell) {
+        guard let story = storyForCell(cell) else { return }
+        if story.kind == .Story
+            && story.URLString != nil {
                 navigationController?.pushViewController(ReadabilityViewContoller(story: story), animated: true)
         } else {
             navigationController?.pushViewController(CommentsViewController(story: story), animated: true)
         }
     }
     
-    func cellDidSelectStoryComments(cell: StoryCell) {
-        navigationController?.pushViewController(CommentsViewController(story: storyForCell(cell)), animated: true)
+    func cellDidSelectStoryComments(_ cell: StoryCell) {
+        guard let story = storyForCell(cell) else { return }
+        navigationController?.pushViewController(CommentsViewController(story: story), animated: true)
     }
     
-    func cellDidSwipeLeft(cell: StoryCell) {
-        unsaveStory(storyForCell(cell))
+    func cellDidSwipeLeft(_ cell: StoryCell) {
+        // TO DO: unpin
+        guard let indexPath = tableView.indexPath(for: cell) else { return }
+        tableView.reloadRows(at: [indexPath], with: .left)
     }
     
-    func cellDidSwipeRight(cell: StoryCell) {
-        saveStory(storyForCell(cell))
+    func cellDidSwipeRight(_ cell: StoryCell) {
+       // TO DO: pin
+        guard let indexPath = tableView.indexPath(for: cell) else { return }
+        tableView.reloadRows(at: [indexPath], with: .right)
     }
 }

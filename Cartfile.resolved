@@ -1,0 +1,5 @@
+github "Alamofire/Alamofire" "4.0.0"
+github "heyalexchoi/AutolayoutExtensions" "v0.9"
+github "heyalexchoi/PINCache" "6452750384cf46f743dae4ecaa0e550bf8499bb4"
+github "ashleymills/Reachability.swift" "v3"
+github "SwiftyJSON/SwiftyJSON" "3.0.0"

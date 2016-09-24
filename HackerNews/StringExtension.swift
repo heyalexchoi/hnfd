@@ -10,8 +10,8 @@ import Foundation
 
 extension String {
     
-    static func htmlStringHyperlink(URL: NSURL, text: String) -> String {
-        let string: String = URL.absoluteString ?? ""
+    static func htmlStringHyperlink(_ URL: Foundation.URL, text: String) -> String {
+        let string: String = URL.absoluteString 
         let quotedString = "\"" + string + "\""
         return "<a href=\(quotedString)>\(text)</a>"
     }

@@ -10,24 +10,28 @@ import TSMessages
 
 class ErrorController {
     
-    class func showErrorNotification(error: NSError?) {
+    class func showErrorNotification(_ error: NSError?) {
         
         guard let error = error else { return }
         
         if error.code == NSURLErrorCancelled {
             return
         }
-        if let rootNavigationController = UIApplication.sharedApplication().delegate?.window??.rootViewController {
+        if let rootNavigationController = UIApplication.shared.delegate?.window??.rootViewController {
             
             var title = error.localizedDescription
             
             if let userInfo = error.userInfo as? [String: AnyObject],
-                let messages = userInfo[Public.Constants.errorMessagesKey] as? String {
+                let messages = userInfo[HNFDError.messagesKey] as? String {
                 title = messages
             }
             
-            TSMessage.showNotificationInViewController(rootNavigationController, title: title, subtitle:nil , image: nil, type: .Error, duration: 2, callback: nil, buttonTitle: nil, buttonCallback: nil, atPosition: .NavBarOverlay, canBeDismissedByUser: true)
+            TSMessage.showNotification(in: rootNavigationController, title: title, subtitle:nil , image: nil, type: .error, duration: 2, callback: nil, buttonTitle: nil, buttonCallback: nil, at: .navBarOverlay, canBeDismissedByUser: true)
         }
     }
     
+    class func showErrorNotification(_ error: HNFDError?) {
+        guard let error = error else { return }
+        showErrorNotification(error.error)
+    }    
 }

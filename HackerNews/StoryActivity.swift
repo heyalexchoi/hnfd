@@ -10,33 +10,34 @@ class StoryActivity: UIActivity {
     
     var story: Story?
     
-    func storyFromActivityItems(activityItems: [AnyObject]) -> Story? {
-        return activityItems.filter { $0.isKindOfClass(Story.self) }.first as? Story
+    func storyFromActivityItems(_ activityItems: [AnyObject]) -> Story? {
+        return activityItems.filter { $0.isKind(of: Story.self) }.first as? Story
     }
     
-    override func activityType() -> String? {
-        return "HNFD.ActivityType.Story"
+    override var activityType : UIActivityType? {        
+        return UIActivityType("HNFD.ActivityType.Story")
     }
     
-    override func activityTitle() -> String? {
+    override var activityTitle : String? {
         return "Save"
     }
     
-    override func activityImage() -> UIImage? {
+    override var activityImage : UIImage? {
         return UIImage.pushPin()
     }
     
-    override func canPerformWithActivityItems(activityItems: [AnyObject]) -> Bool {
-        return storyFromActivityItems(activityItems) != nil
+    override func canPerform(withActivityItems activityItems: [Any]) -> Bool {
+        return storyFromActivityItems(activityItems as [AnyObject]) != nil
     }
     
-    override func prepareWithActivityItems(activityItems: [AnyObject]) {
-        story = storyFromActivityItems(activityItems)
+    override func prepare(withActivityItems activityItems: [Any]) {
+        story = storyFromActivityItems(activityItems as [AnyObject])
     }
     
-    override func performActivity() {
-        if let story = story {
-            SavedStoriesController.sharedController.saveStory(story)
-        }
+    override func perform() {
+//        if let story = story {
+////            SavedStoriesController.sharedController.saveStory(story)
+////            TO DO: mark the story as pinned
+//        }
     }
 }

@@ -10,61 +10,50 @@ import Foundation
 import Alamofire
 import SwiftyJSON
 
-enum StoriesType: String {
-    case
-    Top = "topstories",
-    New = "newstories",
-    Show = "showstories",
-    Ask = "askstories",
-    Job = "jobstories",
-    Saved = "savedstories"
-    static var allValues = [Top, New, Show, Ask, Job, Saved]
-    var title: String {
-        return rawValue.stringByReplacingOccurrencesOfString("stories", withString: " stories").capitalizedString
-    }
-}
+let errorDomain = "HNFD Error Domain"
 
-class HNAPIClient {
+struct HNAPIClient {
     
     let baseURLString = Private.Constants.HNAPIBaseURLString
-    let responseProcessingQueue = NSOperationQueue()
+    let responseProcessingQueue = OperationQueue()
     
-    func getStories(type: StoriesType, limit: Int, offset: Int, completion: (stories: [Story]?, error: NSError?) -> Void) -> Request {
+    func getStories(_ type: StoriesType, limit: Int, offset: Int, completion: @escaping (_ stories: [Story]?, _ error: NSError?) -> Void) -> DataRequest {
         return Alamofire
-            .request(.GET, baseURLString + "/\(type.rawValue)", parameters: ["limit": limit, "offset": offset])
+            .request("\(baseURLString)/\(type.rawValue)", method: .get, parameters: ["limit": limit, "offset": offset], encoding: URLEncoding.default, headers: nil)
             .validate()
-            .responseJSON { [weak self] (req, res, result) -> Void in
-                switch result {
-                case .Success(let data):
-                    self?.responseProcessingQueue.addOperationWithBlock({ () -> Void in
+            .responseJSON { (response) -> Void in
+                print(response)
+                switch response.result {
+                case .success(let data):
+                    self.responseProcessingQueue.addOperation({ () -> Void in
                         let stories = JSON(data).arrayValue
                             .filter { return $0 != nil } // dirty fix for cleaning out null stories from response. did not go with failable initializer on Story  because there's a bug in the swift compiler that makes it hard to fail initializer on class objects.
                             .map { Story(json: $0) }
-                        NSOperationQueue.mainQueue().addOperationWithBlock({ () -> Void in
-                            completion(stories: stories, error: nil)
+                        OperationQueue.main.addOperation({ () -> Void in
+                            completion(stories, nil)
                         })
                     })
-                case .Failure(_, let error):
-                    completion(stories: nil, error: error as NSError)
+                case .failure(let error):
+                    completion(nil, error as NSError)
                 }
         }
     }
     
-    func getStory(id: Int, completion: (story: Story?, error: NSError?) -> Void) -> Request {
+    func getStory(_ id: Int, completion: @escaping (_ story: Story?, _ error: HNFDError?) -> Void) -> Request {
         return Alamofire
-            .request(.GET, baseURLString + "/items/\(id)")
+            .request("\(baseURLString)/items/\(id)", method: .get, parameters: nil, encoding: URLEncoding.default, headers: nil)
             .validate()
-            .responseJSON { [weak self] (req, res, result) -> Void in
-                switch result {
-                case .Success(let data):
-                    self?.responseProcessingQueue.addOperationWithBlock({ () -> Void in
+            .responseJSON { (response) -> Void in
+                switch response.result {
+                case .success(let data):
+                    self.responseProcessingQueue.addOperation({ () -> Void in
                         let story = Story(json: JSON(data))
-                        NSOperationQueue.mainQueue().addOperationWithBlock({ () -> Void in
-                            completion(story: story, error: nil)
+                        OperationQueue.main.addOperation({ () -> Void in
+                            completion(story, nil)
                         })
                     })
-                case .Failure(_, let error):
-                    completion(story: nil, error: error as NSError)
+                case .failure(let error):
+                    completion(nil, error as? HNFDError)
                 }
         }
     }

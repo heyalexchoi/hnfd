@@ -13,20 +13,20 @@ class ReadabilityArticle: NSObject, NSCoding {
     let content: String
     let domain: String
     let author: String
-    let URL: NSURL
-    let shortURL: NSURL?
+    let URLString: String
+    let shortURL: URL?
     let title : String
     let excerpt: String
     let wordCount: Int
     let totalPages: Int
     let dek: String
-    let leadImageURL: NSURL?
-    let datePublished: NSDate?
+    let leadImageURL: URL?
+    let datePublished: Date?
     
     var readingProgress: CGFloat
     
     var cacheKey: String {
-        return self.dynamicType.cacheKeyForURL(URL)
+        return type(of: self).cacheKeyForURLString(URLString)
     }
     
     let readabilityDateFormat = "yyyy-MM-dd HH:mm:ss"
@@ -35,24 +35,24 @@ class ReadabilityArticle: NSObject, NSCoding {
         content = json["content"].stringValue
         domain = json["domain"].stringValue
         author = json["author"].stringValue
-        URL = json["url"].URL!
-        shortURL = json["short_url"].URL
+        URLString = json["url"].stringValue
+        shortURL = URL(string: json["short_url"].string ?? "")
         title = json["title"].stringValue
         excerpt = json["excerpt"].stringValue
         wordCount = json["word_count"].intValue
         totalPages = json["total_pages"].intValue
         dek = json["dek"].stringValue
-        leadImageURL = json["lead_image_url"].URL
+        leadImageURL = URL(string: json["lead_image_url"].string ?? "")
         datePublished = DateFormatter.dateFromString(json["date_published"].stringValue, format: readabilityDateFormat)
         readingProgress = CGFloat(json["reading_progress"].floatValue)
     }
     
-    func toJSON() -> AnyObject {
+    func toJSON() -> [String: Any] {
         return [
             "content": content,
             "domain": domain,
             "author": author,
-            "url": URL.absoluteString,
+            "url": URLString,
             "short_url": shortURL?.absoluteString ?? "",
             "title": title,
             "excerpt": excerpt,
@@ -66,20 +66,20 @@ class ReadabilityArticle: NSObject, NSCoding {
     }
     
     required convenience init(coder decoder: NSCoder) {
-        let json: AnyObject = decoder.decodeObjectForKey("json")!
+        let json: AnyObject = decoder.decodeObject(forKey: "json")! as AnyObject
         self.init(json:JSON(json))
     }
     
-    func encodeWithCoder(coder: NSCoder) {
-        coder.encodeObject(toJSON(), forKey: "json")
+    func encode(with coder: NSCoder) {
+        coder.encode(toJSON(), forKey: "json")
     }
     
-    class func cacheKeyForURL(url: NSURL) -> String {
-        return "cached_article_\(url.absoluteString)"
+    class func cacheKeyForURLString(_ urlString: String) -> String {
+        return "cached_article_\(urlString)"
     }
     
-    func save() {
-        Cache.sharedCache().setObject(self, forKey: cacheKey, block: nil)
+    func save() {        
+        Cache.shared().setArticle(self, completion: nil)
     }
     
 }

@@ -9,11 +9,8 @@
 class ReadabilityViewContoller: UIViewController {
     
     var article: ReadabilityArticle?
-    var task: NSURLSessionTask?
-    
-    let cache = Cache.sharedCache()
     let story: Story
-    let articleURL: NSURL
+    let articleURL: URL?
     
     let webView = UIWebView()
     
@@ -26,30 +23,12 @@ class ReadabilityViewContoller: UIViewController {
     
     init(story: Story) {
         self.story = story
-        self.articleURL = story.URL!
+        self.articleURL = story.URL as URL?
         super.init(nibName: nil, bundle: nil)
         
-        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .Action, target: self, action: "actionButtonDidPress")
-        
-        // hides white flash. for whatever reason setting webview's background color doesnt prevent white flash.
-        view.backgroundColor = UIColor.backgroundColor()
-        webView.hidden = true
-        webView.opaque = false
-        webView.backgroundColor = UIColor.clearColor()
-        
-        webView.delegate = self
-        
-        for view in [webView] {
-            view.translatesAutoresizingMaskIntoConstraints = false
-            self.view.addSubview(view)
-        }
-        
-        view.twt_addConstraintsWithVisualFormatStrings([
-            "H:|[webView]|",
-            "V:|[webView]|"], views: [
-                "webView": webView])
-        
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: "saveReadingProgress", name: UIApplicationWillResignActiveNotification, object: nil)
+        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .action, target: self, action: #selector(ReadabilityViewContoller.actionButtonDidPress))
+
+        NotificationCenter.default.addObserver(self, selector: #selector(ReadabilityViewContoller.saveReadingProgress), name: NSNotification.Name.UIApplicationWillResignActive, object: nil)
         
         getReadabilityArticle()
     }
@@ -59,11 +38,33 @@ class ReadabilityViewContoller: UIViewController {
     }
     
     deinit {
-        task?.cancel()
-        NSNotificationCenter.defaultCenter().removeObserver(self)
+        NotificationCenter.default.removeObserver(self)
     }
     
-    override func viewWillDisappear(animated: Bool) {
+    // MARK: - UIViewController
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        // hides white flash. for whatever reason setting webview's background color doesnt prevent white flash.
+        view.backgroundColor = UIColor.backgroundColor()
+        webView.isHidden = true
+        webView.isOpaque = false
+        webView.backgroundColor = UIColor.clear
+        
+        webView.delegate = self
+        
+        for view in [webView] {
+            view.translatesAutoresizingMaskIntoConstraints = false
+            self.view.addSubview(view)
+        }
+        
+        _ = view.addConstraints(withVisualFormats: [
+            "H:|[webView]|",
+            "V:|[webView]|"], views: [
+                "webView": webView])
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         saveReadingProgress()
     }
@@ -73,28 +74,29 @@ class ReadabilityViewContoller: UIViewController {
         scrollToReadingProgress()
     }
     
+}
+
+extension ReadabilityViewContoller {
+    
     func saveReadingProgress() {
-        if story.saved {
-            article?.readingProgress = readingProgress
-            article?.save()
-        }
+        article?.readingProgress = readingProgress
+        article?.save()
     }
     
     func scrollToReadingProgress() {
         if webView.scrollView.contentSize.height > webView.scrollView.bounds.size.height
             && shouldScroll,
             let article = article {
-                webView.scrollView.setContentOffset(CGPoint(x:0, y: article.readingProgress * webView.scrollView.contentSize.height), animated: false)
-                shouldScroll = false
+            webView.scrollView.setContentOffset(CGPoint(x:0, y: article.readingProgress * webView.scrollView.contentSize.height), animated: false)
+            shouldScroll = false
         }
-        webView.hidden = false
+        webView.isHidden = false
     }
     
     func getReadabilityArticle() {
-        task?.cancel()
-        ProgressHUD.showHUDAddedTo(view, animated: true)
-        task = cache.articleForStory(story, completion: { [weak self] (article, error) -> Void in
-            ProgressHUD.hideHUDForView(self?.view, animated: true)
+        ProgressHUD.showAdded(to: view, animated: true)
+        DataSource.getArticle(story, completion: { [weak self] (article, error) -> Void in
+            ProgressHUD.hide(for: self?.view, animated: true)
             self?.article = article
             self?.finishLoadingArticle()
             ErrorController.showErrorNotification(error)
@@ -107,16 +109,20 @@ class ReadabilityViewContoller: UIViewController {
     }
     
     func actionButtonDidPress() {
+        guard let articleURL = articleURL else { return }
         let storyActivity = StoryActivity()
-        presentViewController(UIActivityViewController(activityItems: [articleURL, story], applicationActivities: [storyActivity]), animated: true, completion: nil)
+        present(UIActivityViewController(activityItems: [articleURL, story], applicationActivities: [storyActivity]), animated: true, completion: nil)
     }
-    
 }
 
 extension ReadabilityViewContoller {
     
     var CSS: String {
-        let cssPath = NSBundle.mainBundle().pathForResource("readability_article", ofType: "css")!
+        
+        let backgroundColorHexString: String = UIColor.backgroundColor().hexString()
+        let textColorHexString: String = UIColor.textColor().hexString()
+        
+        let cssPath = Bundle.main.path(forResource: "readability_article", ofType: "css")!
         let css = try! String(contentsOfFile: cssPath)
         // swift compiler choking on string concatenations. had to break them into more statements
         var customCSS =
@@ -124,13 +130,13 @@ extension ReadabilityViewContoller {
         customCSS +=
             "font-size: \(UIFont.textReaderFont().pointSize);" +
             "font-family: \(UIFont.textReaderFont().fontName);" +
-            "background-color: \(UIColor.backgroundColor().hexString());" +
-            "color: \(UIColor.textColor().hexString());"
+            "background-color: \(backgroundColorHexString);" +
+            "color: \(textColorHexString);"
         customCSS +=
         "}"
         customCSS +=
         "a {" +
-            "color: \(UIColor.textColor().hexString());" +
+            "color: \(textColorHexString);" +
         "}"
         
         return css + customCSS
@@ -162,7 +168,7 @@ extension ReadabilityViewContoller {
             }
             
             articleInfo +=
-                "<div><a href='\(article.URL)'> \(article.URL) </a></div>" +
+                "<div><a href='\(article.URLString)'> \(article.URLString) </a></div>" +
             "</div>"
             
             let body = "<body>" + articleInfo + article.content + "</body>"
@@ -186,9 +192,9 @@ extension ReadabilityViewContoller {
         let string = DateFormatter.stringFromDate(story.date, format: "MMM d, yyyy")
         articleInfo += "<div>\(string)</div>"
         
-        if let URL = story.URL {
+        if let URLString = story.URLString {
             articleInfo +=
-                "<div><a href='\(URL)'> \(URL) </a></div>" +
+                "<div><a href='\(URLString)'> \(URLString) </a></div>" +
             "</div>"
         }
         
@@ -200,15 +206,15 @@ extension ReadabilityViewContoller {
 
 extension ReadabilityViewContoller: UIWebViewDelegate {
     
-    func webView(webView: UIWebView, shouldStartLoadWithRequest request: NSURLRequest, navigationType: UIWebViewNavigationType) -> Bool {
-        if let URL = request.URL where htmlLoaded {
+    func webView(_ webView: UIWebView, shouldStartLoadWith request: URLRequest, navigationType: UIWebViewNavigationType) -> Bool {
+        if let URL = request.url , htmlLoaded {
             presentWebViewController(URL)
             return false
         }
         return true
     }
     
-    func webViewDidFinishLoad(webView: UIWebView) {
+    func webViewDidFinishLoad(_ webView: UIWebView) {
         htmlLoaded = true
         scrollToReadingProgress()
     }

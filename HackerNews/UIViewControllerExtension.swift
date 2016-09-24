@@ -11,14 +11,14 @@ import SafariServices
 
 extension UIViewController: SFSafariViewControllerDelegate {
     
-    func presentWebViewController(URL: NSURL, animated: Bool = true, completion: (() -> Void)? = nil) {
-        let webViewController = WebViewController(URL: URL)
+    func presentWebViewController(_ URL: Foundation.URL, animated: Bool = true, completion: (() -> Void)? = nil) {
+        let webViewController = WebViewController(url: URL)
         webViewController.delegate = self
-        presentViewController(webViewController, animated: animated, completion: completion)
+        present(webViewController, animated: animated, completion: completion)
     }
     
-    public func safariViewControllerDidFinish(controller: SFSafariViewController) {
-        dismissViewControllerAnimated(true, completion: nil)
+    public func safariViewControllerDidFinish(_ controller: SFSafariViewController) {
+        dismiss(animated: true, completion: nil)
     }
     
 }

@@ -11,12 +11,12 @@ class TextView: UITextView {
     override init(frame: CGRect, textContainer: NSTextContainer?) {
         super.init(frame: frame, textContainer: nil)
         
-        editable = false
-        scrollEnabled = false
-        textContainerInset = UIEdgeInsetsZero
+        isEditable = false
+        isScrollEnabled = false
+        textContainerInset = UIEdgeInsets.zero
         textContainer?.lineFragmentPadding = 0
-        dataDetectorTypes = .All
-        backgroundColor = UIColor.clearColor()
+        dataDetectorTypes = .all
+        backgroundColor = UIColor.clear
     }
     
     required init(coder aDecoder: NSCoder) {

@@ -12,31 +12,30 @@ import SwiftyJSON
 class ReadabilityAPIClient {
     
     let baseURLString = "https://readability.com/api"
-    let responseProcessingQueue = NSOperationQueue()
+    let responseProcessingQueue = OperationQueue()
     
-    func getParsedArticleForURL(URL: NSURL, completion: (article: ReadabilityArticle?, error: NSError?) -> Void) -> Request {
-        return Alamofire
-            .request(.GET,
-                baseURLString + "/content/v1/parser",
-                parameters: ["url": URL, "token": Private.Keys.readabilityParserAPIToken])
+    func getParsedArticleForURL(_ articleURL: Foundation.URL, completion: @escaping (_ article: ReadabilityArticle?, _ error: HNFDError?) -> Void) -> DataRequest {
+        
+        let readabilityURLString = baseURLString + "/content/v1/parser"
+        let articleURLString = articleURL.absoluteString.removingPercentEncoding ?? articleURL.absoluteString
+        let parameters: [String: Any] = ["url": articleURLString, "token": Private.Keys.readabilityParserAPIToken]
+        let encoding = URLEncoding.default
+        
+        let request = Alamofire.request(readabilityURLString, method: .get, parameters: parameters, encoding: encoding, headers: nil)
+        
+        return request
             .validate()
-            .responseJSON { [weak self] (req, res, result) -> Void in
-                switch result {
-                case .Success(let json):
-                    self?.responseProcessingQueue.addOperationWithBlock({ () -> Void in
+            .responseJSON { [weak self] (response) -> Void in
+                switch response.result {
+                case .success(let json):
+                    self?.responseProcessingQueue.addOperation({ () -> Void in
                         let article = ReadabilityArticle(json: JSON(json))
-                        NSOperationQueue.mainQueue().addOperationWithBlock({ () -> Void in
-                            completion(article: article, error: nil)
+                        OperationQueue.main.addOperation({ () -> Void in
+                            completion(article, nil)
                         })
                     })
-                case .Failure(let data, let error):
-                    if let data = data,
-                        messages = JSON(data: data)["messages"].string {
-                            let messagedError = NSError(domain: Public.Constants.hackerNewsErrorDomain, code: 1, userInfo: [NSUnderlyingErrorKey: error as NSError, Public.Constants.errorMessagesKey: messages])
-                            completion(article: nil, error: messagedError)
-                    } else {
-                        completion(article: nil, error: error as NSError)
-                    }                    
+                case .failure(let error):
+                    completion(nil, error as? HNFDError)
                 }
         }
     }

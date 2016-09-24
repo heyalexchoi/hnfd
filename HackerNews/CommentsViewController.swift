@@ -9,6 +9,7 @@
 import UIKit
 
 
+
 class CommentsViewController: UIViewController {
     
     var story: Story {
@@ -18,16 +19,16 @@ class CommentsViewController: UIViewController {
     }
     
     var flattenedComments = [Comment]()
-    let cache = Cache.sharedCache()
-    let treeView = UITableView(frame: CGRectZero, style: .Plain)
+    let treeView = UITableView(frame: CGRect.zero, style: .plain)
     let header: CommentsHeaderView
-    let prototypeCell = CommentCell(frame: CGRectZero)
+    let prototypeCell = CommentCell(frame: CGRect.zero)
     var cachedCellHeights = [Int: CGFloat]() // id: cell height
     
     init(story: Story) {
         self.story = story
         header = CommentsHeaderView(story: story)
         super.init(nibName:nil, bundle: nil)
+        title = "Comments"
     }
     
     required init(coder aDecoder: NSCoder) {
@@ -38,26 +39,26 @@ class CommentsViewController: UIViewController {
         super.viewDidLoad()
         
         if story.URL != nil {
-            navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .Action, target: self, action: "actionButtonDidPress")
+            navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .action, target: self, action: #selector(CommentsViewController.actionButtonDidPress))
         }
         
-        treeView.separatorInset = UIEdgeInsetsZero
+        treeView.separatorInset = UIEdgeInsets.zero
         treeView.separatorColor = UIColor.separatorColor()
         treeView.backgroundColor = UIColor.backgroundColor()
-        treeView.registerClass(CommentCell.self, forCellReuseIdentifier: CommentCell.identifier)
+        treeView.register(CommentCell.self, forCellReuseIdentifier: CommentCell.identifier)
         treeView.dataSource = self
         treeView.delegate = self
         treeView.tableFooterView = UIView() // avoid empty cells
         treeView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(treeView)
         
-        treeView.addPullToRefreshWithActionHandler { [weak self] () -> Void in
+        treeView.addPullToRefresh { [weak self] () -> Void in
             self?.getFullStory(true)
         }
         
         header.linkLabel.delegate = self
         
-        view.twt_addConstraintsWithVisualFormatStrings([
+        _ = view.addConstraints(withVisualFormats: [
             "H:|[treeView]|",
             "V:|[treeView]|"], views: [
                 "treeView": treeView])
@@ -69,13 +70,13 @@ class CommentsViewController: UIViewController {
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         treeView.tableHeaderView = header
-        header.frame = CGRect(origin: CGPointZero, size: header.systemLayoutSizeFittingSize(UILayoutFittingCompressedSize))
+        header.frame = CGRect(origin: CGPoint.zero, size: header.systemLayoutSizeFitting(UILayoutFittingCompressedSize))
     }
     
-    func getFullStory(refresh: Bool) {
-        if !refresh { ProgressHUD.showHUDAddedTo(view, animated: true) }
-        cache.fullStoryForStory(story, preference: refresh ? .FetchRemoteDataAndUpdateCache : .ReturnCacheDataElseLoad) { [weak self] (story, error) -> Void in
-            ProgressHUD.hideAllHUDsForView(self?.view, animated: true)
+    func getFullStory(_ refresh: Bool) {
+        if !refresh { ProgressHUD.showAdded(to: view, animated: true) }
+        DataSource.getStory(story.id, refresh: refresh) { [weak self] (story, error) in
+            ProgressHUD.hideAllHUDs(for: self?.view, animated: true)
             self?.treeView.pullToRefreshView.stopAnimating()
             if let error = error {
                 ErrorController.showErrorNotification(error)
@@ -86,7 +87,7 @@ class CommentsViewController: UIViewController {
         }
     }
     
-    func flatten(comments: [Comment]) -> [Comment] {
+    func flatten(_ comments: [Comment]) -> [Comment] {
         return comments.map { [ weak self] (comment) -> [Comment] in
             if let strong_self = self {
                 return [comment] + strong_self.flatten(comment.children)
@@ -97,12 +98,12 @@ class CommentsViewController: UIViewController {
     }
     
     func actionButtonDidPress() {
-        var items: [AnyObject] = [story]
+        var items: [Any] = [story]
         if let URL = story.URL {
             items.append(URL)
         }
         let storyActivity = StoryActivity()
-        presentViewController(UIActivityViewController(activityItems: items, applicationActivities: [storyActivity]), animated: true, completion: nil)
+        present(UIActivityViewController(activityItems: items, applicationActivities: [storyActivity]), animated: true, completion: nil)
     }
     
     func goToArticle() {
@@ -110,8 +111,8 @@ class CommentsViewController: UIViewController {
         navigationController?.pushViewController(ReadabilityViewContoller(story: story), animated: true)
     }
     
-    func cachedHeightForRowAtIndexPath(indexPath: NSIndexPath) -> CGFloat {
-        let comment = flattenedComments[indexPath.row]
+    func cachedHeightForRowAtIndexPath(_ indexPath: IndexPath) -> CGFloat {
+        let comment = flattenedComments[(indexPath as NSIndexPath).row]
         if let cachedHeight = cachedCellHeights[comment.id] {
             return cachedHeight
         }
@@ -123,25 +124,25 @@ class CommentsViewController: UIViewController {
 
 extension CommentsViewController: UITableViewDataSource, UITableViewDelegate {
     
-    func numberOfSectionsInTableView(tableView: UITableView) -> Int {
+    func numberOfSections(in tableView: UITableView) -> Int {
         return 1
     }
     
-    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return flattenedComments.count
     }
     
-    func tableView(tableView: UITableView, estimatedHeightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
+    func tableView(_ tableView: UITableView, estimatedHeightForRowAt indexPath: IndexPath) -> CGFloat {
         return cachedHeightForRowAtIndexPath(indexPath)
     }
     
-    func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return cachedHeightForRowAtIndexPath(indexPath)
     }
     
-    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCellWithIdentifier(CommentCell.identifier, forIndexPath: indexPath) as! CommentCell
-        let comment = flattenedComments[indexPath.row]
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: CommentCell.identifier, for: indexPath) as! CommentCell
+        let comment = flattenedComments[(indexPath as NSIndexPath).row]
         cell.textView.delegate = self
         cell.prepare(comment, level: comment.level)
         return cell
@@ -150,7 +151,7 @@ extension CommentsViewController: UITableViewDataSource, UITableViewDelegate {
 
 extension CommentsViewController: UITextViewDelegate {
     
-    func textView(textView: UITextView, shouldInteractWithURL URL: NSURL, inRange characterRange: NSRange) -> Bool {
+    func textView(_ textView: UITextView, shouldInteractWith URL: URL, in characterRange: NSRange) -> Bool {
         if URL == story.URL {
             goToArticle()
         } else {

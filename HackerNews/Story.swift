@@ -10,25 +10,53 @@
 import SwiftyJSON
 import DTCoreText
 
-func ==(l: Story, r: Story) -> Bool {
-    return l.id == r.id
+extension StoriesType: Downloadable {
+    var cacheKey: String {
+        return rawValue
+    }
+}
+extension Story: Downloadable {
+    var cacheKey: String {
+        return type(of: self).cacheKey(id)
+    }
 }
 
-extension Story { // HASHABLE
-    override var hashValue: Int {
-        return id.hashValue
+enum StoriesType: String {
+    case
+    Top = "topstories",
+    New = "newstories",
+    Show = "showstories",
+    Ask = "askstories",
+    Job = "jobstories",
+    Saved = "savedstories"
+    static var allValues = [Top, New, Show, Ask, Job, Saved]
+    var title: String {
+        return rawValue.replacingOccurrences(of: "stories", with: " stories").capitalized
     }
+    var isCached: Bool {
+        return Cache.shared().hasFileCachedItemForKey(cacheKey)
+    }
+}
+
+//func ==(l: Story, r: Story) -> Bool {
+//    return l.id == r.id
+//}
+
+extension Story { // HASHABLE
+//    override var hashValue: Int {
+//        return id.hashValue
+//    }
 }
 
 class Story: NSObject, NSCoding {
     
-    enum Type: String {
+    enum Kind: String {
         case Job = "job",
         Story = "story",
         Poll = "poll",
         PollOpt = "pollopt"
         func toJSON() -> AnyObject {
-            return rawValue
+            return rawValue as AnyObject
         }
     }
     
@@ -41,19 +69,30 @@ class Story: NSObject, NSCoding {
     let attributedText: NSAttributedString
     let time: Int
     let title: String
-    let type: Type
-    let URL: NSURL?
+    let kind: Kind
+    let URL: Foundation.URL?
+    let URLString: String? // the percent encoded URL is inappropriate for several use cases including sending to readability and a working href in a webview
     let children: [Comment]
-    let date: NSDate
-    var saved = false
-    var cacheKey: String {
+    let date: Date
+    let updated: String
+    // want var to see if full story exists in cache
+    // want var to track if user 'pinned' story
+    
+    class func cacheKey(_ id: Int) -> String {
         return "cached_story_\(id)"
     }
-    var articleCacheKey: String {
-        if let URL = URL {
-            return ReadabilityArticle.cacheKeyForURL(URL)
-        }
-        return ""
+    class func isCached(_ id: Int) -> Bool {
+        return Cache.shared().hasFileCachedItemForKey(cacheKey(id))
+    }
+    var articleCacheKey: String? {
+        guard let URLString = URLString else { return nil }
+        return ReadabilityArticle.cacheKeyForURLString(URLString)
+    }
+    var isCached: Bool {
+        return Cache.shared().hasFileCachedItemForKey(cacheKey)
+    }
+    var isArticleCached: Bool {
+        return Cache.shared().hasFileCachedItemForKey(articleCacheKey)
     }
     
     init(json: JSON) {
@@ -63,14 +102,17 @@ class Story: NSObject, NSCoding {
         self.kids = json["kids"].arrayValue.map { $0.intValue }
         self.score = json["score"].intValue
         self.text = json["text"].stringValue
-        let data = text.dataUsingEncoding(NSUTF8StringEncoding)!
-        self.attributedText = data.length > 0 ? NSAttributedString(HTMLData: data, options: [DTUseiOS6Attributes: true, DTDefaultFontName: UIFont.textReaderFont().fontName, DTDefaultFontSize: UIFont.textReaderFont().pointSize, DTDefaultTextColor: UIColor.textColor(), DTDefaultLinkColor: UIColor.tintColor()], documentAttributes: nil) : NSAttributedString(string: "")
+        // could probably make this a lazy var:
+        let data = text.data(using: String.Encoding.utf8)!
+        self.attributedText = data.count > 0 ? NSAttributedString(htmlData: data, options: [DTUseiOS6Attributes: true, DTDefaultFontName: UIFont.textReaderFont().fontName, DTDefaultFontSize: UIFont.textReaderFont().pointSize, DTDefaultTextColor: UIColor.textColor(), DTDefaultLinkColor: UIColor.tintColor()], documentAttributes: nil) : NSAttributedString(string: "")
         self.time = json["time"].intValue
         self.title = json["title"].stringValue
-        self.type = Type(rawValue: json["type"].stringValue)!
-        self.URL = json["url"].URL
+        self.kind = Kind(rawValue: json["type"].stringValue)!
+        self.URLString = json["url"].string
+        self.URL = Foundation.URL(string: json["url"].string ?? "")
         self.children = json["children"].arrayValue.map { Comment(json: $0, level: 1) } .filter { !$0.deleted }
-        self.date = NSDate(timeIntervalSince1970: NSTimeInterval(self.time))
+        self.date = Date(timeIntervalSince1970: TimeInterval(self.time))
+        self.updated = json["updated"].stringValue
     }
     
     func toJSON() -> AnyObject {
@@ -83,31 +125,31 @@ class Story: NSObject, NSCoding {
             "text": text,
             "time": time,
             "title": title,
-            "type": type.toJSON(),
+            "type": kind.toJSON(),
             "url": URL?.absoluteString ?? "",
             "children": children.map { $0.toJSON() }
-        ]
+        ] as NSDictionary
     }
     
     required convenience init(coder decoder: NSCoder) {
-        let json: AnyObject = decoder.decodeObjectForKey("json")!
+        let json: AnyObject = decoder.decodeObject(forKey: "json")! as AnyObject
         self.init(json:JSON(json))
-        saved = true
     }
     
-    func encodeWithCoder(coder: NSCoder) {
-        coder.encodeObject(toJSON(), forKey: "json")
+    func encode(with coder: NSCoder) {
+        coder.encode(toJSON(), forKey: "json")
     }
     
-    override var hash: Int {
-        return hashValue
-    }
+//    override var hash: Int {
+//        return hashValue
+//    }
     
-    override func isEqual(object: AnyObject?) -> Bool {
-        if let object = object as? Story {
-            return id == object.id
-        }
-        return false
-    }
+//    override func isEqual(object: AnyObject?) -> Bool {
+//        if let object = object as? Story {
+//            return id == object.id
+//        }
+//        return false
+//    }
+    
 }
 
