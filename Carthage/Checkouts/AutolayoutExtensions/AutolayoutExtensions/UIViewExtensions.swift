@@ -9,18 +9,18 @@
 
 public extension UIView {
     
-    public func addConstraintsWithVisualFormatStrings(formatStrings: [String], options: NSLayoutFormatOptions = [], metrics: [String: AnyObject] = [:], views: [String: AnyObject]) -> [NSLayoutConstraint] {
+    public func addConstraints(withVisualFormats formatStrings: [String], options: NSLayoutFormatOptions = [], metrics: [String: AnyObject] = [:], views: [String: AnyObject]) -> [NSLayoutConstraint] {
         var constraints = [NSLayoutConstraint]()
         
         for formatString in formatStrings {
-            constraints.appendContentsOf(NSLayoutConstraint.constraintsWithVisualFormat(formatString, options: options, metrics: metrics, views: views))
+            constraints.append(contentsOf: NSLayoutConstraint.constraints(withVisualFormat: formatString, options: options, metrics: metrics, views: views))
         }
         
         addConstraints(constraints)
         return constraints
     }
     
-    public func addSubviewsWithAutoLayout(views: UIView...) {
+    public func addSubviewsWithAutoLayout(_ views: UIView...) {
         for view in views {
             view.translatesAutoresizingMaskIntoConstraints = false
             addSubview(view)
@@ -28,7 +28,7 @@ public extension UIView {
     }
     
     /** Insets are applied as constants. bottom and trailing constants are applied in negative to produce an inset effect. */
-    public func anchorAllEdgesToView(view: UIView, topInset: CGFloat = 0, leadingInset: CGFloat = 0, bottomInset: CGFloat = 0, trailingInset: CGFloat = 0) -> (top: NSLayoutConstraint, leading: NSLayoutConstraint, bottom: NSLayoutConstraint, trailing: NSLayoutConstraint) {
+    public func anchorAllEdgesToView(_ view: UIView, topInset: CGFloat = 0, leadingInset: CGFloat = 0, bottomInset: CGFloat = 0, trailingInset: CGFloat = 0) -> (top: NSLayoutConstraint, leading: NSLayoutConstraint, bottom: NSLayoutConstraint, trailing: NSLayoutConstraint) {
         return (top: anchorTopToTopEdgeOfView(view, constant: topInset),
                 leading: anchorLeadingToLeadingEdgeOfView(view, constant: leadingInset),
                 bottom: anchorBottomToBottomEdgeOfView(view, constant: -bottomInset),
@@ -36,216 +36,216 @@ public extension UIView {
     }
     
     /** Insets are applied as constants. trailing is applied in negative to produce an inset effect */
-    public func anchorLeadingAndTrailingEdgesToView(view: UIView, leadingInset: CGFloat = 0, trailingInset: CGFloat = 0) -> (leading: NSLayoutConstraint, trailing: NSLayoutConstraint) {
+    public func anchorLeadingAndTrailingEdgesToView(_ view: UIView, leadingInset: CGFloat = 0, trailingInset: CGFloat = 0) -> (leading: NSLayoutConstraint, trailing: NSLayoutConstraint) {
         return (leading: anchorLeadingToLeadingEdgeOfView(view, constant: leadingInset),
                 trailing: anchorTrailingToTrailingEdgeOfView(view, constant: -trailingInset))
     }
     
     /** Left and right insets are ignored. */
-    public func anchorTopAndBottomEdgesToView(view: UIView, topInset: CGFloat = 0, bottomInset: CGFloat = 0) -> (top: NSLayoutConstraint, bottom: NSLayoutConstraint) {
+    public func anchorTopAndBottomEdgesToView(_ view: UIView, topInset: CGFloat = 0, bottomInset: CGFloat = 0) -> (top: NSLayoutConstraint, bottom: NSLayoutConstraint) {
         return (top: anchorTopToTopEdgeOfView(view, constant: topInset),
                 bottom: anchorBottomToBottomEdgeOfView(view, constant: -bottomInset))
     }
     
-    public func anchorWidthAndHeightToSize(size: CGSize) -> (width: NSLayoutConstraint, height: NSLayoutConstraint) {
+    public func anchorWidthAndHeightToSize(_ size: CGSize) -> (width: NSLayoutConstraint, height: NSLayoutConstraint) {
         return (width: anchorWidthToConstant(size.width),
                 height: anchorHeightToConstant(size.height))
     }
     
-    public func anchorHeightToConstant(height: CGFloat) -> NSLayoutConstraint {
+    public func anchorHeightToConstant(_ height: CGFloat) -> NSLayoutConstraint {
         let constraint = NSLayoutConstraint(item: self,
-                                            attribute: .Height,
-                                            relatedBy: .Equal,
+                                            attribute: .height,
+                                            relatedBy: .equal,
                                             toItem: nil,
-                                            attribute: .NotAnAttribute,
+                                            attribute: .notAnAttribute,
                                             multiplier: 1,
                                             constant: height)
-        constraint.active = true
+        constraint.isActive = true
         return constraint
     }
     
-    public func anchorWidthToConstant(width: CGFloat) -> NSLayoutConstraint {
+    public func anchorWidthToConstant(_ width: CGFloat) -> NSLayoutConstraint {
         let constraint = NSLayoutConstraint(item: self,
-                                            attribute: .Width,
-                                            relatedBy: .Equal,
+                                            attribute: .width,
+                                            relatedBy: .equal,
                                             toItem: nil,
-                                            attribute: .NotAnAttribute,
+                                            attribute: .notAnAttribute,
                                             multiplier: 1,
                                             constant: width)
-        constraint.active = true
+        constraint.isActive = true
         return constraint
     }
     
-    public func anchorWidthToViewWidth(view: UIView, multiplier: CGFloat = 1, constant: CGFloat = 0) -> NSLayoutConstraint {
+    public func anchorWidthToViewWidth(_ view: UIView, multiplier: CGFloat = 1, constant: CGFloat = 0) -> NSLayoutConstraint {
         let constraint = NSLayoutConstraint(item: self,
-                                            attribute: .Width,
-                                            relatedBy: .Equal,
+                                            attribute: .width,
+                                            relatedBy: .equal,
                                             toItem: view,
-                                            attribute: .Width,
+                                            attribute: .width,
                                             multiplier: multiplier,
                                             constant: constant)
-        constraint.active = true
+        constraint.isActive = true
         return constraint
     }
     
-    public func anchorHeightToViewHeight(view: UIView, multiplier: CGFloat = 1, constant: CGFloat = 0) -> NSLayoutConstraint {
+    public func anchorHeightToViewHeight(_ view: UIView, multiplier: CGFloat = 1, constant: CGFloat = 0) -> NSLayoutConstraint {
         let constraint = NSLayoutConstraint(item: self,
-                                            attribute: .Height,
-                                            relatedBy: .Equal,
+                                            attribute: .height,
+                                            relatedBy: .equal,
                                             toItem: view,
-                                            attribute: .Height,
+                                            attribute: .height,
                                             multiplier: multiplier,
                                             constant: constant)
-        constraint.active = true
+        constraint.isActive = true
         return constraint
     }
     
-    public func anchorTopToTopEdgeOfView(view: UIView, constant: CGFloat = 0) -> NSLayoutConstraint {
+    public func anchorTopToTopEdgeOfView(_ view: UIView, constant: CGFloat = 0) -> NSLayoutConstraint {
         let constraint = NSLayoutConstraint(item: self,
-                                            attribute: .Top,
-                                            relatedBy: .Equal,
+                                            attribute: .top,
+                                            relatedBy: .equal,
                                             toItem: view,
-                                            attribute: .Top,
+                                            attribute: .top,
                                             multiplier: 1,
                                             constant: constant)
-        constraint.active = true
+        constraint.isActive = true
         return constraint
     }
     
-    public func anchorBottomToBottomEdgeOfView(view: UIView, constant: CGFloat = 0) -> NSLayoutConstraint {
+    public func anchorBottomToBottomEdgeOfView(_ view: UIView, constant: CGFloat = 0) -> NSLayoutConstraint {
         let constraint = NSLayoutConstraint(item: self,
-                                            attribute: .Bottom,
-                                            relatedBy: .Equal,
+                                            attribute: .bottom,
+                                            relatedBy: .equal,
                                             toItem: view,
-                                            attribute: .Bottom,
+                                            attribute: .bottom,
                                             multiplier: 1,
                                             constant: constant)
-        constraint.active = true
+        constraint.isActive = true
         return constraint
     }
     
-    public func anchorLeftToLeftEdgeOfView(view: UIView, constant: CGFloat = 0) -> NSLayoutConstraint {
+    public func anchorLeftToLeftEdgeOfView(_ view: UIView, constant: CGFloat = 0) -> NSLayoutConstraint {
         let constraint = NSLayoutConstraint(item: self,
-                                            attribute: .Left,
-                                            relatedBy: .Equal,
+                                            attribute: .left,
+                                            relatedBy: .equal,
                                             toItem: view,
-                                            attribute: .Left,
+                                            attribute: .left,
                                             multiplier: 1,
                                             constant: constant)
-        constraint.active = true
+        constraint.isActive = true
         return constraint
     }
     
-    public func anchorLeadingToLeadingEdgeOfView(view: UIView, constant: CGFloat = 0) -> NSLayoutConstraint {
+    public func anchorLeadingToLeadingEdgeOfView(_ view: UIView, constant: CGFloat = 0) -> NSLayoutConstraint {
         let constraint = NSLayoutConstraint(item: self,
-                                            attribute: .Leading,
-                                            relatedBy: .Equal,
+                                            attribute: .leading,
+                                            relatedBy: .equal,
                                             toItem: view,
-                                            attribute: .Leading,
+                                            attribute: .leading,
                                             multiplier: 1,
                                             constant: constant)
-        constraint.active = true
+        constraint.isActive = true
         return constraint
     }
     
-    public func anchorLeadingToTrailingEdgeOfView(view: UIView, constant: CGFloat = 0) -> NSLayoutConstraint {
+    public func anchorLeadingToTrailingEdgeOfView(_ view: UIView, constant: CGFloat = 0) -> NSLayoutConstraint {
         let constraint = NSLayoutConstraint(item: self,
-                                            attribute: .Leading,
-                                            relatedBy: .Equal,
+                                            attribute: .leading,
+                                            relatedBy: .equal,
                                             toItem: view,
-                                            attribute: .Trailing,
+                                            attribute: .trailing,
                                             multiplier: 1,
                                             constant: constant)
-        constraint.active = true
+        constraint.isActive = true
         return constraint
     }
     
-    public func anchorTrailingToLeadingEdgeOfView(view: UIView, constant: CGFloat = 0) -> NSLayoutConstraint {
+    public func anchorTrailingToLeadingEdgeOfView(_ view: UIView, constant: CGFloat = 0) -> NSLayoutConstraint {
         let constraint = NSLayoutConstraint(item: self,
-                                            attribute: .Trailing,
-                                            relatedBy: .Equal,
+                                            attribute: .trailing,
+                                            relatedBy: .equal,
                                             toItem: view,
-                                            attribute: .Leading,
+                                            attribute: .leading,
                                             multiplier: 1,
                                             constant: constant)
-        constraint.active = true
+        constraint.isActive = true
         return constraint
     }
     
-    public func anchorRightToRightEdgeOfView(view: UIView, constant: CGFloat = 0) -> NSLayoutConstraint {
+    public func anchorRightToRightEdgeOfView(_ view: UIView, constant: CGFloat = 0) -> NSLayoutConstraint {
         let constraint = NSLayoutConstraint(item: self,
-                                            attribute: .Right,
-                                            relatedBy: .Equal,
+                                            attribute: .right,
+                                            relatedBy: .equal,
                                             toItem: view,
-                                            attribute: .Right,
+                                            attribute: .right,
                                             multiplier: 1,
                                             constant: constant)
-        constraint.active = true
+        constraint.isActive = true
         return constraint
     }
     
-    public func anchorTrailingToTrailingEdgeOfView(view: UIView, constant: CGFloat = 0) -> NSLayoutConstraint {
+    public func anchorTrailingToTrailingEdgeOfView(_ view: UIView, constant: CGFloat = 0) -> NSLayoutConstraint {
         let constraint = NSLayoutConstraint(item: self,
-                                            attribute: .Trailing,
-                                            relatedBy: .Equal,
+                                            attribute: .trailing,
+                                            relatedBy: .equal,
                                             toItem: view,
-                                            attribute: .Trailing,
+                                            attribute: .trailing,
                                             multiplier: 1,
                                             constant: constant)
-        constraint.active = true
+        constraint.isActive = true
         return constraint
     }
     
-    public func anchorBottomToTopEdgeOfView(view: UIView, constant: CGFloat = 0) -> NSLayoutConstraint {
+    public func anchorBottomToTopEdgeOfView(_ view: UIView, constant: CGFloat = 0) -> NSLayoutConstraint {
         let constraint = NSLayoutConstraint(item: self,
-                                            attribute: .Bottom,
-                                            relatedBy: .Equal,
+                                            attribute: .bottom,
+                                            relatedBy: .equal,
                                             toItem: view,
-                                            attribute: .Top,
+                                            attribute: .top,
                                             multiplier: 1,
                                             constant: constant)
-        constraint.active = true
+        constraint.isActive = true
         return constraint
     }
     
-    public func anchorTopToBottomEdgeOfView(view: UIView, constant: CGFloat = 0) -> NSLayoutConstraint {
+    public func anchorTopToBottomEdgeOfView(_ view: UIView, constant: CGFloat = 0) -> NSLayoutConstraint {
         let constraint = NSLayoutConstraint(item: self,
-                                            attribute: .Top,
-                                            relatedBy: .Equal,
+                                            attribute: .top,
+                                            relatedBy: .equal,
                                             toItem: view,
-                                            attribute: .Bottom,
+                                            attribute: .bottom,
                                             multiplier: 1,
                                             constant: constant)
-        constraint.active = true
+        constraint.isActive = true
         return constraint
     }
     
-    public func anchorCenterToCenterOfView(view: UIView) -> (centerX: NSLayoutConstraint, centerY: NSLayoutConstraint) {
+    public func anchorCenterToCenterOfView(_ view: UIView) -> (centerX: NSLayoutConstraint, centerY: NSLayoutConstraint) {
         return (centerX: anchorCenterXToCenterXOfView(view),
                 centerY: anchorCenterYToCenterYOfView(view))
     }
     
-    public func anchorCenterYToCenterYOfView(view: UIView, constant: CGFloat = 0) -> NSLayoutConstraint {
+    public func anchorCenterYToCenterYOfView(_ view: UIView, constant: CGFloat = 0) -> NSLayoutConstraint {
         let constraint = NSLayoutConstraint(item: self,
-                                            attribute: .CenterY,
-                                            relatedBy: .Equal,
+                                            attribute: .centerY,
+                                            relatedBy: .equal,
                                             toItem: view,
-                                            attribute: .CenterY,
+                                            attribute: .centerY,
                                             multiplier: 1,
                                             constant: constant)
-        constraint.active = true
+        constraint.isActive = true
         return constraint
     }
     
-    public func anchorCenterXToCenterXOfView(view: UIView, constant: CGFloat = 0) -> NSLayoutConstraint {
+    public func anchorCenterXToCenterXOfView(_ view: UIView, constant: CGFloat = 0) -> NSLayoutConstraint {
         let constraint = NSLayoutConstraint(item: self,
-                                            attribute: .CenterX,
-                                            relatedBy: .Equal,
+                                            attribute: .centerX,
+                                            relatedBy: .equal,
                                             toItem: view,
-                                            attribute: .CenterX,
+                                            attribute: .centerX,
                                             multiplier: 1,
                                             constant: constant)
-        constraint.active = true
+        constraint.isActive = true
         return constraint
     }
     
