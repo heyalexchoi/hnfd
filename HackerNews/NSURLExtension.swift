@@ -15,6 +15,6 @@ extension URL {
     }
     
     func hyperlink() -> String {
-        return self.hyperlinkWithText(self.absoluteString ?? "")
+        return self.hyperlinkWithText(self.absoluteString)
     }
 }

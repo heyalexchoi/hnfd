@@ -20,28 +20,18 @@ protocol JSONSerializable {
 
 struct Downloader {
     
-    static let backgroundManager: Alamofire.Manager = {
+    static let backgroundManager: Alamofire.SessionManager = {
         let configuration = URLSessionConfiguration.background(withIdentifier: "com.hnfd.background")
-        let manager =  Alamofire.Manager(configuration: configuration)
+        let manager =  Alamofire.SessionManager(configuration: configuration)
         return manager
     }()
     
-    static func download(_ request: URLRequestConvertible, destinationURL: URL) -> Request {
-        let downloadDestination: Request.DownloadFileDestination = { (tempURL, response) -> URL in
-            let fileManager = FileManager.default
-            if let destinationPath = destinationURL.path
-                , fileManager.fileExists(atPath: destinationPath) {
-                do {
-                    try fileManager.removeItem(atPath: destinationPath)
-                } catch {
-                    print("file manager could not remove item at path \(destinationPath)")
-                }
-            }
-            return destinationURL
+    static func download(_ request: URLRequestConvertible, destinationURL: URL) -> DownloadRequest {
+        let downloadDestination: DownloadRequest.DownloadFileDestination = { (_, _) -> (destinationURL: URL, options: DownloadRequest.DownloadOptions) in
+            return (destinationURL,  [.createIntermediateDirectories, .removePreviousFile])
         }
-        let request = backgroundManager.download(request, destination: downloadDestination)
         
-        return request
+        return backgroundManager.download(request, to: downloadDestination)
     }
 }
 
@@ -49,53 +39,43 @@ extension Downloader {
     
     static let responseProcessingQueue = OperationQueue()
     
-    static func downloadStories(_ type: StoriesType, completion: ((Result<[Story], Error>) -> Void)?) {
+    static func downloadStories(_ type: StoriesType, completion: ((Result<[Story]>) -> Void)?) {
         let request = HNFDRouter.stories(type: type)
         Cache.shared().diskCache.fileURL(forKey: type.cacheKey) { (cache, key, result, fileURL) in
             guard let fileURL = fileURL else {
-                print("downloader failed to get file path for stories type \(type.title)")
+                debugPrint("downloader failed to get file path for stories type \(type.title)")
                 return
             }
             self.download(request, destinationURL: fileURL)
-                .progress { bytesRead, totalBytesRead, totalBytesExpectedToRead in
-                    print(totalBytesRead)
+                .downloadProgress { progress in
+                    print(progress)
                     // probs wont keep this
                     // This closure is NOT called on the main queue for performance
                     // reasons. To update your ui, dispatch to the main queue.
                     DispatchQueue.main.async {
-                        print("Total bytes read on main queue: \(totalBytesRead)")
+                        debugPrint("Total bytes read on main queue: \(progress)")
                     }
                 }
                 .validate()
-                .response { request, response, data, error in
-                    if let error = error {
-                        completion?(Result.failure(Error.external(underlying: error)))
-                    }
-                    // seems data is reserved for resumes...
-                    // if there is a completion, serialize object at path
-                    if let completion = completion,
-                        let filePath = fileURL.path,
-                        let data = FileManager.default.contents(atPath: filePath) {
-                        
+                .responseData(completionHandler: { (response) in
+                    switch response.result {
+                    case .success(let data):
+                        // TO DO: this can probably be extracted into a response serializer that takes a type and response  - and returns success(serialized instance of type)/error
                         self.responseProcessingQueue.addOperation({ () -> Void in
                             let stories = JSON(data: data).arrayValue
                                 .filter { return $0 != nil } // dirty fix for cleaning out null stories from response. did not go with failable initializer on Story  because there's a bug in the swift compiler that makes it hard to fail initializer on class objects.
                                 .map { Story(json: $0) }
                             OperationQueue.main.addOperation({ () -> Void in
-                                completion(Result.success(stories))
+                                completion?(Result.success(stories))
                             })
                         })
+                    case .failure(let error):
+                        // TO DO: better error handling?
+                        debugPrint(error)
                     }
-                }
-                .debugPrint()
+                    
+                })
         }
-    }
-}
-
-extension Request {
-    func debugPrint() -> Request {
-        print("debug description: \(debugDescription)")
-        return self
     }
 }
 
@@ -104,10 +84,10 @@ enum HNFDRouter: URLRequestConvertible {
     case stories(type: StoriesType)
     case story(id: Int)
     
-    var method: Alamofire.Method {
+    var method: Alamofire.HTTPMethod {
         switch self {
         default:
-            return .GET
+            return .get
         }
     }
     
@@ -129,12 +109,10 @@ enum HNFDRouter: URLRequestConvertible {
     
     // MARK: URLRequestConvertible
     
-    var URLRequest: NSMutableURLRequest {
+    func asURLRequest() -> URLRequest {
         let URL = Foundation.URL(string: Private.Constants.HNAPIBaseURLString)!
-        let mutableURLRequest = NSMutableURLRequest(url: URL.appendingPathComponent(path))
-        mutableURLRequest.httpMethod = method.rawValue
         //        todo: clever header shit for caching?
-        return Alamofire.ParameterEncoding.url.encode(mutableURLRequest, parameters: parameters).0
+        return Alamofire.request(URL, method: method, parameters: parameters, encoding: URLEncoding.default, headers: nil).request!
     }
 }
 
@@ -142,10 +120,10 @@ enum ReadabilityRouter: URLRequestConvertible {
     
     case article(URL: URL)
     
-    var method: Alamofire.Method {
+    var method: Alamofire.HTTPMethod {
         switch self {
         default:
-            return .GET
+            return .get
         }
     }
     
@@ -168,10 +146,8 @@ enum ReadabilityRouter: URLRequestConvertible {
     
     // MARK: URLRequestConvertible
     
-    var URLRequest: NSMutableURLRequest {
+    func asURLRequest() -> URLRequest {
         let URL = Foundation.URL(string: "https://readability.com/api")!
-        let mutableURLRequest = NSMutableURLRequest(url: URL.appendingPathComponent(path))
-        mutableURLRequest.httpMethod = method.rawValue
-        return Alamofire.ParameterEncoding.url.encode(mutableURLRequest, parameters: parameters).0
+        return Alamofire.request(URL, method: method, parameters: parameters, encoding: URLEncoding.default, headers: nil).request!
     }
 }
