@@ -32,7 +32,7 @@ class StoriesTitleView: UIView {
         addGestureRecognizer(tapRecognizer)
         addSubviewsWithAutoLayout(label)
         
-        label.anchorAllEdgesToView(self)
+        _ = label.anchorAllEdgesToView(self)
     }
     
     required init(coder aDecoder: NSCoder) {
