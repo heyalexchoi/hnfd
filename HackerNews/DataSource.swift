@@ -32,15 +32,15 @@ extension DataSource {
     
     // MARK: - Stories
     
-    static func getStories(_ type: StoriesType, refresh: Bool = false, completion: @escaping (_ stories: [Story]?, _ error: HNFDError?) -> Void) {
+    static func getStories(_ type: StoriesType, refresh: Bool = false, completion: @escaping ((_ result: Result<[Story]>) -> Void)) {
         if type.isCached && !refresh {
-            cache.getStories(type, completion: { (stories) in
-                OperationQueue.main.addOperation { completion(stories, nil) }
+            cache.getStories(type, completion: { (result) in
+                OperationQueue.main.addOperation { completion(result) }
             })
             return
         }
-        Downloader.downloadStories(type) { (stories, error) in
-            completion(stories, error)
+        Downloader.downloadStories(type) { (result) in
+            completion(result)
         }
     }
     
@@ -53,7 +53,7 @@ extension DataSource {
                     return
                 }
                 
-                cache.setStory(story, completion: nil)
+                cache.setStory(story, nil)
                 OperationQueue.main.addOperation { completion(story, nil) }
             }
         } else {

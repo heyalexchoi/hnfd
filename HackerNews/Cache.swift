@@ -6,15 +6,26 @@
 //  Copyright (c) 2015 Alex Choi. All rights reserved.
 //
 import PINCache
+import SwiftyJSON
 
 class Cache: PINCache {
     
-    // MARK: - STORIES 
-    
-    func getStories(_ type: StoriesType, completion: @escaping (_ stories: [Story]?) -> Void) {
-        object(forKey: type.rawValue) { (cache, key, value) in
-            completion(value as? [Story])
+    func object<T: ResponseObjectSerializable>(forKey key: String, completion: @escaping (_ result: Result<T>) -> Void) {
+        object(forKey: key) { (cache, key, value) in
+            ResponseObjectSerializer.serialize(any: value, completion: completion)
         }
+    }
+    
+    func objects<T: ResponseObjectSerializable>(forKey key: String, completion: @escaping (_ result: Result<[T]>) -> Void) {
+        object(forKey: key) { (cache, key, value) in            
+            ResponseObjectSerializer.serialize(any: value, completion: completion)
+        }
+    }
+    
+    // MARK: - STORIES
+    
+    func getStories(_ type: StoriesType, completion: @escaping (_ result: Result<[Story]>) -> Void) {
+        objects(forKey: type.rawValue, completion: completion)
     }
     
     func setStories(_ type: StoriesType, stories: [Story], completion: PINCacheObjectBlock?) {
@@ -23,14 +34,13 @@ class Cache: PINCache {
     
     // MARK: - STORY
     
-    func getStory(_ id: Int, completion: @escaping (Story?) -> Void) {
-        object(forKey: Story.cacheKey(id), block: { (Cache, key, value) -> Void in
-            completion(value as? Story)
-        })
+    func getStory(_ id: Int, completion: @escaping (_ result: Result<Story>) -> Void) {
+        object(forKey: Story.cacheKey(id), completion: completion)
     }
     
-    func setStory(_ story: Story, completion: PINCacheObjectBlock?) {
-        setObject(story, forKey: story.cacheKey, block: completion)
+    func setStory(_ story: Story) {
+        setObject(story.asJSON, forKey: story.cacheKey, block: nil)
+        // TO DO: error handling??
     }
     
     // MARK: - ARTICLES

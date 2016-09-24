@@ -17,28 +17,6 @@ struct HNAPIClient {
     let baseURLString = Private.Constants.HNAPIBaseURLString
     let responseProcessingQueue = OperationQueue()
     
-    func getStories(_ type: StoriesType, limit: Int, offset: Int, completion: @escaping (_ stories: [Story]?, _ error: NSError?) -> Void) -> DataRequest {
-        return Alamofire
-            .request("\(baseURLString)/\(type.rawValue)", method: .get, parameters: ["limit": limit, "offset": offset], encoding: URLEncoding.default, headers: nil)
-            .validate()
-            .responseJSON { (response) -> Void in
-                print(response)
-                switch response.result {
-                case .success(let data):
-                    self.responseProcessingQueue.addOperation({ () -> Void in
-                        let stories = JSON(data).arrayValue
-                            .filter { return $0 != nil } // dirty fix for cleaning out null stories from response. did not go with failable initializer on Story  because there's a bug in the swift compiler that makes it hard to fail initializer on class objects.
-                            .map { Story(json: $0) }
-                        OperationQueue.main.addOperation({ () -> Void in
-                            completion(stories, nil)
-                        })
-                    })
-                case .failure(let error):
-                    completion(nil, error as NSError)
-                }
-        }
-    }
-    
     func getStory(_ id: Int, completion: @escaping (_ story: Story?, _ error: HNFDError?) -> Void) -> Request {
         return Alamofire
             .request("\(baseURLString)/items/\(id)", method: .get, parameters: nil, encoding: URLEncoding.default, headers: nil)

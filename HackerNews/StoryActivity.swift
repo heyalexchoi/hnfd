@@ -10,8 +10,8 @@ class StoryActivity: UIActivity {
     
     var story: Story?
     
-    func storyFromActivityItems(_ activityItems: [AnyObject]) -> Story? {
-        return activityItems.filter { $0.isKind(of: Story.self) }.first as? Story
+    func storyFromActivityItems(_ activityItems: [Any]) -> Story? {
+        return activityItems.filter { type(of: $0) == Story.self }.first as? Story
     }
     
     override var activityType : UIActivityType? {        
@@ -27,11 +27,11 @@ class StoryActivity: UIActivity {
     }
     
     override func canPerform(withActivityItems activityItems: [Any]) -> Bool {
-        return storyFromActivityItems(activityItems as [AnyObject]) != nil
+        return storyFromActivityItems(activityItems) != nil
     }
     
     override func prepare(withActivityItems activityItems: [Any]) {
-        story = storyFromActivityItems(activityItems as [AnyObject])
+        story = storyFromActivityItems(activityItems)
     }
     
     override func perform() {

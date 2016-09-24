@@ -6,7 +6,6 @@
 //  Copyright (c) 2015 Alex Choi. All rights reserved.
 //
 
-
 import SwiftyJSON
 import DTCoreText
 
@@ -48,7 +47,7 @@ extension Story { // HASHABLE
 //    }
 }
 
-class Story: NSObject, NSCoding {
+struct Story: ResponseObjectSerializable {
     
     enum Kind: String {
         case Job = "job",
@@ -78,10 +77,10 @@ class Story: NSObject, NSCoding {
     // want var to see if full story exists in cache
     // want var to track if user 'pinned' story
     
-    class func cacheKey(_ id: Int) -> String {
+    static func cacheKey(_ id: Int) -> String {
         return "cached_story_\(id)"
     }
-    class func isCached(_ id: Int) -> Bool {
+    static func isCached(_ id: Int) -> Bool {
         return Cache.shared().hasFileCachedItemForKey(cacheKey(id))
     }
     var articleCacheKey: String? {
@@ -95,7 +94,7 @@ class Story: NSObject, NSCoding {
         return Cache.shared().hasFileCachedItemForKey(articleCacheKey)
     }
     
-    init(json: JSON) {
+    init?(json: JSON) {
         self.by = json["by"].stringValue
         self.descendants = json["descendants"].intValue
         self.id = json["_id"].intValue
@@ -115,7 +114,7 @@ class Story: NSObject, NSCoding {
         self.updated = json["updated"].stringValue
     }
     
-    func toJSON() -> AnyObject {
+    var asJSON: NSDictionary {
         return [
             "by": by,
             "descendants": descendants,
@@ -128,17 +127,19 @@ class Story: NSObject, NSCoding {
             "type": kind.toJSON(),
             "url": URL?.absoluteString ?? "",
             "children": children.map { $0.toJSON() }
-        ] as NSDictionary
+        ]
     }
     
-    required convenience init(coder decoder: NSCoder) {
-        let json: AnyObject = decoder.decodeObject(forKey: "json")! as AnyObject
-        self.init(json:JSON(json))
-    }
     
-    func encode(with coder: NSCoder) {
-        coder.encode(toJSON(), forKey: "json")
-    }
+//    init(coder decoder: NSCoder) {
+//        let json: AnyObject = decoder.decodeObject(forKey: "json")! as AnyObject
+//        self.init(json:JSON(json))
+//    }
+    
+//    func encode(with coder: NSCoder) {
+//        coder.encode(toJSON(), forKey: "json")
+//    }    
+    
     
 //    override var hash: Int {
 //        return hashValue
