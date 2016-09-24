@@ -118,6 +118,10 @@ extension ReadabilityViewContoller {
 extension ReadabilityViewContoller {
     
     var CSS: String {
+        
+        let backgroundColorHexString: String = UIColor.backgroundColor().hexString()
+        let textColorHexString: String = UIColor.textColor().hexString()
+        
         let cssPath = Bundle.main.path(forResource: "readability_article", ofType: "css")!
         let css = try! String(contentsOfFile: cssPath)
         // swift compiler choking on string concatenations. had to break them into more statements
@@ -126,13 +130,13 @@ extension ReadabilityViewContoller {
         customCSS +=
             "font-size: \(UIFont.textReaderFont().pointSize);" +
             "font-family: \(UIFont.textReaderFont().fontName);" +
-            "background-color: \(UIColor.backgroundColor().hexString());" +
-            "color: \(UIColor.textColor().hexString());"
+            "background-color: \(backgroundColorHexString);" +
+            "color: \(textColorHexString);"
         customCSS +=
         "}"
         customCSS +=
         "a {" +
-            "color: \(UIColor.textColor().hexString());" +
+            "color: \(textColorHexString);" +
         "}"
         
         return css + customCSS

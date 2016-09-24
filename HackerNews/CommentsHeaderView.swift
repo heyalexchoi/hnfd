@@ -68,7 +68,9 @@ class CommentsHeaderView: UIView {
         } else {
             linkLabel.text = nil
         }
-        detailLabel.setText("Submitted by \(story.by) \((story.date as NSDate).timeAgoSinceNow())", attributes: TextAttributes.textAttributes)
+        let timeAgoSinceNow: String = (story.date as NSDate).timeAgoSinceNow() ?? ""
+        
+        detailLabel.setText("Submitted by \(story.by) \(timeAgoSinceNow)", attributes: TextAttributes.textAttributes)
         textView.attributedText = story.attributedText
         
         linkLabelTextViewSpacingHeightConstraint.constant = story.attributedText.length > 0 ? 10 : 0

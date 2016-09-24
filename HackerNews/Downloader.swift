@@ -31,7 +31,9 @@ struct Downloader {
             return (destinationURL,  [.createIntermediateDirectories, .removePreviousFile])
         }
         
-        return backgroundManager.download(request, to: downloadDestination)
+        let downloadRequest = backgroundManager.download(request, to: downloadDestination)
+        debugPrint(downloadRequest)
+        return downloadRequest
     }
 }
 
@@ -41,42 +43,36 @@ extension Downloader {
     
     static func downloadStories(_ type: StoriesType, completion: ((_ stories: [Story]?, _ error: HNFDError?) -> Void)?) {
         let request = HNFDRouter.stories(type: type)
-        Cache.shared().diskCache.fileURL(forKey: type.cacheKey) { (cache, key, result, fileURL) in
-            guard let fileURL = fileURL else {
-                debugPrint("downloader failed to get file path for stories type \(type.title)")
-                return
-            }
-            self.download(request, destinationURL: fileURL)
-                .downloadProgress { progress in
-                    print(progress)
-                    // probs wont keep this
-                    // This closure is NOT called on the main queue for performance
-                    // reasons. To update your ui, dispatch to the main queue.
-                    DispatchQueue.main.async {
-                        debugPrint("Total bytes read on main queue: \(progress)")
-                    }
+        let fileURL = Cache.shared().diskCache.encodedFileURL(forKey: type.cacheKey)
+        self.download(request, destinationURL: fileURL)
+            .downloadProgress { progress in
+                print(progress)
+                // probs wont keep this
+                // This closure is NOT called on the main queue for performance
+                // reasons. To update your ui, dispatch to the main queue.
+                DispatchQueue.main.async {
+                    debugPrint("Total bytes read on main queue: \(progress)")
                 }
-                .validate()
-                .responseData(completionHandler: { (response) in
-                    switch response.result {
-                    case .success(let data):
-                        // TO DO: this can probably be extracted into a response serializer that takes a type and response  - and returns success(serialized instance of type)/error
-                        self.responseProcessingQueue.addOperation({ () -> Void in
-                            let stories = JSON(data: data).arrayValue
-                                .filter { return $0 != nil } // dirty fix for cleaning out null stories from response. did not go with failable initializer on Story  because there's a bug in the swift compiler that makes it hard to fail initializer on class objects.
-                                .map { Story(json: $0) }
-                            OperationQueue.main.addOperation({ () -> Void in
-                                completion?(stories, nil)
-                            })
+            }
+            .validate()
+            .responseData(completionHandler: { (response) in
+                switch response.result {
+                case .success(let data):
+                    // TO DO: this can probably be extracted into a response serializer that takes a type and response  - and returns success(serialized instance of type)/error
+                    self.responseProcessingQueue.addOperation({ () -> Void in
+                        let stories = JSON(data: data).arrayValue
+                            .filter { return $0 != nil } // dirty fix for cleaning out null stories from response. did not go with failable initializer on Story  because there's a bug in the swift compiler that makes it hard to fail initializer on class objects.
+                            .map { Story(json: $0) }
+                        OperationQueue.main.addOperation({ () -> Void in
+                            completion?(stories, nil)
                         })
-                    case .failure(let error):
-                        // TO DO: better error handling?
-                        debugPrint(error)
-                        completion?(nil, (error as! HNFDError)) // is this ok?
-                    }
-                    
-                })
-        }
+                    })
+                case .failure(let error):
+                    // TO DO: better error handling?
+                    debugPrint(error)
+                    completion?(nil, (error as! HNFDError)) // is this ok?
+                }
+            })
     }
 }
 
@@ -111,7 +107,7 @@ enum HNFDRouter: URLRequestConvertible {
     // MARK: URLRequestConvertible
     
     func asURLRequest() -> URLRequest {
-        let URL = Foundation.URL(string: Private.Constants.HNAPIBaseURLString)!
+        let URL = Foundation.URL(string: Private.Constants.HNAPIBaseURLString)!.appendingPathComponent(path)
         //        todo: clever header shit for caching?
         return Alamofire.request(URL, method: method, parameters: parameters, encoding: URLEncoding.default, headers: nil).request!
     }
@@ -148,7 +144,7 @@ enum ReadabilityRouter: URLRequestConvertible {
     // MARK: URLRequestConvertible
     
     func asURLRequest() -> URLRequest {
-        let URL = Foundation.URL(string: "https://readability.com/api")!
+        let URL = Foundation.URL(string: "https://readability.com/api")!.appendingPathComponent(path)
         return Alamofire.request(URL, method: method, parameters: parameters, encoding: URLEncoding.default, headers: nil).request!
     }
 }
