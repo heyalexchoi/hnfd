@@ -6,7 +6,6 @@
 //  Copyright (c) 2015 Alex Choi. All rights reserved.
 //
 
-
 import SwiftyJSON
 import DTCoreText
 
@@ -15,6 +14,7 @@ extension StoriesType: Downloadable {
         return rawValue
     }
 }
+
 extension Story: Downloadable {
     var cacheKey: String {
         return type(of: self).cacheKey(id)
@@ -34,7 +34,7 @@ enum StoriesType: String {
         return rawValue.replacingOccurrences(of: "stories", with: " stories").capitalized
     }
     var isCached: Bool {
-        return Cache.shared().hasFileCachedItemForKey(cacheKey)
+        return Cache.shared.hasFileCachedItemForKey(cacheKey)
     }
 }
 
@@ -48,7 +48,7 @@ extension Story { // HASHABLE
 //    }
 }
 
-class Story: NSObject, NSCoding {
+struct Story: ResponseObjectSerializable, DataSerializable, JSONSerializable {
     
     enum Kind: String {
         case Job = "job",
@@ -78,24 +78,24 @@ class Story: NSObject, NSCoding {
     // want var to see if full story exists in cache
     // want var to track if user 'pinned' story
     
-    class func cacheKey(_ id: Int) -> String {
+    static func cacheKey(_ id: Int) -> String {
         return "cached_story_\(id)"
     }
-    class func isCached(_ id: Int) -> Bool {
-        return Cache.shared().hasFileCachedItemForKey(cacheKey(id))
+    static func isCached(_ id: Int) -> Bool {
+        return Cache.shared.hasFileCachedItemForKey(cacheKey(id))
     }
     var articleCacheKey: String? {
         guard let URLString = URLString else { return nil }
         return ReadabilityArticle.cacheKeyForURLString(URLString)
     }
     var isCached: Bool {
-        return Cache.shared().hasFileCachedItemForKey(cacheKey)
+        return Cache.shared.hasFileCachedItemForKey(cacheKey)
     }
     var isArticleCached: Bool {
-        return Cache.shared().hasFileCachedItemForKey(articleCacheKey)
+        return Cache.shared.hasFileCachedItemForKey(articleCacheKey)
     }
     
-    init(json: JSON) {
+    init?(json: JSON) {
         self.by = json["by"].stringValue
         self.descendants = json["descendants"].intValue
         self.id = json["_id"].intValue
@@ -107,7 +107,8 @@ class Story: NSObject, NSCoding {
         self.attributedText = data.count > 0 ? NSAttributedString(htmlData: data, options: [DTUseiOS6Attributes: true, DTDefaultFontName: UIFont.textReaderFont().fontName, DTDefaultFontSize: UIFont.textReaderFont().pointSize, DTDefaultTextColor: UIColor.textColor(), DTDefaultLinkColor: UIColor.tintColor()], documentAttributes: nil) : NSAttributedString(string: "")
         self.time = json["time"].intValue
         self.title = json["title"].stringValue
-        self.kind = Kind(rawValue: json["type"].stringValue)!
+        guard let kind = Kind(rawValue: json["type"].stringValue) else { return nil }
+        self.kind = kind
         self.URLString = json["url"].string
         self.URL = Foundation.URL(string: json["url"].string ?? "")
         self.children = json["children"].arrayValue.map { Comment(json: $0, level: 1) } .filter { !$0.deleted }
@@ -115,7 +116,7 @@ class Story: NSObject, NSCoding {
         self.updated = json["updated"].stringValue
     }
     
-    func toJSON() -> AnyObject {
+    var asJSON: Any {
         return [
             "by": by,
             "descendants": descendants,
@@ -128,16 +129,15 @@ class Story: NSObject, NSCoding {
             "type": kind.toJSON(),
             "url": URL?.absoluteString ?? "",
             "children": children.map { $0.toJSON() }
-        ] as NSDictionary
+        ]
     }
     
-    required convenience init(coder decoder: NSCoder) {
-        let json: AnyObject = decoder.decodeObject(forKey: "json")! as AnyObject
-        self.init(json:JSON(json))
-    }
-    
-    func encode(with coder: NSCoder) {
-        coder.encode(toJSON(), forKey: "json")
+    var asData: Data {
+        if let data = try? JSONSerialization.data(withJSONObject: asJSON) {
+            return data
+        }
+        debugPrint("Story failed to serialize to JSON: \(self)")
+        return Data()
     }
     
 //    override var hash: Int {

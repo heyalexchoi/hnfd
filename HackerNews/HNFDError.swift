@@ -14,6 +14,7 @@ enum HNFDError: Error {
     case external(underlying: NSError)
     case unableToCreateReachability
     case storyHasNoArticleURL
+    case responseObjectSerializableFailedToInitialize(unserializedObject: Any)
     
     var description: String {
         switch self {
@@ -21,6 +22,8 @@ enum HNFDError: Error {
             return "Story has no article URL"
         case .unableToCreateReachability:
             return "Unable to determine network connection (unable to create Reachability)"
+        case .responseObjectSerializableFailedToInitialize:
+            return "Failed to initialize response object"
         case .external(let underlying):
             return underlying.localizedDescription
         }

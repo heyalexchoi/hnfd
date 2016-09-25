@@ -8,7 +8,7 @@
 
 import SwiftyJSON
 
-class ReadabilityArticle: NSObject, NSCoding {
+struct ReadabilityArticle: ResponseObjectSerializable, DataSerializable {
     
     let content: String
     let domain: String
@@ -47,7 +47,7 @@ class ReadabilityArticle: NSObject, NSCoding {
         readingProgress = CGFloat(json["reading_progress"].floatValue)
     }
     
-    func toJSON() -> [String: Any] {
+    var asJSON: Any {
         return [
             "content": content,
             "domain": domain,
@@ -65,22 +65,20 @@ class ReadabilityArticle: NSObject, NSCoding {
         ]
     }
     
-    required convenience init(coder decoder: NSCoder) {
-        let json: AnyObject = decoder.decodeObject(forKey: "json")! as AnyObject
-        self.init(json:JSON(json))
+    var asData: Data {
+        if let data = try? JSONSerialization.data(withJSONObject: asJSON) {
+            return data
+        }
+        debugPrint("Story failed to serialize to JSON: \(self)")
+        return Data()
     }
     
-    func encode(with coder: NSCoder) {
-        coder.encode(toJSON(), forKey: "json")
-    }
-    
-    class func cacheKeyForURLString(_ urlString: String) -> String {
+    static func cacheKeyForURLString(_ urlString: String) -> String {
         return "cached_article_\(urlString)"
     }
     
-    func save() {        
-        Cache.shared().setArticle(self, completion: nil)
+    func save() {
+        Cache.shared.setArticle(self)
     }
-    
 }
 

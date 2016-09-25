@@ -79,13 +79,13 @@ extension StoriesViewController {
             ProgressHUD.showAdded(to: view, animated: true)
         }
 
-        DataSource.getStories(storiesType, refresh: refresh) { [weak self] (stories, error) -> Void in
+        DataSource.getStories(storiesType, refresh: refresh) { [weak self] (result: Result<[Story]>) -> Void in
             
             ProgressHUD.hideAllHUDs(for: self?.view, animated: true)
             self?.tableView.pullToRefreshView.stopAnimating()
             
-            guard let stories = stories else {
-                ErrorController.showErrorNotification(error)
+            guard let stories = result.value else {                
+                ErrorController.showErrorNotification(result.error)
                 return
             }
             
@@ -106,11 +106,6 @@ extension StoriesViewController {
     
     func storyForIndexPath(_ indexPath: IndexPath) -> Story {
         return stories[(indexPath as NSIndexPath).item]
-    }
-    
-    func indexPathForStory(_ story: Story) -> IndexPath? {
-        guard let index = stories.index(of: story) else { return nil }
-        return IndexPath(row: index, section: 0)
     }
     
     func storyForCell(_ cell: StoryCell) -> Story? {

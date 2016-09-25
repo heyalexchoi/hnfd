@@ -10,12 +10,10 @@ import Foundation
 import Alamofire
 import SwiftyJSON
 
+typealias Result = Alamofire.Result
+
 protocol Downloadable {
     var cacheKey: String { get }
-}
-
-protocol JSONSerializable {
-    init?(json: JSON)
 }
 
 struct Downloader {
@@ -37,42 +35,161 @@ struct Downloader {
     }
 }
 
-extension Downloader {
+protocol ResponseObjectSerializable {
+    init?(json: JSON)
+}
+
+protocol DataSerializable {
+    var asData: Data { get }
+}
+
+protocol JSONSerializable {
+    var asJSON: Any { get }
+}
+
+struct ResponseObjectSerializer {
     
     static let responseProcessingQueue = OperationQueue()
+    static let completionReturnQueue = OperationQueue.main
     
-    static func downloadStories(_ type: StoriesType, completion: ((_ stories: [Story]?, _ error: HNFDError?) -> Void)?) {
-        let request = HNFDRouter.stories(type: type)
-        let fileURL = Cache.shared().diskCache.encodedFileURL(forKey: type.cacheKey)
-        self.download(request, destinationURL: fileURL)
-            .downloadProgress { progress in
-                print(progress)
-                // probs wont keep this
-                // This closure is NOT called on the main queue for performance
-                // reasons. To update your ui, dispatch to the main queue.
-                DispatchQueue.main.async {
-                    debugPrint("Total bytes read on main queue: \(progress)")
+    // MARK: - Serialize Download Responses
+    
+    /* works with alamofire's request request response json to turn json objects <Any> into a ResponseObjectSerializable model object. Work is performed on response processing queue and completion block results are returned on completion return queue */
+    static func serialize<T: ResponseObjectSerializable>(response: Alamofire.DownloadResponse<Any>, completion: @escaping (Result<T>) -> Void) {
+        
+        switch response.result {
+        case .success(let json):
+            serialize(any: json, completion: completion)
+        case .failure(let error):
+            completion(Result.failure(error))
+        }
+    }
+    
+    /* works with alamofire's request request response json to turn json objects <Any> into a an array of ResponseObjectSerializable model objects. Work is performed on response processing queue and completion block results are returned on completion return queue */
+    static func serialize<T: ResponseObjectSerializable>(response: Alamofire.DownloadResponse<Any>, completion: @escaping (Result<[T]>) -> Void) {
+        
+        switch response.result {
+        case .success(let json):
+            serialize(any: json, completion: completion)
+        case .failure(let error):
+            completion(Result.failure(error))
+        }
+    }
+    
+    // MARK: - Serialize type 'Any' json objects
+    
+    static func serialize<T: ResponseObjectSerializable>(any: Any, completion: @escaping (Result<[T]>) -> Void) {
+        
+        self.responseProcessingQueue.addOperation({ () -> Void in
+            
+            let swiftyJSON = JSON(json: any).arrayValue
+            
+            let serialized = swiftyJSON
+                .filter { return $0 != nil } // dirty fix for cleaning out null stories from response. did not go with failable initializer on Story  because there's a bug in the swift compiler that makes it hard to fail initializer on class objects. TO DO: allow failable initializer on model objects
+                .map({ (json) -> T? in
+                    return T(json: json)
+                })
+                .filter({ (responseObjectSerializable) -> Bool in
+                    return responseObjectSerializable != nil
+                })
+                .map({ (optionalResponsesObjectSerializable) -> T in
+                    return optionalResponsesObjectSerializable!
+                })
+            
+            completionReturnQueue.addOperation {
+                completion(Result.success(serialized))
+            }
+        })
+    }
+    
+    static func serialize<T: ResponseObjectSerializable>(any: Any, completion: @escaping (Result<T>) -> Void) {
+        
+        self.responseProcessingQueue.addOperation({ () -> Void in
+            
+            let swiftyJSON = JSON(json: any)
+            let serialized = T(json: swiftyJSON)
+            
+            completionReturnQueue.addOperation {
+                
+                if let serialized = serialized {
+                    completion(Result.success(serialized))
+                } else {
+                    completion(Result.failure(HNFDError.responseObjectSerializableFailedToInitialize(unserializedObject: any)))
                 }
             }
+        })
+    }
+    
+    static func serialize<T: ResponseObjectSerializable>(data: Data, completion: @escaping (Result<T>) -> Void) {
+        
+        self.responseProcessingQueue.addOperation({ () -> Void in
+            do {
+                let json = try JSONSerialization.jsonObject(with: data, options: [.allowFragments])
+                self.serialize(any: json, completion: completion)
+            } catch let error {
+                completion(Result.failure(error))
+            }
+        })
+    }
+    
+    static func serialize<T: ResponseObjectSerializable>(data: Data, completion: @escaping (Result<[T]>) -> Void) {
+        
+        self.responseProcessingQueue.addOperation({ () -> Void in
+            do {
+                let json = try JSONSerialization.jsonObject(with: data, options: [.allowFragments])
+                self.serialize(any: json, completion: completion)
+            } catch let error {
+                completion(Result.failure(error))
+            }
+        })
+    }
+    
+}
+
+extension Downloader {
+    /* Downloads file for request to destination URL, and serializes result to provided response object serializable type */
+    @discardableResult static func download<T: ResponseObjectSerializable>(_ request: URLRequestConvertible, destinationURL: URL, completion: ((_ result: Result<T>) -> Void)?) -> DownloadRequest {
+        return download(request, destinationURL: destinationURL)
             .validate()
-            .responseData(completionHandler: { (response) in
-                switch response.result {
-                case .success(let data):
-                    // TO DO: this can probably be extracted into a response serializer that takes a type and response  - and returns success(serialized instance of type)/error
-                    self.responseProcessingQueue.addOperation({ () -> Void in
-                        let stories = JSON(data: data).arrayValue
-                            .filter { return $0 != nil } // dirty fix for cleaning out null stories from response. did not go with failable initializer on Story  because there's a bug in the swift compiler that makes it hard to fail initializer on class objects.
-                            .map { Story(json: $0) }
-                        OperationQueue.main.addOperation({ () -> Void in
-                            completion?(stories, nil)
-                        })
-                    })
-                case .failure(let error):
-                    // TO DO: better error handling?
-                    debugPrint(error)
-                    completion?(nil, (error as! HNFDError)) // is this ok?
-                }
+            // .downloadProgress can also be inserted here
+            .responseJSON(completionHandler: { (response) in
+                guard let completion = completion else { return }
+                ResponseObjectSerializer.serialize(response: response, completion: completion)
             })
+    }
+    /* Downloads file for request to destination URL, and serializes result to provided response object serializable type */
+    @discardableResult static func download<T: ResponseObjectSerializable>(_ request: URLRequestConvertible, destinationURL: URL, completion: ((_ result: Result<[T]>) -> Void)?) -> DownloadRequest {
+        return download(request, destinationURL: destinationURL)
+            .validate()
+            // .downloadProgress can also be inserted here
+            .responseJSON(completionHandler: { (response) in
+                guard let completion = completion else { return }
+                ResponseObjectSerializer.serialize(response: response, completion: completion)
+            })
+    }
+}
+// MARK: - Story
+extension Downloader {
+    
+    @discardableResult static func downloadStory(_ id: Int, completion: ((_ result: Result<Story>) -> Void)?) -> DownloadRequest {
+        let request = HNFDRouter.story(id: id)
+        let fileURL = DataSource.cache.fileURL(forKey: Story.cacheKey(id))
+        return download(request, destinationURL: fileURL, completion: completion)
+    }
+    
+    @discardableResult static func downloadStories(_ type: StoriesType, completion: ((_ result: Result<[Story]>) -> Void)?) -> DownloadRequest {
+        let request = HNFDRouter.stories(type: type)
+        let fileURL = DataSource.cache.fileURL(forKey: type.cacheKey)
+        return download(request, destinationURL: fileURL, completion: completion)
+    }
+}
+// MARK: - Article
+extension Downloader {
+    
+    @discardableResult static func downloadArticle(URLString: String, completion: ((_ result: Result<ReadabilityArticle>) -> Void)?) -> DownloadRequest {
+        let request = ReadabilityRouter.article(URLString: URLString)
+        let fileURL = DataSource.cache.fileURL(forKey: ReadabilityArticle.cacheKeyForURLString(URLString))
+        return download(request, destinationURL: fileURL, completion: completion)
     }
 }
 
@@ -115,7 +232,7 @@ enum HNFDRouter: URLRequestConvertible {
 
 enum ReadabilityRouter: URLRequestConvertible {
     
-    case article(URL: URL)
+    case article(URLString: String)
     
     var method: Alamofire.HTTPMethod {
         switch self {
@@ -133,9 +250,9 @@ enum ReadabilityRouter: URLRequestConvertible {
     
     var parameters: [String: AnyObject] {
         switch self {
-        case .article(let URL):
+        case .article(let URLString):
             return [
-                "url": URL as AnyObject,
+                "url": URLString as AnyObject,
                 "token": Private.Keys.readabilityParserAPIToken as AnyObject
             ]
         }
