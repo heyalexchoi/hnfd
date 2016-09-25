@@ -168,18 +168,27 @@ extension Downloader {
             })
     }
 }
-
+// MARK: - Story
 extension Downloader {
     
-    static func downloadStory(_ id: Int, completion: ((_ result: Result<Story>) -> Void)?) {
+    @discardableResult static func downloadStory(_ id: Int, completion: ((_ result: Result<Story>) -> Void)?) -> DownloadRequest {
         let request = HNFDRouter.story(id: id)
         let fileURL = DataSource.cache.fileURL(forKey: Story.cacheKey(id))
         return download(request, destinationURL: fileURL, completion: completion)
     }
     
-    static func downloadStories(_ type: StoriesType, completion: ((_ result: Result<[Story]>) -> Void)?) -> DownloadRequest {
+    @discardableResult static func downloadStories(_ type: StoriesType, completion: ((_ result: Result<[Story]>) -> Void)?) -> DownloadRequest {
         let request = HNFDRouter.stories(type: type)
         let fileURL = DataSource.cache.fileURL(forKey: type.cacheKey)
+        return download(request, destinationURL: fileURL, completion: completion)
+    }
+}
+// MARK: - Article
+extension Downloader {
+    
+    @discardableResult static func downloadArticle(URLString: String, completion: ((_ result: Result<ReadabilityArticle>) -> Void)?) -> DownloadRequest {
+        let request = ReadabilityRouter.article(URLString: URLString)
+        let fileURL = DataSource.cache.fileURL(forKey: ReadabilityArticle.cacheKeyForURLString(URLString))
         return download(request, destinationURL: fileURL, completion: completion)
     }
 }
@@ -223,7 +232,7 @@ enum HNFDRouter: URLRequestConvertible {
 
 enum ReadabilityRouter: URLRequestConvertible {
     
-    case article(URL: URL)
+    case article(URLString: String)
     
     var method: Alamofire.HTTPMethod {
         switch self {
@@ -241,9 +250,9 @@ enum ReadabilityRouter: URLRequestConvertible {
     
     var parameters: [String: AnyObject] {
         switch self {
-        case .article(let URL):
+        case .article(let URLString):
             return [
-                "url": URL as AnyObject,
+                "url": URLString as AnyObject,
                 "token": Private.Keys.readabilityParserAPIToken as AnyObject
             ]
         }

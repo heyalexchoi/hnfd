@@ -11,7 +11,6 @@ import Reachability
 
 struct DataSource {
     
-    static let readabilityAPIClient = ReadabilityAPIClient()    
     static let cache = Cache.shared
     static let reachability: Reachability? = {
         guard let reachability = Reachability() else {
@@ -63,29 +62,18 @@ extension DataSource {
     
     // MARK: - Articles
     
-    static func getArticle(_ story: Story, refresh: Bool = false, completion: @escaping ((_ article: ReadabilityArticle?, _ error: HNFDError?) -> Void)) {
-        guard let URL = story.URL else {
-            completion(nil, HNFDError.storyHasNoArticleURL)
+    static func getArticle(_ story: Story, refresh: Bool = false, completion: @escaping ((_ result: Result<ReadabilityArticle>) -> Void)) {
+        guard let URLString = story.URLString else {
+            completion(Result.failure(HNFDError.storyHasNoArticleURL))
             return
         }
         // articles are generally static. it'll generally be safe (and faster) to grab the article from the cache. if network requests can be made then refresh can override the cache
         if (!story.isArticleCached || refresh) && shouldMakeNetworkRequest {
-            _ = readabilityAPIClient.getParsedArticleForURL(URL, completion: { (article, error) in
-                guard let article = article else {
-                    OperationQueue.main.addOperation { completion(nil, error) }
-                    return
-                }
-                
-                cache.setArticle(article, completion: nil)
-                OperationQueue.main.addOperation {completion(article, nil) }
-            })
+            Downloader.downloadArticle(URLString: URLString, completion: completion)
         } else {
-            cache.getArticle(story, completion: { (article) in
-                OperationQueue.main.addOperation { completion( article, nil) }
-            })
+            cache.getArticle(story, completion: completion)
         }
-    }
-    
+    }    
 }
 
 extension DataSource {

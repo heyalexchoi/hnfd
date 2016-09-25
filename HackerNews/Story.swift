@@ -140,17 +140,6 @@ struct Story: ResponseObjectSerializable, DataSerializable, JSONSerializable {
         return Data()
     }
     
-    
-//    init(coder decoder: NSCoder) {
-//        let json: AnyObject = decoder.decodeObject(forKey: "json")! as AnyObject
-//        self.init(json:JSON(json))
-//    }
-    
-//    func encode(with coder: NSCoder) {
-//        coder.encode(toJSON(), forKey: "json")
-//    }    
-    
-    
 //    override var hash: Int {
 //        return hashValue
 //    }

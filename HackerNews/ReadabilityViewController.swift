@@ -72,8 +72,7 @@ class ReadabilityViewContoller: UIViewController {
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         scrollToReadingProgress()
-    }
-    
+    }    
 }
 
 extension ReadabilityViewContoller {
@@ -95,12 +94,15 @@ extension ReadabilityViewContoller {
     
     func getReadabilityArticle() {
         ProgressHUD.showAdded(to: view, animated: true)
-        DataSource.getArticle(story, completion: { [weak self] (article, error) -> Void in
+        DataSource.getArticle(story, completion: { [weak self] (result) -> Void in
             ProgressHUD.hide(for: self?.view, animated: true)
+            guard let article = result.value else {
+                ErrorController.showErrorNotification(result.error)
+                return
+            }
             self?.article = article
             self?.finishLoadingArticle()
-            ErrorController.showErrorNotification(error)
-            })
+        })
     }
     
     func finishLoadingArticle() {

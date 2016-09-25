@@ -20,7 +20,6 @@
 		1714DC051CB73EBB0059E88E /* DataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1714DC041CB73EBB0059E88E /* DataSource.swift */; };
 		1716D1F21CC993ED0027EE3A /* Reachability.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1716D1F11CC993ED0027EE3A /* Reachability.framework */; };
 		17183A3A1AE202CC007F7163 /* ProgressHUD.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17183A391AE202CC007F7163 /* ProgressHUD.swift */; };
-		1722C0DF1AE17F8B00DCA87C /* ReadabilityAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1722C0DE1AE17F8B00DCA87C /* ReadabilityAPIClient.swift */; };
 		174A9A221AE19F05008CB6FC /* Label.swift in Sources */ = {isa = PBXBuildFile; fileRef = 174A9A211AE19F05008CB6FC /* Label.swift */; };
 		1751B5D01AEE0A4B000ADF55 /* DateTools.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 1751B5CF1AEE0A4B000ADF55 /* DateTools.bundle */; };
 		175997821B52419B00E3F263 /* DateFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 175997811B52419B00E3F263 /* DateFormatter.swift */; };
@@ -81,7 +80,6 @@
 		1714DC041CB73EBB0059E88E /* DataSource.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DataSource.swift; sourceTree = "<group>"; };
 		1716D1F11CC993ED0027EE3A /* Reachability.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Reachability.framework; path = Carthage/Build/iOS/Reachability.framework; sourceTree = "<group>"; };
 		17183A391AE202CC007F7163 /* ProgressHUD.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProgressHUD.swift; sourceTree = "<group>"; };
-		1722C0DE1AE17F8B00DCA87C /* ReadabilityAPIClient.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReadabilityAPIClient.swift; sourceTree = "<group>"; };
 		174A9A211AE19F05008CB6FC /* Label.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Label.swift; sourceTree = "<group>"; };
 		1751B5CF1AEE0A4B000ADF55 /* DateTools.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = DateTools.bundle; sourceTree = "<group>"; };
 		175997811B52419B00E3F263 /* DateFormatter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DateFormatter.swift; sourceTree = "<group>"; };
@@ -263,7 +261,6 @@
 		174A9A251AE1A00A008CB6FC /* APIClients */ = {
 			isa = PBXGroup;
 			children = (
-				1722C0DE1AE17F8B00DCA87C /* ReadabilityAPIClient.swift */,
 			);
 			name = APIClients;
 			sourceTree = "<group>";
@@ -501,7 +498,6 @@
 				17FB84D91AE20B7500C87786 /* Appearance.swift in Sources */,
 				17CC031E1AFEA88D005719A7 /* TextView.swift in Sources */,
 				176156D01BF7F05B001D6ACA /* UIViewControllerExtension.swift in Sources */,
-				1722C0DF1AE17F8B00DCA87C /* ReadabilityAPIClient.swift in Sources */,
 				174A9A221AE19F05008CB6FC /* Label.swift in Sources */,
 				17F20FF11B7EE6E7005EB2FF /* HNFDError.swift in Sources */,
 				17922A201B005BAD001460B2 /* ReadabilityArticle.swift in Sources */,

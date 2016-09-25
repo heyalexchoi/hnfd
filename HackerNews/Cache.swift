@@ -122,19 +122,17 @@ struct Cache {
     
     // MARK: - ARTICLES
     
-//    func getArticle(_ story: Story, completion: @escaping (ReadabilityArticle?) -> Void) {
-//        guard let cacheKey = story.articleCacheKey else {
-//            completion(nil)
-//            return
-//        }
-//        object(forKey: cacheKey, block: { (cache, key, value) -> Void in
-//            completion(value as? ReadabilityArticle)
-//        })
-//    }
+    func getArticle(_ story: Story, completion: @escaping (_ result: Result<ReadabilityArticle>) -> Void) {
+        guard let cacheKey = story.articleCacheKey else {
+            completion(Result.failure(HNFDError.storyHasNoArticleURL))
+            return
+        }
+        getObject(forKey: cacheKey, completion: completion)
+    }
     
-//    func setArticle(_ article: ReadabilityArticle, completion: PINCacheObjectBlock?) {
-//        setObject(article, forKey: article.cacheKey, block: completion)
-//    }
+    func setArticle(_ article: ReadabilityArticle) {
+        setObject(forKey: article.cacheKey, object: article)        
+    }
 
 }
 
