@@ -106,7 +106,8 @@ struct Story: ResponseObjectSerializable {
         self.attributedText = data.count > 0 ? NSAttributedString(htmlData: data, options: [DTUseiOS6Attributes: true, DTDefaultFontName: UIFont.textReaderFont().fontName, DTDefaultFontSize: UIFont.textReaderFont().pointSize, DTDefaultTextColor: UIColor.textColor(), DTDefaultLinkColor: UIColor.tintColor()], documentAttributes: nil) : NSAttributedString(string: "")
         self.time = json["time"].intValue
         self.title = json["title"].stringValue
-        self.kind = Kind(rawValue: json["type"].stringValue)!
+        guard let kind = Kind(rawValue: json["type"].stringValue) else { return nil }
+        self.kind = kind
         self.URLString = json["url"].string
         self.URL = Foundation.URL(string: json["url"].string ?? "")
         self.children = json["children"].arrayValue.map { Comment(json: $0, level: 1) } .filter { !$0.deleted }

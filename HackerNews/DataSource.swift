@@ -11,8 +11,7 @@ import Reachability
 
 struct DataSource {
     
-    static let readabilityAPIClient = ReadabilityAPIClient()
-    static let hnAPIClient = HNAPIClient()
+    static let readabilityAPIClient = ReadabilityAPIClient()    
     static let cache = Cache.shared()
     static let reachability: Reachability? = {
         guard let reachability = Reachability() else {
@@ -40,25 +39,26 @@ extension DataSource {
             return
         }
         Downloader.downloadStories(type) { (result) in
+            if let stories = result.value {
+                cache.setStories(type, stories: stories)
+            }
+            
             completion(result)
         }
     }
     
-    static func getStory(_ id: Int, refresh: Bool = false, completion: @escaping (_ story: Story?, _ error: HNFDError?) -> Void) {
+    static func getStory(_ id: Int, refresh: Bool = false, completion: @escaping (_ result: Result<Story>) -> Void) {
         // will use cached story unless refresh requested (and network available)
         if (!Story.isCached(id) || refresh) && shouldMakeNetworkRequest {
-            _ = hnAPIClient.getStory(id) { (story, error) in
-                guard let story = story else {
-                    OperationQueue.main.addOperation { completion(nil, error) }
-                    return
+            Downloader.downloadStory(id, completion: { (result) in
+                if let story = result.value {
+                    cache.setStory(story)
                 }
-                
-                cache.setStory(story, nil)
-                OperationQueue.main.addOperation { completion(story, nil) }
-            }
+                completion(result)
+            })
         } else {
-            cache.getStory(id, completion: { (story) in
-                OperationQueue.main.addOperation { completion(story, nil) }
+            cache.getStory(id, completion: { (result) in
+                OperationQueue.main.addOperation { completion(result) }
             })
         }
     }
@@ -95,35 +95,35 @@ extension DataSource {
 
 extension DataSource {
     
-    static func refreshAll(_ intervalHandler: ((_ intervalResult: Any?) -> Void)? = nil, completion: (() -> Void)? = nil) {
-        // get top stories and maybe selected kinds of stories
-        // get all stories and article for each
-        let storiesType = StoriesType.Top
-        getStories(storiesType, refresh: true) { (stories, error) in
-            intervalHandler?(stories)
-            guard let stories = stories else {
-                // ?
-                completion?()
-                return
-            }
-            
-            for story in stories {
-                getStory(story.id, refresh: true, completion: { (story, error) in
-                    intervalHandler?(story)
-                    guard let _ = story else {
-                        // would i even do anything?
-                        return
-                    }
-                })
-                getArticle(story, refresh: false, completion: { (article, error) in
-                    intervalHandler?(article)
-                    guard let _ = article else {
-                        // ?
-                        return
-                    }
-                })
-                // oops i don't have the promise shit to call completion properly
-            }
-        }
-    }
+//    static func refreshAll(_ intervalHandler: ((_ intervalResult: Any?) -> Void)? = nil, completion: (() -> Void)? = nil) {
+//        // get top stories and maybe selected kinds of stories
+//        // get all stories and article for each
+//        let storiesType = StoriesType.Top
+//        getStories(storiesType, refresh: true) { (stories, error) in
+//            intervalHandler?(stories)
+//            guard let stories = stories else {
+//                // ?
+//                completion?()
+//                return
+//            }
+//            
+//            for story in stories {
+//                getStory(story.id, refresh: true, completion: { (story, error) in
+//                    intervalHandler?(story)
+//                    guard let _ = story else {
+//                        // would i even do anything?
+//                        return
+//                    }
+//                })
+//                getArticle(story, refresh: false, completion: { (article, error) in
+//                    intervalHandler?(article)
+//                    guard let _ = article else {
+//                        // ?
+//                        return
+//                    }
+//                })
+//                // oops i don't have the promise shit to call completion properly
+//            }
+//        }
+//    }
 }

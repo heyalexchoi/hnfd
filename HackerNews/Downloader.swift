@@ -110,7 +110,7 @@ struct ResponseObjectSerializer {
                 if let serialized = serialized {
                     completion(Result.success(serialized))
                 } else {
-                    completion(Result.failure(HNFDError.responseObjectSerializableFailedToInitialize))
+                    completion(Result.failure(HNFDError.responseObjectSerializableFailedToInitialize(unserializedObject: any)))
                 }
             }
         })
@@ -119,7 +119,7 @@ struct ResponseObjectSerializer {
 
 extension Downloader {
     
-    static let responseProcessingQueue = OperationQueue()
+    // TO DO: can abstract out a download / progress / save / serialize method
     
     static func downloadStories(_ type: StoriesType, completion: ((_ result: Result<[Story]>) -> Void)?) {
         let request = HNFDRouter.stories(type: type)
@@ -132,6 +132,17 @@ extension Downloader {
                     debugPrint("Total bytes read on main queue: \(progress)")
                 }
             }
+            .validate()
+            .responseJSON(completionHandler: { (response) in
+                guard let completion = completion else { return }
+                ResponseObjectSerializer.serialize(response: response, completion: completion)
+            })
+    }
+    
+    static func downloadStory(_ id: Int, completion: ((_ result: Result<Story>) -> Void)?) {
+        let request = HNFDRouter.story(id: id)
+        let fileURL = Cache.shared().diskCache.encodedFileURL(forKey: Story.cacheKey(id))
+        self.download(request, destinationURL: fileURL)
             .validate()
             .responseJSON(completionHandler: { (response) in
                 guard let completion = completion else { return }

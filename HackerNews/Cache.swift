@@ -28,8 +28,10 @@ class Cache: PINCache {
         objects(forKey: type.rawValue, completion: completion)
     }
     
-    func setStories(_ type: StoriesType, stories: [Story], completion: PINCacheObjectBlock?) {
-        setObject(stories as NSCoding, forKey: type.rawValue, block: completion)
+    func setStories(_ type: StoriesType, stories: [Story]) {
+        let jsonStories = stories.map { $0.asJSON }
+        let archivedStories = NSKeyedArchiver.archivedData(withRootObject: jsonStories)
+        setObject(archivedStories as NSCoding, forKey: type.rawValue, block: nil)
     }
     
     // MARK: - STORY
