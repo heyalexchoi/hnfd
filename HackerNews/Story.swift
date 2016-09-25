@@ -14,6 +14,7 @@ extension StoriesType: Downloadable {
         return rawValue
     }
 }
+
 extension Story: Downloadable {
     var cacheKey: String {
         return type(of: self).cacheKey(id)
@@ -33,7 +34,7 @@ enum StoriesType: String {
         return rawValue.replacingOccurrences(of: "stories", with: " stories").capitalized
     }
     var isCached: Bool {
-        return Cache.shared().hasFileCachedItemForKey(cacheKey)
+        return Cache.shared.hasFileCachedItemForKey(cacheKey)
     }
 }
 
@@ -47,7 +48,7 @@ extension Story { // HASHABLE
 //    }
 }
 
-struct Story: ResponseObjectSerializable {
+struct Story: ResponseObjectSerializable, DataSerializable, JSONSerializable {
     
     enum Kind: String {
         case Job = "job",
@@ -81,17 +82,17 @@ struct Story: ResponseObjectSerializable {
         return "cached_story_\(id)"
     }
     static func isCached(_ id: Int) -> Bool {
-        return Cache.shared().hasFileCachedItemForKey(cacheKey(id))
+        return Cache.shared.hasFileCachedItemForKey(cacheKey(id))
     }
     var articleCacheKey: String? {
         guard let URLString = URLString else { return nil }
         return ReadabilityArticle.cacheKeyForURLString(URLString)
     }
     var isCached: Bool {
-        return Cache.shared().hasFileCachedItemForKey(cacheKey)
+        return Cache.shared.hasFileCachedItemForKey(cacheKey)
     }
     var isArticleCached: Bool {
-        return Cache.shared().hasFileCachedItemForKey(articleCacheKey)
+        return Cache.shared.hasFileCachedItemForKey(articleCacheKey)
     }
     
     init?(json: JSON) {
@@ -115,7 +116,7 @@ struct Story: ResponseObjectSerializable {
         self.updated = json["updated"].stringValue
     }
     
-    var asJSON: NSDictionary {
+    var asJSON: Any {
         return [
             "by": by,
             "descendants": descendants,
@@ -129,6 +130,14 @@ struct Story: ResponseObjectSerializable {
             "url": URL?.absoluteString ?? "",
             "children": children.map { $0.toJSON() }
         ]
+    }
+    
+    var asData: Data {
+        if let data = try? JSONSerialization.data(withJSONObject: asJSON) {
+            return data
+        }
+        debugPrint("Story failed to serialize to JSON: \(self)")
+        return Data()
     }
     
     

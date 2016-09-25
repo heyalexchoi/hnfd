@@ -12,7 +12,7 @@ import Reachability
 struct DataSource {
     
     static let readabilityAPIClient = ReadabilityAPIClient()    
-    static let cache = Cache.shared()
+    static let cache = Cache.shared
     static let reachability: Reachability? = {
         guard let reachability = Reachability() else {
             ErrorController.showErrorNotification(HNFDError.unableToCreateReachability)
@@ -39,10 +39,6 @@ extension DataSource {
             return
         }
         Downloader.downloadStories(type) { (result) in
-            if let stories = result.value {
-                cache.setStories(type, stories: stories)
-            }
-            
             completion(result)
         }
     }
@@ -51,14 +47,13 @@ extension DataSource {
         // will use cached story unless refresh requested (and network available)
         if (!Story.isCached(id) || refresh) && shouldMakeNetworkRequest {
             Downloader.downloadStory(id, completion: { (result) in
-                if let story = result.value {
-                    cache.setStory(story)
-                }
                 completion(result)
             })
         } else {
             cache.getStory(id, completion: { (result) in
-                OperationQueue.main.addOperation { completion(result) }
+                OperationQueue.main.addOperation {
+                    completion(result)                    
+                }
             })
         }
     }

@@ -76,11 +76,6 @@ class ReadabilityArticle: NSObject, NSCoding {
     
     class func cacheKeyForURLString(_ urlString: String) -> String {
         return "cached_article_\(urlString)"
-    }
-    
-    func save() {        
-        Cache.shared().setArticle(self, completion: nil)
-    }
-    
+    }    
 }
 

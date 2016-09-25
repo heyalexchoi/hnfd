@@ -16,10 +16,6 @@ protocol Downloadable {
     var cacheKey: String { get }
 }
 
-protocol JSONSerializable {
-    init?(json: JSON)
-}
-
 struct Downloader {
     
     static let backgroundManager: Alamofire.SessionManager = {
@@ -41,6 +37,14 @@ struct Downloader {
 
 protocol ResponseObjectSerializable {
     init?(json: JSON)
+}
+
+protocol DataSerializable {
+    var asData: Data { get }
+}
+
+protocol JSONSerializable {
+    var asJSON: Any { get }
 }
 
 struct ResponseObjectSerializer {
@@ -115,39 +119,68 @@ struct ResponseObjectSerializer {
             }
         })
     }
+    
+    static func serialize<T: ResponseObjectSerializable>(data: Data, completion: @escaping (Result<T>) -> Void) {
+        
+        self.responseProcessingQueue.addOperation({ () -> Void in
+            do {
+                let json = try JSONSerialization.jsonObject(with: data, options: [.allowFragments])
+                self.serialize(any: json, completion: completion)
+            } catch let error {
+                completion(Result.failure(error))
+            }
+        })
+    }
+    
+    static func serialize<T: ResponseObjectSerializable>(data: Data, completion: @escaping (Result<[T]>) -> Void) {
+        
+        self.responseProcessingQueue.addOperation({ () -> Void in
+            do {
+                let json = try JSONSerialization.jsonObject(with: data, options: [.allowFragments])
+                self.serialize(any: json, completion: completion)
+            } catch let error {
+                completion(Result.failure(error))
+            }
+        })
+    }
+    
 }
 
 extension Downloader {
-    
-    // TO DO: can abstract out a download / progress / save / serialize method
-    
-    static func downloadStories(_ type: StoriesType, completion: ((_ result: Result<[Story]>) -> Void)?) {
-        let request = HNFDRouter.stories(type: type)
-        let fileURL = Cache.shared().diskCache.encodedFileURL(forKey: type.cacheKey)
-        self.download(request, destinationURL: fileURL)
-            .downloadProgress { progress in
-                // This closure is NOT called on the main queue for performance
-                // reasons. To update your ui, dispatch to the main queue.
-                DispatchQueue.main.async {
-                    debugPrint("Total bytes read on main queue: \(progress)")
-                }
-            }
+    /* Downloads file for request to destination URL, and serializes result to provided response object serializable type */
+    @discardableResult static func download<T: ResponseObjectSerializable>(_ request: URLRequestConvertible, destinationURL: URL, completion: ((_ result: Result<T>) -> Void)?) -> DownloadRequest {
+        return download(request, destinationURL: destinationURL)
             .validate()
+            // .downloadProgress can also be inserted here
             .responseJSON(completionHandler: { (response) in
                 guard let completion = completion else { return }
                 ResponseObjectSerializer.serialize(response: response, completion: completion)
             })
     }
-    
-    static func downloadStory(_ id: Int, completion: ((_ result: Result<Story>) -> Void)?) {
-        let request = HNFDRouter.story(id: id)
-        let fileURL = Cache.shared().diskCache.encodedFileURL(forKey: Story.cacheKey(id))
-        self.download(request, destinationURL: fileURL)
+    /* Downloads file for request to destination URL, and serializes result to provided response object serializable type */
+    @discardableResult static func download<T: ResponseObjectSerializable>(_ request: URLRequestConvertible, destinationURL: URL, completion: ((_ result: Result<[T]>) -> Void)?) -> DownloadRequest {
+        return download(request, destinationURL: destinationURL)
             .validate()
+            // .downloadProgress can also be inserted here
             .responseJSON(completionHandler: { (response) in
                 guard let completion = completion else { return }
                 ResponseObjectSerializer.serialize(response: response, completion: completion)
             })
+    }
+}
+
+extension Downloader {
+    
+    static func downloadStory(_ id: Int, completion: ((_ result: Result<Story>) -> Void)?) {
+        let request = HNFDRouter.story(id: id)
+        let fileURL = DataSource.cache.fileURL(forKey: Story.cacheKey(id))
+        return download(request, destinationURL: fileURL, completion: completion)
+    }
+    
+    static func downloadStories(_ type: StoriesType, completion: ((_ result: Result<[Story]>) -> Void)?) -> DownloadRequest {
+        let request = HNFDRouter.stories(type: type)
+        let fileURL = DataSource.cache.fileURL(forKey: type.cacheKey)
+        return download(request, destinationURL: fileURL, completion: completion)
     }
 }
 

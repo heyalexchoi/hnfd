@@ -108,11 +108,6 @@ extension StoriesViewController {
         return stories[(indexPath as NSIndexPath).item]
     }
     
-//    func indexPathForStory(_ story: Story) -> IndexPath? {
-//        guard let index = stories.index(of: story) else { return nil }
-//        return IndexPath(row: index, section: 0)
-//    }
-    
     func storyForCell(_ cell: StoryCell) -> Story? {
         guard let indexPath = tableView.indexPath(for: cell) else { return nil }
         return storyForIndexPath(indexPath)
