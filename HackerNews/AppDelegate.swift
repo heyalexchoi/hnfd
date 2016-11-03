@@ -32,16 +32,21 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
     
     func application(_ application: UIApplication, performFetchWithCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
-//        // 30 seconds to do the shit
-//        print("start! \(NSDate())")
-//        let start = NSDate()
-//        DataSource.refreshAll({ (intervalResult) in
-//            let time = NSDate()
-//            
-//            print("\(NSDate()) interval result! \(intervalResult)")
-//            }, completion: nil)
-//        
-//        print("end! \(NSDate())")
+        
+        let start = Date()
+        
+        debugPrint("application performFetchWithCompletionHandler invoked at \(start)")
+        DataSource.fullySync(storiesType: .Top) { (storyResult, articleResult) in
+
+            debugPrint("data source fully sync item completion invoked \(-start.timeIntervalSinceNow) since start")
+            debugPrint("storyResult: \(storyResult.value != nil)")
+            debugPrint("articleResult: \(articleResult.value != nil)")
+            
+            if start.timeIntervalSinceNow < -25 {
+                debugPrint("invoking background fetch result completion handler")
+                completionHandler(UIBackgroundFetchResult.newData)
+            }
+        }
     }
     
     func application(_ application: UIApplication, handleEventsForBackgroundURLSession identifier: String, completionHandler: @escaping () -> Void) {

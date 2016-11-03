@@ -84,4 +84,3 @@ extension Downloader {
         return download(request, destinationURL: fileURL, completion: completion)
     }
 }
-

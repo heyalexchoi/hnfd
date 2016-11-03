@@ -75,6 +75,10 @@ class StoryCell: UITableViewCell {
         byTimeSpace.translatesAutoresizingMaskIntoConstraints = false
         articleContainer.addSubview(byTimeSpace)
         
+        commentsLabel.numberOfLines = 0
+        commentsLabel.lineBreakMode = .byWordWrapping
+        commentsLabel.textAlignment = .center
+        
         commentsLabel.translatesAutoresizingMaskIntoConstraints = false
         commentsContainer.addSubview(commentsLabel)
         
@@ -118,7 +122,7 @@ class StoryCell: UITableViewCell {
         contentView.backgroundColor = UIColor.backgroundColor()        
         _ = articleContainer.anchorCenterYToCenterYOfView(contentView)
         _ = contentView.addConstraints(withVisualFormats: [
-            "H:|-15-[articleContainer]-5-[commentsContainer(==40)]|",
+            "H:|-15-[articleContainer]-15-[commentsContainer(==75)]|",
             "V:|[commentsContainer]|",
             "H:|[articleButton][commentsButton(==commentsContainer)]|",
             "V:|[articleContainer]|",
@@ -149,7 +153,16 @@ class StoryCell: UITableViewCell {
     func prepare(_ story: Story) {
         titleLabel.text = story.title
         byLabel.setText("by \(story.by)", attributes: TextAttributes.detailAttributes)
-        commentsLabel.setText("\(story.descendants) comments", attributes: TextAttributes.detailAttributes)
+        
+        let commentsCountString = "\(story.descendants) comments"
+        let commentsCachedString = "comments: \(story.isCached)"
+        let articleCachedString = "article: \(story.isArticleCached)"
+        
+        let commentsString = commentsCountString
+            + "\n" + commentsCachedString
+            + "\n" + articleCachedString
+        
+        commentsLabel.setText(commentsString, attributes: TextAttributes.detailAttributes)
         scoreLabel.setText("\(story.score) points", attributes: TextAttributes.detailAttributes)
         timeLabel.setText(String((story.date as NSDate).timeAgoSinceNow()), attributes: TextAttributes.detailAttributes)
         URLLabel.setText(story.URL?.absoluteString, attributes: TextAttributes.detailAttributes)

@@ -75,10 +75,10 @@ extension StoriesViewController {
     
     func getStories(refresh: Bool = false, scrollToTop: Bool = false) {
         
+        // always refreshes right now. don't have endless scroll atm
         if !refresh {
             ProgressHUD.showAdded(to: view, animated: true)
         }
-
         DataSource.getStories(storiesType, refresh: refresh) { [weak self] (result: Result<[Story]>) -> Void in
             
             ProgressHUD.hideAllHUDs(for: self?.view, animated: true)
@@ -101,6 +101,14 @@ extension StoriesViewController {
             if scrollToTop {
                 self?.tableView.setContentOffset(CGPoint(x: 0, y: 0), animated: true)
             }
+            
+            for story in stories {
+                DataSource.fullySync(story: story.id, completion: { [weak self] (storyResult, articleResult) in
+                    if let indexPath = self?.indexPath(for: story) {
+                        self?.tableView.reloadRows(at: [indexPath], with: .none)
+                    }
+                })
+            }
         }
     }
     
@@ -112,7 +120,17 @@ extension StoriesViewController {
         guard let indexPath = tableView.indexPath(for: cell) else { return nil }
         return storyForIndexPath(indexPath)
     }
-
+    
+    func indexPath(for story: Story) -> IndexPath? {
+//        let index = stories.index { (story) -> Bool in
+//            story.
+//        }
+        guard let index = stories.index(where: { $0.id == story.id }) else {
+            return nil
+        }
+        
+        return IndexPath(item: index, section: 0)
+    }
 }
 
 // MARK: - Menu

@@ -31,12 +31,14 @@ extension DataSource {
     // MARK: - Stories
     
     static func getStories(_ type: StoriesType, refresh: Bool = false, completion: @escaping ((_ result: Result<[Story]>) -> Void)) {
-        if type.isCached && !refresh {
+        
+        guard shouldMakeNetworkRequest && (!type.isCached || refresh) else {
             cache.getStories(type, completion: { (result) in
                 OperationQueue.main.addOperation { completion(result) }
             })
             return
         }
+        
         Downloader.downloadStories(type) { (result) in
             completion(result)
         }
@@ -44,17 +46,16 @@ extension DataSource {
     
     static func getStory(_ id: Int, refresh: Bool = false, completion: @escaping (_ result: Result<Story>) -> Void) {
         // will use cached story unless refresh requested (and network available)
-        if (!Story.isCached(id) || refresh) && shouldMakeNetworkRequest {
-            Downloader.downloadStory(id, completion: { (result) in
-                completion(result)
-            })
-        } else {
+        guard shouldMakeNetworkRequest && (!Story.isCached(id) || refresh) else {
             cache.getStory(id, completion: { (result) in
-                OperationQueue.main.addOperation {
-                    completion(result)                    
-                }
+                OperationQueue.main.addOperation { completion(result) }
             })
+            return
         }
+        
+        Downloader.downloadStory(id, completion: { (result) in
+            completion(result)
+        })
     }
 }
 
@@ -77,36 +78,36 @@ extension DataSource {
 }
 
 extension DataSource {
+    // promise kit would make this whole thing a lot less shitty. is there promise reducing?
+    @discardableResult static func fullySync(storiesType type: StoriesType, completion: ((_ storyResult: Result<Story>, _ articleResult: Result<ReadabilityArticle>) -> Void)?) {
+        getStories(type) { (storiesResult: Result<[Story]>) in
+            guard let stories = storiesResult.value else {
+                completion?(Result.failure(storiesResult.error!), Result.failure(storiesResult.error!))
+                return
+            }
+            
+            for story in stories {
+                fullySync(story: story.id, completion: completion)
+            }
+        }
+    }
     
-//    static func refreshAll(_ intervalHandler: ((_ intervalResult: Any?) -> Void)? = nil, completion: (() -> Void)? = nil) {
-//        // get top stories and maybe selected kinds of stories
-//        // get all stories and article for each
-//        let storiesType = StoriesType.Top
-//        getStories(storiesType, refresh: true) { (stories, error) in
-//            intervalHandler?(stories)
-//            guard let stories = stories else {
-//                // ?
-//                completion?()
-//                return
-//            }
-//            
-//            for story in stories {
-//                getStory(story.id, refresh: true, completion: { (story, error) in
-//                    intervalHandler?(story)
-//                    guard let _ = story else {
-//                        // would i even do anything?
-//                        return
-//                    }
-//                })
-//                getArticle(story, refresh: false, completion: { (article, error) in
-//                    intervalHandler?(article)
-//                    guard let _ = article else {
-//                        // ?
-//                        return
-//                    }
-//                })
-//                // oops i don't have the promise shit to call completion properly
-//            }
-//        }
-//    }
+    @discardableResult static func fullySync(story id: Int, completion: ((_ storyResult: Result<Story>, _ articleResult: Result<ReadabilityArticle>) -> Void)?) {
+        // this could be problem prone - background task has 30 seconds to start all needed downloads and readability article is dependent on story
+        getStory(id, refresh: true) { (storyResult: Result<Story>) in
+            
+            guard let story = storyResult.value else {
+                completion?(Result.failure(storyResult.error!), Result.failure(storyResult.error!))
+                return
+            }
+            
+            getArticle(story, completion: { (articleResult: Result<ReadabilityArticle>) in
+                guard let article = articleResult.value else {
+                    completion?(Result.success(story), Result.failure(articleResult.error!))
+                    return
+                }
+                completion?(Result.success(story), Result.success(article))
+            })
+        }
+    }
 }
