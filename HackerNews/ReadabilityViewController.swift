@@ -27,7 +27,7 @@ class ReadabilityViewContoller: UIViewController {
         super.init(nibName: nil, bundle: nil)
         
         navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .action, target: self, action: #selector(ReadabilityViewContoller.actionButtonDidPress))
-
+        
         NotificationCenter.default.addObserver(self, selector: #selector(ReadabilityViewContoller.saveReadingProgress), name: NSNotification.Name.UIApplicationWillResignActive, object: nil)
         
         getReadabilityArticle()
@@ -72,7 +72,7 @@ class ReadabilityViewContoller: UIViewController {
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         scrollToReadingProgress()
-    }    
+    }
 }
 
 extension ReadabilityViewContoller {
@@ -96,13 +96,14 @@ extension ReadabilityViewContoller {
         ProgressHUD.showAdded(to: view, animated: true)
         DataSource.getArticle(story, completion: { [weak self] (result) -> Void in
             ProgressHUD.hide(for: self?.view, animated: true)
-            guard let article = result.value else {
+            
+            if let article = result.value {
+                self?.article = article
+            } else {
                 ErrorController.showErrorNotification(result.error)
-                return
             }
-            self?.article = article
             self?.finishLoadingArticle()
-        })
+            })
     }
     
     func finishLoadingArticle() {
@@ -133,11 +134,11 @@ extension ReadabilityViewContoller {
             "font-size: \(UIFont.textReaderFont().pointSize);" +
             "font-family: \(UIFont.textReaderFont().fontName);" +
             "background-color: \(backgroundColorHexString);" +
-            "color: \(textColorHexString);"
+        "color: \(textColorHexString);"
         customCSS +=
         "}"
         customCSS +=
-        "a {" +
+            "a {" +
             "color: \(textColorHexString);" +
         "}"
         
@@ -152,7 +153,7 @@ extension ReadabilityViewContoller {
         
         if let article = article {
             var articleInfo =
-            "<div class='article_info'>" +
+                "<div class='article_info'>" +
             "<h1>\(article.title)</h1>"
             
             if !article.author.isEmpty {
@@ -180,7 +181,7 @@ extension ReadabilityViewContoller {
         }
         
         var articleInfo =
-        "<div class='article_info'>" +
+            "<div class='article_info'>" +
         "<h1>\(story.title)</h1>"
         
         if !story.by.isEmpty {

@@ -31,18 +31,22 @@ struct ReadabilityArticle: ResponseObjectSerializable, DataSerializable {
     
     let readabilityDateFormat = "yyyy-MM-dd HH:mm:ss"
     
-    init(json: JSON) {
-        content = json["content"].stringValue
+    init?(json: JSON) {
+        guard let content = json["content"].string,
+        let title = json["title"].string
+            else { return nil }
+            
+        self.content = content
+        self.title = title
         domain = json["domain"].stringValue
         author = json["author"].stringValue
         URLString = json["url"].stringValue
-        shortURL = URL(string: json["short_url"].string ?? "")
-        title = json["title"].stringValue
+        shortURL = URL(string: json["short_url"].stringValue)
         excerpt = json["excerpt"].stringValue
         wordCount = json["word_count"].intValue
         totalPages = json["total_pages"].intValue
         dek = json["dek"].stringValue
-        leadImageURL = URL(string: json["lead_image_url"].string ?? "")
+        leadImageURL = URL(string: json["lead_image_url"].stringValue)
         datePublished = DateFormatter.dateFromString(json["date_published"].stringValue, format: readabilityDateFormat)
         readingProgress = CGFloat(json["reading_progress"].floatValue)
     }
