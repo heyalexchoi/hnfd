@@ -18,8 +18,10 @@ protocol Downloadable {
 
 struct Downloader {
     
+    static let backgroundSessionIdentifier =  "com.hnfd.background"
+    
     static let backgroundManager: Alamofire.SessionManager = {
-        let configuration = URLSessionConfiguration.background(withIdentifier: "com.hnfd.background")
+        let configuration = URLSessionConfiguration.background(withIdentifier: backgroundSessionIdentifier)
         let manager =  Alamofire.SessionManager(configuration: configuration)
         return manager
     }()
@@ -35,116 +37,6 @@ struct Downloader {
     }
 }
 
-protocol ResponseObjectSerializable {
-    init?(json: JSON)
-}
-
-protocol DataSerializable {
-    var asData: Data { get }
-}
-
-protocol JSONSerializable {
-    var asJSON: Any { get }
-}
-
-struct ResponseObjectSerializer {
-    
-    static let responseProcessingQueue = OperationQueue()
-    static let completionReturnQueue = OperationQueue.main
-    
-    // MARK: - Serialize Download Responses
-    
-    /* works with alamofire's request request response json to turn json objects <Any> into a ResponseObjectSerializable model object. Work is performed on response processing queue and completion block results are returned on completion return queue */
-    static func serialize<T: ResponseObjectSerializable>(response: Alamofire.DownloadResponse<Any>, completion: @escaping (Result<T>) -> Void) {
-        
-        switch response.result {
-        case .success(let json):
-            serialize(any: json, completion: completion)
-        case .failure(let error):
-            completion(Result.failure(error))
-        }
-    }
-    
-    /* works with alamofire's request request response json to turn json objects <Any> into a an array of ResponseObjectSerializable model objects. Work is performed on response processing queue and completion block results are returned on completion return queue */
-    static func serialize<T: ResponseObjectSerializable>(response: Alamofire.DownloadResponse<Any>, completion: @escaping (Result<[T]>) -> Void) {
-        
-        switch response.result {
-        case .success(let json):
-            serialize(any: json, completion: completion)
-        case .failure(let error):
-            completion(Result.failure(error))
-        }
-    }
-    
-    // MARK: - Serialize type 'Any' json objects
-    
-    static func serialize<T: ResponseObjectSerializable>(any: Any, completion: @escaping (Result<[T]>) -> Void) {
-        
-        self.responseProcessingQueue.addOperation({ () -> Void in
-            
-            let swiftyJSON = JSON(json: any).arrayValue
-            
-            let serialized = swiftyJSON
-                .filter { return $0 != nil } // dirty fix for cleaning out null stories from response. did not go with failable initializer on Story  because there's a bug in the swift compiler that makes it hard to fail initializer on class objects. TO DO: allow failable initializer on model objects
-                .map({ (json) -> T? in
-                    return T(json: json)
-                })
-                .filter({ (responseObjectSerializable) -> Bool in
-                    return responseObjectSerializable != nil
-                })
-                .map({ (optionalResponsesObjectSerializable) -> T in
-                    return optionalResponsesObjectSerializable!
-                })
-            
-            completionReturnQueue.addOperation {
-                completion(Result.success(serialized))
-            }
-        })
-    }
-    
-    static func serialize<T: ResponseObjectSerializable>(any: Any, completion: @escaping (Result<T>) -> Void) {
-        
-        self.responseProcessingQueue.addOperation({ () -> Void in
-            
-            let swiftyJSON = JSON(json: any)
-            let serialized = T(json: swiftyJSON)
-            
-            completionReturnQueue.addOperation {
-                
-                if let serialized = serialized {
-                    completion(Result.success(serialized))
-                } else {
-                    completion(Result.failure(HNFDError.responseObjectSerializableFailedToInitialize(unserializedObject: any)))
-                }
-            }
-        })
-    }
-    
-    static func serialize<T: ResponseObjectSerializable>(data: Data, completion: @escaping (Result<T>) -> Void) {
-        
-        self.responseProcessingQueue.addOperation({ () -> Void in
-            do {
-                let json = try JSONSerialization.jsonObject(with: data, options: [.allowFragments])
-                self.serialize(any: json, completion: completion)
-            } catch let error {
-                completion(Result.failure(error))
-            }
-        })
-    }
-    
-    static func serialize<T: ResponseObjectSerializable>(data: Data, completion: @escaping (Result<[T]>) -> Void) {
-        
-        self.responseProcessingQueue.addOperation({ () -> Void in
-            do {
-                let json = try JSONSerialization.jsonObject(with: data, options: [.allowFragments])
-                self.serialize(any: json, completion: completion)
-            } catch let error {
-                completion(Result.failure(error))
-            }
-        })
-    }
-    
-}
 
 extension Downloader {
     /* Downloads file for request to destination URL, and serializes result to provided response object serializable type */
@@ -193,75 +85,3 @@ extension Downloader {
     }
 }
 
-enum HNFDRouter: URLRequestConvertible {
-    
-    case stories(type: StoriesType)
-    case story(id: Int)
-    
-    var method: Alamofire.HTTPMethod {
-        switch self {
-        default:
-            return .get
-        }
-    }
-    
-    var path: String {
-        switch self {
-        case .stories(let type):
-            return "\(type.rawValue)"
-        case .story(let id):
-            return "/items/\(id)"
-        }
-    }
-    
-    var parameters: [String: AnyObject] {
-        switch self {
-        default:
-            return [:]
-        }
-    }
-    
-    // MARK: URLRequestConvertible
-    
-    func asURLRequest() -> URLRequest {
-        let URL = Foundation.URL(string: Private.Constants.HNAPIBaseURLString)!.appendingPathComponent(path)
-        //        todo: clever header shit for caching?
-        return Alamofire.request(URL, method: method, parameters: parameters, encoding: URLEncoding.default, headers: nil).request!
-    }
-}
-
-enum ReadabilityRouter: URLRequestConvertible {
-    
-    case article(URLString: String)
-    
-    var method: Alamofire.HTTPMethod {
-        switch self {
-        default:
-            return .get
-        }
-    }
-    
-    var path: String {
-        switch self {
-        case .article:
-            return "/content/v1/parser"
-        }
-    }
-    
-    var parameters: [String: AnyObject] {
-        switch self {
-        case .article(let URLString):
-            return [
-                "url": URLString as AnyObject,
-                "token": Private.Keys.readabilityParserAPIToken as AnyObject
-            ]
-        }
-    }
-    
-    // MARK: URLRequestConvertible
-    
-    func asURLRequest() -> URLRequest {
-        let URL = Foundation.URL(string: "https://readability.com/api")!.appendingPathComponent(path)
-        return Alamofire.request(URL, method: method, parameters: parameters, encoding: URLEncoding.default, headers: nil).request!
-    }
-}

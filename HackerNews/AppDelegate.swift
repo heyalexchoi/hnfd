@@ -28,15 +28,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         UIApplication.shared.setMinimumBackgroundFetchInterval(3600) // 1 hour must pass before another background fetch will be initiated
         
-        
-//        if DataSource.reachability?.isReachableViaWiFi() ?? false {
-//            DataSource.refreshAll({ (intervalResult) in
-//                print("\(NSDate()) interval result! \(intervalResult)")
-//                }, completion: nil)
-//        }
-        
-        
-        
         return true
     }
     
