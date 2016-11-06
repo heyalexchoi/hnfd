@@ -8,7 +8,8 @@
 
 import SwiftyJSON
 
-struct ReadabilityArticle: ResponseObjectSerializable, DataSerializable {
+
+struct ReadabilityArticle: ResponseObjectSerializable {
     
     let content: String
     let domain: String
@@ -24,10 +25,6 @@ struct ReadabilityArticle: ResponseObjectSerializable, DataSerializable {
     let datePublished: Date?
     
     var readingProgress: CGFloat
-    
-    var cacheKey: String {
-        return type(of: self).cacheKeyForURLString(URLString)
-    }
     
     let readabilityDateFormat = "yyyy-MM-dd HH:mm:ss"
     
@@ -69,6 +66,25 @@ struct ReadabilityArticle: ResponseObjectSerializable, DataSerializable {
         ]
     }
     
+    func save() {
+        Cache.shared.setArticle(self)
+    }
+}
+
+// MARK: - CACHING
+extension ReadabilityArticle {
+    
+    static func cacheKeyForURLString(_ urlString: String) -> String {
+        return "cached_article_\(urlString)"
+    }
+    
+    var cacheKey: String {
+        return type(of: self).cacheKeyForURLString(URLString)
+    }
+}
+
+extension ReadabilityArticle: DataSerializable {
+    
     var asData: Data {
         if let data = try? JSONSerialization.data(withJSONObject: asJSON) {
             return data
@@ -76,13 +92,4 @@ struct ReadabilityArticle: ResponseObjectSerializable, DataSerializable {
         debugPrint("Story failed to serialize to JSON: \(self)")
         return Data()
     }
-    
-    static func cacheKeyForURLString(_ urlString: String) -> String {
-        return "cached_article_\(urlString)"
-    }
-    
-    func save() {
-        Cache.shared.setArticle(self)
-    }
 }
-
