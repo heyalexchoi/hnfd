@@ -439,6 +439,11 @@
 			files = (
 			);
 			inputPaths = (
+				"$(PROJECT_DIR)/Carthage/Build/iOS/AutolayoutExtensions.framework",
+				"$(PROJECT_DIR)/Carthage/Build/iOS/Reachability.framework",
+				"$(PROJECT_DIR)/Carthage/Build/iOS/Alamofire.framework",
+				"$(PROJECT_DIR)/Carthage/Build/iOS/SwiftyJSON.framework",
+				"$(PROJECT_DIR)/Carthage/Build/iOS/PINCache.framework",
 			);
 			name = "[CP] Check Pods Manifest.lock";
 			outputPaths = (
@@ -448,7 +453,7 @@
 			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
 			showEnvVarsInLog = 0;
 		};
-		17DEB0471CB1C87300D3246E /* Carthage */ = {
+		5FD16BA3352EFA26611880C5 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -459,12 +464,13 @@
 				"$(PROJECT_DIR)/Carthage/Build/iOS/Alamofire.framework",
 				"$(PROJECT_DIR)/Carthage/Build/iOS/SwiftyJSON.framework",
 			);
-			name = Carthage;
+			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "/usr/local/bin/carthage copy-frameworks";
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-HackerNews/Pods-HackerNews-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
 		};
 		2E66DFDBE64B71F23FD7EF93 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
