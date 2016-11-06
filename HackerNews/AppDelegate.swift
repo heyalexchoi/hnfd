@@ -28,29 +28,23 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         UIApplication.shared.setMinimumBackgroundFetchInterval(3600) // 1 hour must pass before another background fetch will be initiated
         
-        
-//        if DataSource.reachability?.isReachableViaWiFi() ?? false {
-//            DataSource.refreshAll({ (intervalResult) in
-//                print("\(NSDate()) interval result! \(intervalResult)")
-//                }, completion: nil)
-//        }
-        
-        
-        
         return true
     }
     
     func application(_ application: UIApplication, performFetchWithCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
-//        // 30 seconds to do the shit
-//        print("start! \(NSDate())")
-//        let start = NSDate()
-//        DataSource.refreshAll({ (intervalResult) in
-//            let time = NSDate()
-//            
-//            print("\(NSDate()) interval result! \(intervalResult)")
-//            }, completion: nil)
-//        
-//        print("end! \(NSDate())")
+        
+        // kill after 25 seconds
+        DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + .seconds(25)) {
+            completionHandler(UIBackgroundFetchResult.newData)
+        }
+        
+        // queue story downloads, then kill
+        DataSource.fullySync(storiesType: .Top,
+                             storiesHandler: { (storiesResult: Result<[Story]>) -> Void in
+                                completionHandler(UIBackgroundFetchResult.newData)
+        },
+                             storyHandler: nil,
+                             articleHandler: nil)
     }
     
     func application(_ application: UIApplication, handleEventsForBackgroundURLSession identifier: String, completionHandler: @escaping () -> Void) {

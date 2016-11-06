@@ -34,21 +34,6 @@ struct Cache {
         return cacheURL.appendingPathComponent(key)
     }
     
-//    func data(forKey key: String, completion: @escaping (_ result: Result<Data>) -> Void) {
-//        backgroundQueue.addOperation {
-//            do {
-//                let dataForKey = try self.data(forKey: key)
-//                self.mainQueue.addOperation {
-//                    completion(Result.success(dataForKey))
-//                }
-//            } catch let error {
-//                self.mainQueue.addOperation {
-//                    completion(Result.failure(error))
-//                }
-//            }
-//        }
-//    }
-    
     private func data(forKey key: String) throws -> Data {
         return try Data(contentsOf: fileURL(forKey: key))
     }

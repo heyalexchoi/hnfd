@@ -75,10 +75,10 @@ extension StoriesViewController {
     
     func getStories(refresh: Bool = false, scrollToTop: Bool = false) {
         
+        // always refreshes right now. don't have endless scroll atm
         if !refresh {
             ProgressHUD.showAdded(to: view, animated: true)
         }
-
         DataSource.getStories(storiesType, refresh: refresh) { [weak self] (result: Result<[Story]>) -> Void in
             
             ProgressHUD.hideAllHUDs(for: self?.view, animated: true)
@@ -101,6 +101,36 @@ extension StoriesViewController {
             if scrollToTop {
                 self?.tableView.setContentOffset(CGPoint(x: 0, y: 0), animated: true)
             }
+            
+            for story in stories {
+                DataSource.fullySync(story: story, storyHandler: { [weak self] (storyResult) in
+                    if let story = storyResult.value {
+                        self?.reload(story: story)
+                    }
+                }, articleHandler: { [weak self] (articleResult) in
+                    if let article = articleResult.value {
+                        self?.reload(article: article)
+                    }
+                })
+            }
+        }
+    }
+    
+    func story(forArticle article: ReadabilityArticle) -> Story? {
+        return stories.first(where: { (story) -> Bool in
+            return story.URLString == article.URLString
+        })
+    }
+    
+    func reload(article: ReadabilityArticle) {
+        if let story = story(forArticle: article) {
+            reload(story: story)
+        }
+    }
+    
+    func reload(story: Story) {
+        if let indexPath = indexPath(for: story) {
+            tableView.reloadRows(at: [indexPath], with: .none)
         }
     }
     
@@ -112,7 +142,14 @@ extension StoriesViewController {
         guard let indexPath = tableView.indexPath(for: cell) else { return nil }
         return storyForIndexPath(indexPath)
     }
-
+    
+    func indexPath(for story: Story) -> IndexPath? {
+        guard let index = stories.index(where: { $0.id == story.id }) else {
+            return nil
+        }
+        
+        return IndexPath(item: index, section: 0)
+    }
 }
 
 // MARK: - Menu
