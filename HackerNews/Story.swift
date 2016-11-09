@@ -22,14 +22,15 @@ extension Story: Downloadable {
 }
 
 enum StoriesType: String {
-    case
-    Top = "topstories",
-    New = "newstories",
-    Show = "showstories",
-    Ask = "askstories",
-    Job = "jobstories",
-    Saved = "savedstories"
-    static var allValues = [Top, New, Show, Ask, Job, Saved]
+    
+    case Top = "topstories"
+    case New = "newstories"
+    case Show = "showstories"
+    case Ask = "askstories"
+    case Job = "jobstories"
+    
+    static var allValues = [Top, New, Show, Ask, Job]
+    
     var title: String {
         return rawValue.replacingOccurrences(of: "stories", with: " stories").capitalized
     }
@@ -38,14 +39,21 @@ enum StoriesType: String {
     }
 }
 
-//func ==(l: Story, r: Story) -> Bool {
-//    return l.id == r.id
-//}
+extension Story {
+    static var pinnedIdsCacheKey = "pinnedStoryIds"
+}
 
-extension Story { // HASHABLE
-//    override var hashValue: Int {
-//        return id.hashValue
-//    }
+extension Int: ResponseObjectSerializable {
+    init?(json: JSON) {
+        guard let int = json.int else { return nil }
+        self = int
+    }
+}
+
+extension Int: JSONSerializable {
+    var asJSON: Any {
+        return self
+    }
 }
 
 struct Story: ResponseObjectSerializable, DataSerializable, JSONSerializable {
@@ -75,8 +83,6 @@ struct Story: ResponseObjectSerializable, DataSerializable, JSONSerializable {
     let children: [Comment]
     let date: Date
     let updated: String
-    // want var to see if full story exists in cache
-    // want var to track if user 'pinned' story
     
     static func cacheKey(_ id: Int) -> String {
         return "cached_story_\(id)"
@@ -141,17 +147,5 @@ struct Story: ResponseObjectSerializable, DataSerializable, JSONSerializable {
         debugPrint("Story failed to serialize to JSON: \(self)")
         return Data()
     }
-    
-//    override var hash: Int {
-//        return hashValue
-//    }
-    
-//    override func isEqual(object: AnyObject?) -> Bool {
-//        if let object = object as? Story {
-//            return id == object.id
-//        }
-//        return false
-//    }
-    
 }
 

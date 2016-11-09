@@ -20,11 +20,8 @@ struct Cache {
         let cachesDirectory = try! fileManager.url(for: .cachesDirectory, in: .userDomainMask, appropriateFor: nil, create: false)
         
         let cacheURL = NSURL.fileURL(withPathComponents: [cachesDirectory.path, Cache.cacheName])!
-        debugPrint("cache url: ")
-        debugPrint(cacheURL)
         if !fileManager.fileExists(atPath: cacheURL.path) {
             try! fileManager.createDirectory(at: cacheURL, withIntermediateDirectories: true, attributes: nil)
-            print("created cache directory!")
         }
         
         return cacheURL
@@ -92,7 +89,60 @@ struct Cache {
     }
     
     func setStories(_ type: StoriesType, stories: [Story]) {
-        setObjects(forKey: type.cacheKey, objects: stories)        
+        setObjects(forKey: type.cacheKey, objects: stories)
+    }
+    
+    /*! there is no failure result - this method currently only returns what stories could be retrieved */
+    func getStories(ids: [Int], completion: @escaping (_ result: Result<[Story]>) -> Void) {
+        // TO DO: errors
+        // good lord i should have done this with promisekit
+        let startTime = Date()
+        let timeOut = 2
+        
+        var stories = [Story]()
+        var failureCount = 0
+        
+        var completed = false
+        
+        func completeIfFinished() {
+            guard !completed else { return }
+            if stories.count + failureCount == ids.count
+                || startTime.timeIntervalSinceNow >= TimeInterval(-timeOut) {
+                completion(Result.success(stories))
+                completed = true
+            }
+        }
+        
+        DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + .seconds(timeOut)) {
+            completeIfFinished()
+        }
+        
+        for id in ids {
+            guard Story.isCached(id) else {
+                failureCount += 1
+                completeIfFinished()
+                return
+            }
+            getStory(id, completion: { (result: Result<Story>) in
+                guard let story = result.value else {
+                    failureCount += 1
+                    completeIfFinished()
+                    return
+                }
+                stories.append(story)
+                completeIfFinished()
+            })
+        }
+    }
+    
+    // MARK: - PINNED STORIES
+    
+    func getPinnedStoryIds(completion: @escaping (_ result: Result<[Int]>) -> Void) {
+        getObjects(forKey: Story.pinnedIdsCacheKey, completion: completion)
+    }
+    
+    func setPinnedStoryIds(ids: [Int]) {
+        setObjects(forKey: Story.pinnedIdsCacheKey, objects: ids)
     }
     
     // MARK: - STORY
@@ -116,15 +166,15 @@ struct Cache {
     }
     
     func setArticle(_ article: ReadabilityArticle) {
-        setObject(forKey: article.cacheKey, object: article)        
+        setObject(forKey: article.cacheKey, object: article)
     }
-
+    
 }
 
 extension Cache {
     
     func hasFileCachedItemForKey(_ key: String?) -> Bool {
         guard let key = key else { return false }
-        return fileManager.fileExists(atPath: fileURL(forKey: key).path)        
+        return fileManager.fileExists(atPath: fileURL(forKey: key).path)
     }
 }

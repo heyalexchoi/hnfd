@@ -57,6 +57,35 @@ extension DataSource {
             completion?(result)
         })
     }
+    
+    // MARK: - PINNED STORIES
+    
+    /*! this method currently has no failure results. it only returns whatever stories are pinned and could be retrieved */
+    static func getPinnedStories(limit: Int, offset: Int, refresh: Bool = false, completion: ((_ result: Result<[Story]>) -> Void)?) {
+        // TO DO: errors
+        Cache.shared.getPinnedStoryIds { (result: Result<[Int]>) in
+            // TO DO: limit and offset
+            let ids = result.value ?? [Int]() // TO DO: errors?
+            guard shouldMakeNetworkRequest && refresh else {
+                Cache.shared.getStories(ids: ids, completion: { (result: Result<[Story]>) in
+                    guard let stories = result.value else {
+                        completion?(Result.success([Story]()))
+                        return
+                    }
+                    completion?(Result.success(stories))
+                })
+                return
+            }
+            
+            Downloader.download(stories: ids, completion: { (result: Result<[Story]>) in
+                guard let stories = result.value else {
+                    completion?(Result.success([Story]()))
+                    return
+                }
+                completion?(Result.success(stories))
+            })
+        }
+    }
 }
 
 extension DataSource {

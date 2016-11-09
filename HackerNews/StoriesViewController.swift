@@ -65,8 +65,7 @@ class StoriesViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         tableView.reloadData()
-    }
-    
+    }    
 }
 
 // MARK: - Stories
@@ -135,7 +134,7 @@ extension StoriesViewController {
     }
     
     func storyForIndexPath(_ indexPath: IndexPath) -> Story {
-        return stories[(indexPath as NSIndexPath).item]
+        return stories[indexPath.item]        
     }
     
     func storyForCell(_ cell: StoryCell) -> Story? {
@@ -188,7 +187,7 @@ extension StoriesViewController {
         if let cachedHeight = cachedCellHeights[story.id] {
             return cachedHeight
         }
-        let estimatedHeight = prototypeCell.estimatedHeight(tableView.bounds.width, title: storyForIndexPath(indexPath).title)
+        let estimatedHeight = prototypeCell.estimateHeight(story: story , width: tableView.bounds.width)
         cachedCellHeights[story.id] = estimatedHeight
         return estimatedHeight
     }
@@ -216,7 +215,7 @@ extension StoriesViewController: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: StoryCell.identifier, for: indexPath) as! StoryCell
         cell.delegate = self
-        cell.prepare(storyForIndexPath(indexPath))
+        cell.prepare(story: storyForIndexPath(indexPath), width: tableView.bounds.width)
         return cell
     }
 }

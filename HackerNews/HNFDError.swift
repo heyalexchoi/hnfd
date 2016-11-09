@@ -14,7 +14,7 @@ enum HNFDError: Error {
     case external(underlying: NSError)
     case unableToCreateReachability
     case storyHasNoArticleURL
-    case responseObjectSerializableFailedToInitialize(unserializedObject: Any)
+    case responseObjectSerializableFailedToInitialize(unserializedObject: Any)    
     
     var description: String {
         switch self {
