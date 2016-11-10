@@ -12,7 +12,7 @@ struct Cache {
     static let cacheName = "com.heyalexchoi.hnfd.cache"
     
     let backgroundQueue = OperationQueue()
-    let mainQueue = OperationQueue.main
+    let completionReturnQueue = OperationQueue.main
     let fileManager = FileManager.default
     
     let cacheURL: URL = {
@@ -41,7 +41,7 @@ struct Cache {
                 let data = try self.data(forKey: key)
                 ResponseObjectSerializer.serialize(data: data, completion: completion)
             } catch let error {
-                completion(Result.failure(error))
+                self.complete(error: error, completion: completion)
             }
         }
     }
@@ -52,7 +52,7 @@ struct Cache {
                 let data = try self.data(forKey: key)
                 ResponseObjectSerializer.serialize(data: data, completion: completion)
             } catch let error {
-                completion(Result.failure(error))
+                self.complete(error: error, completion: completion)
             }
         }
     }
@@ -117,6 +117,10 @@ struct Cache {
             completeIfFinished()
         }
         
+        if ids.isEmpty {
+            completeIfFinished()
+        }
+        
         for id in ids {
             guard Story.isCached(id) else {
                 failureCount += 1
@@ -168,7 +172,15 @@ struct Cache {
     func setArticle(_ article: ReadabilityArticle) {
         setObject(forKey: article.cacheKey, object: article)
     }
+}
+
+extension Cache {
     
+    func complete<T: Any>(error: Error, completion: @escaping (Result<T>) -> Void) {
+        self.completionReturnQueue.addOperation {
+            completion(Result.failure(error))
+        }
+    }
 }
 
 extension Cache {

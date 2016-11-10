@@ -44,6 +44,8 @@ class StoryCell: UITableViewCell {
     let leftSwipeRecognizer = UISwipeGestureRecognizer()
     let rightSwipeRecognizer = UISwipeGestureRecognizer()
     
+    var story: Story?
+    
     
     override init(style: UITableViewCellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -154,8 +156,14 @@ class StoryCell: UITableViewCell {
         scoreLabel.setText("\(story.score) points", attributes: TextAttributes.detailAttributes)
         timeLabel.setText(String((story.date as NSDate).timeAgoSinceNow()), attributes: TextAttributes.detailAttributes)
         URLLabel.setText(story.URLString, attributes: TextAttributes.detailAttributes)
-//        pinnedImageView.hidden = !story.saved
-        pinnedImageView.isHidden = true
+        
+        DataSource.isStoryPinned(id: story.id) { [weak self] (isPinned: Bool) -> Void in
+            if let thisStory = self?.story,
+                thisStory.id == story.id {
+                self?.pinnedImageView.isHidden = !isPinned
+            }
+        }
+        self.story = story
     }
     
     func articleButtonDidPress() {

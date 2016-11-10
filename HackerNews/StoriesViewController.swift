@@ -72,46 +72,54 @@ class StoriesViewController: UIViewController {
 
 extension StoriesViewController {
     
-    func getStories(refresh: Bool = false, scrollToTop: Bool = false) {
+    func loadStories(result: Result<[Story]>, refresh: Bool, scrollToTop: Bool, showHUD: Bool) {
         
-        // always refreshes right now. don't have endless scroll atm
-        if !refresh {
-            ProgressHUD.showAdded(to: view, animated: true)
+        ProgressHUD.hideAllHUDs(for: tableView, animated: true)
+        tableView.pullToRefreshView.stopAnimating()
+        
+        guard let stories = result.value else {
+            ErrorController.showErrorNotification(result.error)
+            return
         }
-        DataSource.getStories(storiesType, refresh: refresh) { [weak self] (result: Result<[Story]>) -> Void in
-            
-            ProgressHUD.hideAllHUDs(for: self?.view, animated: true)
-            self?.tableView.pullToRefreshView.stopAnimating()
-            
-            guard let stories = result.value else {                
-                ErrorController.showErrorNotification(result.error)
-                return
-            }
-            
-            if refresh {
-                self?.stories = [Story]()
-            }
-            
-            self?.title = self?.storiesType.title
-            self?.stories += stories
-            
-            self?.tableView.reloadData()
-            
-            if scrollToTop {
-                self?.tableView.setContentOffset(CGPoint(x: 0, y: 0), animated: true)
-            }
-            
-            for story in stories {
-                DataSource.fullySync(story: story, storyHandler: { [weak self] (storyResult) in
-                    if let story = storyResult.value {
-                        self?.reload(story: story)
-                    }
+        
+        if refresh {
+            self.stories = [Story]()
+        }
+        
+        title = storiesType.title
+        self.stories += stories
+        
+        tableView.reloadData()
+        
+        if scrollToTop {
+            tableView.setContentOffset(CGPoint(x: 0, y: 0), animated: true)
+        }
+        
+        for story in stories {
+            DataSource.fullySync(story: story, storyHandler: { [weak self] (storyResult) in
+                if let story = storyResult.value {
+                    self?.reload(story: story)
+                }
                 }, articleHandler: { [weak self] (articleResult) in
                     if let article = articleResult.value {
                         self?.reload(article: article)
                     }
-                })
+            })
+        }
+    }
+    
+    func getStories(refresh: Bool = false, scrollToTop: Bool = false, showHUD: Bool = false) {
+        if showHUD {
+            ProgressHUD.showAdded(to: tableView, animated: true)
+        }
+        guard storiesType != .Pinned else {
+            DataSource.getPinnedStories(limit: 0, offset: 0, refresh: refresh) { [weak self] (result: Result<[Story]>) -> Void in
+                self?.loadStories(result: result, refresh: refresh, scrollToTop: scrollToTop, showHUD: showHUD)
             }
+            return
+        }
+        DataSource.getStories(storiesType, refresh: refresh) { [weak self] (result: Result<[Story]>) -> Void in
+            self?.loadStories(result: result, refresh: refresh, scrollToTop: scrollToTop, showHUD: showHUD)
         }
     }
     
@@ -166,7 +174,7 @@ extension StoriesViewController {
     func menuDidFinishSelection(_ type: StoriesType) {
         storiesType = type
         title = type.title
-        getStories(refresh: true, scrollToTop: true)
+        getStories(refresh: true, scrollToTop: true, showHUD: true)
         menu.close()
     }
     
@@ -238,14 +246,16 @@ extension StoriesViewController: StoryCellDelegate {
     }
     
     func cellDidSwipeLeft(_ cell: StoryCell) {
-        // TO DO: unpin
-        guard let indexPath = tableView.indexPath(for: cell) else { return }
+        guard let story = storyForCell(cell) else { return }
+        DataSource.removePinnedStory(id: story.id)
+        guard let indexPath = indexPath(for: story) else { return }
         tableView.reloadRows(at: [indexPath], with: .left)
     }
     
     func cellDidSwipeRight(_ cell: StoryCell) {
-       // TO DO: pin
-        guard let indexPath = tableView.indexPath(for: cell) else { return }
+        guard let story = storyForCell(cell) else { return }
+        DataSource.addPinnedStory(id: story.id)
+        guard let indexPath = indexPath(for: story) else { return }
         tableView.reloadRows(at: [indexPath], with: .right)
     }
 }

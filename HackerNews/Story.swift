@@ -28,11 +28,12 @@ enum StoriesType: String {
     case Show = "showstories"
     case Ask = "askstories"
     case Job = "jobstories"
+    case Pinned = "pinnedstories"
     
-    static var allValues = [Top, New, Show, Ask, Job]
+    static var allValues = [Top, New, Show, Ask, Job, Pinned]
     
     var title: String {
-        return rawValue.replacingOccurrences(of: "stories", with: " stories").capitalized
+        return rawValue.replacingOccurrences(of: "stories", with: "").capitalized
     }
     var isCached: Bool {
         return Cache.shared.hasFileCachedItemForKey(cacheKey)

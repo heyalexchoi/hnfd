@@ -86,6 +86,41 @@ extension DataSource {
             })
         }
     }
+    
+    static func addPinnedStory(id: Int) {
+        Cache.shared.getPinnedStoryIds { (result: Result<[Int]>) in
+            var pinnedIds = result.value ?? [Int]()
+            if let pinnedIdIndex = pinnedIds.index(where: { (pinnedId) -> Bool in
+                return pinnedId == id
+            }) {
+                pinnedIds.remove(at: pinnedIdIndex)
+            }
+            pinnedIds.append(id)
+            print("add pinned story \(id)")
+            Cache.shared.setPinnedStoryIds(ids: pinnedIds)
+        }
+    }
+    
+    static func removePinnedStory(id: Int) {
+        Cache.shared.getPinnedStoryIds { (result: Result<[Int]>) in
+            var pinnedIds = result.value ?? [Int]()
+            if let pinnedIdIndex = pinnedIds.index(where: { (pinnedId) -> Bool in
+                return pinnedId == id
+            }) {
+                pinnedIds.remove(at: pinnedIdIndex)
+                print("remove pinned story \(id)")
+            }
+            Cache.shared.setPinnedStoryIds(ids: pinnedIds)
+        }
+    }
+    
+    static func isStoryPinned(id: Int, completion: @escaping (Bool) -> Void) {
+        Cache.shared.getPinnedStoryIds { (result: Result<[Int]>) in
+            let pinnedIds = result.value ?? [Int]()
+            print("is story \(id) pinned? \(pinnedIds.contains(id))")
+            completion(pinnedIds.contains(id))
+        }
+    }
 }
 
 extension DataSource {
