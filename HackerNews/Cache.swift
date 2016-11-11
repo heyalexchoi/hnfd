@@ -107,7 +107,8 @@ struct Cache {
         func completeIfFinished() {
             guard !completed else { return }
             if stories.count + failureCount == ids.count
-                || startTime.timeIntervalSinceNow >= TimeInterval(-timeOut) {
+                || startTime.timeIntervalSinceNow < TimeInterval(-timeOut) {
+                print("complete get stories \nids\(ids) \nstories.count: \(stories.count) \nfailureCount: \(failureCount) \nstartTime: \(startTime) timeIntervalSinceNow: \(startTime.timeIntervalSinceNow) \ntimeInterval: \(TimeInterval(-timeOut))")
                 completion(Result.success(stories))
                 completed = true
             }

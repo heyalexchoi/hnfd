@@ -88,7 +88,7 @@ extension Downloader {
         func completeIfFinished() {
             guard !completed else { return }
             if stories.count + failureCount == ids.count
-                || startTime.timeIntervalSinceNow >= TimeInterval(-timeOut) {
+                || startTime.timeIntervalSinceNow < TimeInterval(-timeOut) {
                 completion?(Result.success(stories))
                 completed = true
             }

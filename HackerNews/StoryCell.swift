@@ -140,12 +140,12 @@ class StoryCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func estimateHeight(story: Story, width: CGFloat) -> CGFloat {
-        prepare(story: story, width: width)
+    func estimateHeight(story: Story, isPinned: Bool, width: CGFloat) -> CGFloat {
+        prepare(story: story, isPinned: isPinned, width: width)
         return systemLayoutSizeFitting(CGSize(width: width, height: CGFloat.greatestFiniteMagnitude)).height        
     }
     
-    func prepare(story: Story, width: CGFloat) {
+    func prepare(story: Story, isPinned: Bool, width: CGFloat) {
         titleLabel.preferredMaxLayoutWidth = width
         titleLabel.text = story.title
         byLabel.setText("by \(story.by)", attributes: TextAttributes.detailAttributes)
@@ -157,12 +157,7 @@ class StoryCell: UITableViewCell {
         timeLabel.setText(String((story.date as NSDate).timeAgoSinceNow()), attributes: TextAttributes.detailAttributes)
         URLLabel.setText(story.URLString, attributes: TextAttributes.detailAttributes)
         
-        DataSource.isStoryPinned(id: story.id) { [weak self] (isPinned: Bool) -> Void in
-            if let thisStory = self?.story,
-                thisStory.id == story.id {
-                self?.pinnedImageView.isHidden = !isPinned
-            }
-        }
+        pinnedImageView.isHidden = !isPinned
         self.story = story
     }
     

@@ -12,6 +12,7 @@ import REMenu
 class StoriesViewController: UIViewController {
     
     var stories = [Story]()
+    var pinnedStoryIds = [Int]()
     var storiesType: StoriesType = .Top
 
     let tableView = UITableView(frame: CGRect.zero, style: .plain)
@@ -59,13 +60,8 @@ class StoriesViewController: UIViewController {
                 "tableView": tableView])
         
         getStories(refresh: true)
-        
+        loadPinnedStories()
     }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        tableView.reloadData()
-    }    
 }
 
 // MARK: - Stories
@@ -195,7 +191,7 @@ extension StoriesViewController {
         if let cachedHeight = cachedCellHeights[story.id] {
             return cachedHeight
         }
-        let estimatedHeight = prototypeCell.estimateHeight(story: story , width: tableView.bounds.width)
+        let estimatedHeight = prototypeCell.estimateHeight(story: story, isPinned: isStoryPinned(id: story.id), width: tableView.bounds.width)
         cachedCellHeights[story.id] = estimatedHeight
         return estimatedHeight
     }
@@ -223,7 +219,8 @@ extension StoriesViewController: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: StoryCell.identifier, for: indexPath) as! StoryCell
         cell.delegate = self
-        cell.prepare(story: storyForIndexPath(indexPath), width: tableView.bounds.width)
+        let story = storyForIndexPath(indexPath)
+        cell.prepare(story: story, isPinned: isStoryPinned(id: story.id), width: tableView.bounds.width)
         return cell
     }
 }
@@ -247,15 +244,48 @@ extension StoriesViewController: StoryCellDelegate {
     
     func cellDidSwipeLeft(_ cell: StoryCell) {
         guard let story = storyForCell(cell) else { return }
-        DataSource.removePinnedStory(id: story.id)
+        removePinnedStory(id: story.id)
         guard let indexPath = indexPath(for: story) else { return }
         tableView.reloadRows(at: [indexPath], with: .left)
     }
     
     func cellDidSwipeRight(_ cell: StoryCell) {
         guard let story = storyForCell(cell) else { return }
-        DataSource.addPinnedStory(id: story.id)
+        addPinnedStory(id: story.id)
         guard let indexPath = indexPath(for: story) else { return }
         tableView.reloadRows(at: [indexPath], with: .right)
+    }
+}
+
+extension StoriesViewController {
+    
+    func loadPinnedStories() {
+        DataSource.getPinnedStoryIds { [weak self] (ids) in
+            self?.pinnedStoryIds = ids
+            self?.tableView.reloadData()
+        }
+    }
+    
+    func addPinnedStory(id: Int) {
+        if let pinnedIdIndex = pinnedStoryIds.index(where: { (pinnedId) -> Bool in
+            return pinnedId == id
+        }) {
+            pinnedStoryIds.remove(at: pinnedIdIndex)
+        }
+        pinnedStoryIds.append(id)
+        DataSource.addPinnedStory(id: id)
+    }
+
+    func removePinnedStory(id: Int) {
+        if let pinnedIdIndex = pinnedStoryIds.index(where: { (pinnedId) -> Bool in
+            return pinnedId == id
+        }) {
+            pinnedStoryIds.remove(at: pinnedIdIndex)
+        }
+        DataSource.removePinnedStory(id: id)
+    }
+    
+    func isStoryPinned(id: Int) -> Bool {
+        return pinnedStoryIds.contains(id)
     }
 }

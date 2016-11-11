@@ -66,28 +66,34 @@ extension DataSource {
         Cache.shared.getPinnedStoryIds { (result: Result<[Int]>) in
             // TO DO: limit and offset
             let ids = result.value ?? [Int]() // TO DO: errors?
-            guard shouldMakeNetworkRequest && refresh else {
-                Cache.shared.getStories(ids: ids, completion: { (result: Result<[Story]>) in
-                    guard let stories = result.value else {
-                        completion?(Result.success([Story]()))
-                        return
-                    }
-                    completion?(Result.success(stories))
-                })
-                return
-            }
-            
-            Downloader.download(stories: ids, completion: { (result: Result<[Story]>) in
+            Cache.shared.getStories(ids: ids, completion: { (result: Result<[Story]>) in
                 guard let stories = result.value else {
                     completion?(Result.success([Story]()))
                     return
                 }
                 completion?(Result.success(stories))
             })
+            
+            if shouldMakeNetworkRequest && refresh {
+                Downloader.download(stories: ids, completion: { (result: Result<[Story]>) in
+                    guard let stories = result.value else {
+                        completion?(Result.success([Story]()))
+                        return
+                    }
+                    completion?(Result.success(stories))
+                })
+            }
+        }
+    }
+    
+    static func getPinnedStoryIds(completion: @escaping (_ ids: [Int]) -> Void) {
+        Cache.shared.getPinnedStoryIds { (result: Result<[Int]>) in
+            completion(result.value ?? [Int]())
         }
     }
     
     static func addPinnedStory(id: Int) {
+        // move this into cache and then wrap
         Cache.shared.getPinnedStoryIds { (result: Result<[Int]>) in
             var pinnedIds = result.value ?? [Int]()
             if let pinnedIdIndex = pinnedIds.index(where: { (pinnedId) -> Bool in
@@ -102,23 +108,15 @@ extension DataSource {
     }
     
     static func removePinnedStory(id: Int) {
+        // move this into cache and then wrap
         Cache.shared.getPinnedStoryIds { (result: Result<[Int]>) in
             var pinnedIds = result.value ?? [Int]()
             if let pinnedIdIndex = pinnedIds.index(where: { (pinnedId) -> Bool in
                 return pinnedId == id
             }) {
                 pinnedIds.remove(at: pinnedIdIndex)
-                print("remove pinned story \(id)")
             }
             Cache.shared.setPinnedStoryIds(ids: pinnedIds)
-        }
-    }
-    
-    static func isStoryPinned(id: Int, completion: @escaping (Bool) -> Void) {
-        Cache.shared.getPinnedStoryIds { (result: Result<[Int]>) in
-            let pinnedIds = result.value ?? [Int]()
-            print("is story \(id) pinned? \(pinnedIds.contains(id))")
-            completion(pinnedIds.contains(id))
         }
     }
 }
@@ -138,7 +136,7 @@ extension DataSource {
         } else if let completion = completion {
             cache.getArticle(story, completion: completion)
         }
-    }    
+    }
 }
 
 extension DataSource {
