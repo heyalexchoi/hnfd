@@ -60,7 +60,7 @@ extension DataSource {
     
     // MARK: - PINNED STORIES
     
-    /*! this method currently has no failure results. it only returns whatever stories are pinned and could be retrieved */
+    /*! this method currently has no failure results. limit and offset are not implemented. it only returns whatever stories are pinned and could be retrieved */
     static func getPinnedStories(limit: Int, offset: Int, refresh: Bool = false, completion: ((_ result: Result<[Story]>) -> Void)?) {
         // TO DO: errors
         Cache.shared.getPinnedStoryIds { (result: Result<[Int]>) in
