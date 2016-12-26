@@ -44,9 +44,6 @@ class StoryCell: UITableViewCell {
     let leftSwipeRecognizer = UISwipeGestureRecognizer()
     let rightSwipeRecognizer = UISwipeGestureRecognizer()
     
-    var story: Story?
-    
-    
     override init(style: UITableViewCellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         
@@ -158,7 +155,6 @@ class StoryCell: UITableViewCell {
         URLLabel.setText(story.URLString, attributes: TextAttributes.detailAttributes)
         
         pinnedImageView.isHidden = !isPinned
-        self.story = story
     }
     
     func articleButtonDidPress() {
