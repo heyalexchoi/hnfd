@@ -76,6 +76,7 @@ extension Downloader {
     }
     
     @discardableResult static func download(stories ids: [Int], completion: ((_ result: Result<[Story]>) -> Void)?) -> [DownloadRequest] {
+        // could proably promisekit this
         
         let startTime = Date()
         let timeOut = 3

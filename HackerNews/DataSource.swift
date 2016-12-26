@@ -96,31 +96,11 @@ extension DataSource {
     }
     
     static func addPinnedStory(id: Int) {
-        // move this into cache and then wrap
-        Cache.shared.getPinnedStoryIds { (result: Result<[Int]>) in
-            var pinnedIds = result.value ?? [Int]()
-            if let pinnedIdIndex = pinnedIds.index(where: { (pinnedId) -> Bool in
-                return pinnedId == id
-            }) {
-                pinnedIds.remove(at: pinnedIdIndex)
-            }
-            pinnedIds.append(id)
-            print("add pinned story \(id)")
-            Cache.shared.setPinnedStoryIds(ids: pinnedIds)
-        }
+        Cache.shared.addPinnedStory(id: id)
     }
     
     static func removePinnedStory(id: Int) {
-        // move this into cache and then wrap
-        Cache.shared.getPinnedStoryIds { (result: Result<[Int]>) in
-            var pinnedIds = result.value ?? [Int]()
-            if let pinnedIdIndex = pinnedIds.index(where: { (pinnedId) -> Bool in
-                return pinnedId == id
-            }) {
-                pinnedIds.remove(at: pinnedIdIndex)
-            }
-            Cache.shared.setPinnedStoryIds(ids: pinnedIds)
-        }
+        Cache.shared.removePinnedStory(id: id)
     }
 }
 

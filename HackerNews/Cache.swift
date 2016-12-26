@@ -128,6 +128,31 @@ struct Cache {
         setObjects(forKey: Story.pinnedIdsCacheKey, objects: ids)
     }
     
+    func addPinnedStory(id: Int) {
+        getPinnedStoryIds { (result: Result<[Int]>) in
+            var pinnedIds = result.value ?? [Int]()
+            if let pinnedIdIndex = pinnedIds.index(where: { (pinnedId) -> Bool in
+                return pinnedId == id
+            }) {
+                pinnedIds.remove(at: pinnedIdIndex)
+            }
+            pinnedIds.insert(id, at: 0)
+            self.setPinnedStoryIds(ids: pinnedIds)
+        }
+    }
+    
+    func removePinnedStory(id: Int) {
+        getPinnedStoryIds { (result: Result<[Int]>) in
+            var pinnedIds = result.value ?? [Int]()
+            if let pinnedIdIndex = pinnedIds.index(where: { (pinnedId) -> Bool in
+                return pinnedId == id
+            }) {
+                pinnedIds.remove(at: pinnedIdIndex)
+            }
+            self.setPinnedStoryIds(ids: pinnedIds)
+        }
+    }
+    
     // MARK: - STORY
     
     func getStory(_ id: Int, completion: @escaping (_ result: Result<Story>) -> Void) {
