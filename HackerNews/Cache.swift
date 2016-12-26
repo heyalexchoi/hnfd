@@ -6,6 +6,8 @@
 //  Copyright (c) 2015 Alex Choi. All rights reserved.
 //
 
+import PromiseKit
+
 struct Cache {
     
     static let shared = Cache()
@@ -92,50 +94,26 @@ struct Cache {
         setObjects(forKey: type.cacheKey, objects: stories)
     }
     
-    /*! there is no failure result - this method currently only returns what stories could be retrieved */
-    func getStories(ids: [Int], completion: @escaping (_ result: Result<[Story]>) -> Void) {
-        // TO DO: errors
-        // good lord i should have done this with promisekit
-        let startTime = Date()
-        let timeOut = 2
-        
-        var stories = [Story]()
-        var failureCount = 0
-        
-        var completed = false
-        
-        func completeIfFinished() {
-            guard !completed else { return }
-            if stories.count + failureCount == ids.count
-                || startTime.timeIntervalSinceNow < TimeInterval(-timeOut) {
-                print("complete get stories \nids\(ids) \nstories.count: \(stories.count) \nfailureCount: \(failureCount) \nstartTime: \(startTime) timeIntervalSinceNow: \(startTime.timeIntervalSinceNow) \ntimeInterval: \(TimeInterval(-timeOut))")
-                completion(Result.success(stories))
-                completed = true
-            }
-        }
-        
-        DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + .seconds(timeOut)) {
-            completeIfFinished()
-        }
-        
-        if ids.isEmpty {
-            completeIfFinished()
-        }
-        
-        for id in ids {
-            guard Story.isCached(id) else {
-                failureCount += 1
-                completeIfFinished()
-                return
-            }
-            getStory(id, completion: { (result: Result<Story>) in
-                guard let story = result.value else {
-                    failureCount += 1
-                    completeIfFinished()
-                    return
+    func getStories(ids: [Int], timeout: TimeInterval = 2) -> Promise<[Story]> {
+        return Promise { (fulfill: @escaping ([Story]) -> Void, reject: @escaping (Error) -> Void) in
+            
+            _ = after(interval: timeout).then(execute: { (_) -> Void in
+                reject(HNFDError.timeout)
+            })
+            
+            let promises = ids.map({ (id) -> Promise<Story> in
+                return getStory(id: id)
+            })
+            
+            let combinedPromises = when(resolved: promises)
+                
+            _ = combinedPromises
+                .then(execute: { (results: [PromiseKit.Result<Story>]) -> Void in
+                var stories = [Story]()
+                for case let .fulfilled(story) in results {
+                    stories.append(story)
                 }
-                stories.append(story)
-                completeIfFinished()
+                fulfill(stories.orderBy(ids: ids))
             })
         }
     }
@@ -154,6 +132,18 @@ struct Cache {
     
     func getStory(_ id: Int, completion: @escaping (_ result: Result<Story>) -> Void) {
         getObject(forKey: Story.cacheKey(id), completion: completion)
+    }
+    
+    func getStory(id: Int) -> Promise<Story> {
+        return Promise { (fulfill: @escaping (Story) -> Void, reject: @escaping (Error) -> Void) in
+            getStory(id, completion: { (result) in
+                guard let story = result.value else {
+                    reject(result.error!)
+                    return
+                }
+                fulfill(story)
+            })
+        }
     }
     
     func setStory(_ story: Story) {

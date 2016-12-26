@@ -21,6 +21,24 @@ extension Story: Downloadable {
     }
 }
 
+extension Sequence where Iterator.Element == Story {
+    
+    /*! Orders collection of stories by id according to the order of the given ids. computational complexity: 2*O(n) */
+    func orderBy(ids: [Int]) -> [Story] {
+        var mappedStories = [Int: Story]()
+        for story in self {
+            mappedStories[story.id] = story
+        }
+        var orderedStories = [Story]()
+        for id in ids {
+            if let story = mappedStories[id] {
+                orderedStories.append(story)
+            }
+        }
+        return orderedStories
+    }
+}
+
 enum StoriesType: String {
     
     case Top = "topstories"

@@ -8,6 +8,7 @@
 
 import Foundation
 import Reachability
+import PromiseKit
 
 struct DataSource {
     
@@ -66,12 +67,14 @@ extension DataSource {
         Cache.shared.getPinnedStoryIds { (result: Result<[Int]>) in
             // TO DO: limit and offset
             let ids = result.value ?? [Int]() // TO DO: errors?
-            Cache.shared.getStories(ids: ids, completion: { (result: Result<[Story]>) in
-                guard let stories = result.value else {
-                    completion?(Result.success([Story]()))
-                    return
-                }
+            
+            Cache.shared.getStories(ids: ids)
+            .then(execute: { (stories) -> Void in
                 completion?(Result.success(stories))
+            })
+            .catch(execute: { (error) in
+                debugPrint(error)
+                completion?(Result.success([Story]()))
             })
             
             if shouldMakeNetworkRequest && refresh {

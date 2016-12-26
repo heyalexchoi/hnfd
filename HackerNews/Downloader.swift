@@ -89,7 +89,8 @@ extension Downloader {
             guard !completed else { return }
             if stories.count + failureCount == ids.count
                 || startTime.timeIntervalSinceNow < TimeInterval(-timeOut) {
-                completion?(Result.success(stories))
+                
+                completion?(Result.success(stories.orderBy(ids: ids)))
                 completed = true
             }
         }
