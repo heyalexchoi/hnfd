@@ -15,6 +15,7 @@ enum HNFDError: Error {
     case unableToCreateReachability
     case storyHasNoArticleURL
     case responseObjectSerializableFailedToInitialize(unserializedObject: Any)
+    case timeout
     
     var description: String {
         switch self {
@@ -26,6 +27,8 @@ enum HNFDError: Error {
             return "Failed to initialize response object"
         case .external(let underlying):
             return underlying.localizedDescription
+        case .timeout:
+            return "HNFD request timed out."
         }
     }
     

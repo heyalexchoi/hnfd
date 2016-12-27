@@ -21,31 +21,58 @@ extension Story: Downloadable {
     }
 }
 
+extension Sequence where Iterator.Element == Story {
+    
+    /*! Orders collection of stories by id according to the order of the given ids. computational complexity: 2*O(n) */
+    func orderBy(ids: [Int]) -> [Story] {
+        var mappedStories = [Int: Story]()
+        for story in self {
+            mappedStories[story.id] = story
+        }
+        var orderedStories = [Story]()
+        for id in ids {
+            if let story = mappedStories[id] {
+                orderedStories.append(story)
+            }
+        }
+        return orderedStories
+    }
+}
+
 enum StoriesType: String {
-    case
-    Top = "topstories",
-    New = "newstories",
-    Show = "showstories",
-    Ask = "askstories",
-    Job = "jobstories",
-    Saved = "savedstories"
-    static var allValues = [Top, New, Show, Ask, Job, Saved]
+    
+    case Top = "topstories"
+    case New = "newstories"
+    case Show = "showstories"
+    case Ask = "askstories"
+    case Job = "jobstories"
+    case Pinned = "pinnedstories"
+    
+    static var allValues = [Top, New, Show, Ask, Job, Pinned]
+    
     var title: String {
-        return rawValue.replacingOccurrences(of: "stories", with: " stories").capitalized
+        return rawValue.replacingOccurrences(of: "stories", with: "").capitalized
     }
     var isCached: Bool {
         return Cache.shared.hasFileCachedItemForKey(cacheKey)
     }
 }
 
-//func ==(l: Story, r: Story) -> Bool {
-//    return l.id == r.id
-//}
+extension Story {
+    static var pinnedIdsCacheKey = "pinnedStoryIds"
+}
 
-extension Story { // HASHABLE
-//    override var hashValue: Int {
-//        return id.hashValue
-//    }
+extension Int: ResponseObjectSerializable {
+    init?(json: JSON) {
+        guard let int = json.int else { return nil }
+        self = int
+    }
+}
+
+extension Int: JSONSerializable {
+    var asJSON: Any {
+        return self
+    }
 }
 
 struct Story: ResponseObjectSerializable, DataSerializable, JSONSerializable {
@@ -75,8 +102,6 @@ struct Story: ResponseObjectSerializable, DataSerializable, JSONSerializable {
     let children: [Comment]
     let date: Date
     let updated: String
-    // want var to see if full story exists in cache
-    // want var to track if user 'pinned' story
     
     static func cacheKey(_ id: Int) -> String {
         return "cached_story_\(id)"
@@ -141,17 +166,5 @@ struct Story: ResponseObjectSerializable, DataSerializable, JSONSerializable {
         debugPrint("Story failed to serialize to JSON: \(self)")
         return Data()
     }
-    
-//    override var hash: Int {
-//        return hashValue
-//    }
-    
-//    override func isEqual(object: AnyObject?) -> Bool {
-//        if let object = object as? Story {
-//            return id == object.id
-//        }
-//        return false
-//    }
-    
 }
 

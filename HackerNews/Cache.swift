@@ -6,13 +6,15 @@
 //  Copyright (c) 2015 Alex Choi. All rights reserved.
 //
 
+import PromiseKit
+
 struct Cache {
     
     static let shared = Cache()
     static let cacheName = "com.heyalexchoi.hnfd.cache"
     
     let backgroundQueue = OperationQueue()
-    let mainQueue = OperationQueue.main
+    let completionReturnQueue = OperationQueue.main
     let fileManager = FileManager.default
     
     let cacheURL: URL = {
@@ -20,11 +22,8 @@ struct Cache {
         let cachesDirectory = try! fileManager.url(for: .cachesDirectory, in: .userDomainMask, appropriateFor: nil, create: false)
         
         let cacheURL = NSURL.fileURL(withPathComponents: [cachesDirectory.path, Cache.cacheName])!
-        debugPrint("cache url: ")
-        debugPrint(cacheURL)
         if !fileManager.fileExists(atPath: cacheURL.path) {
             try! fileManager.createDirectory(at: cacheURL, withIntermediateDirectories: true, attributes: nil)
-            print("created cache directory!")
         }
         
         return cacheURL
@@ -44,7 +43,7 @@ struct Cache {
                 let data = try self.data(forKey: key)
                 ResponseObjectSerializer.serialize(data: data, completion: completion)
             } catch let error {
-                completion(Result.failure(error))
+                self.complete(error: error, completion: completion)
             }
         }
     }
@@ -55,7 +54,7 @@ struct Cache {
                 let data = try self.data(forKey: key)
                 ResponseObjectSerializer.serialize(data: data, completion: completion)
             } catch let error {
-                completion(Result.failure(error))
+                self.complete(error: error, completion: completion)
             }
         }
     }
@@ -92,13 +91,84 @@ struct Cache {
     }
     
     func setStories(_ type: StoriesType, stories: [Story]) {
-        setObjects(forKey: type.cacheKey, objects: stories)        
+        setObjects(forKey: type.cacheKey, objects: stories)
+    }
+    
+    func getStories(ids: [Int], timeout: TimeInterval = 2) -> Promise<[Story]> {
+        return Promise { (fulfill: @escaping ([Story]) -> Void, reject: @escaping (Error) -> Void) in
+            
+            _ = after(interval: timeout).then(execute: { (_) -> Void in
+                reject(HNFDError.timeout)
+            })
+            
+            let promises = ids.map({ (id) -> Promise<Story> in
+                return getStory(id: id)
+            })
+            
+            let combinedPromises = when(resolved: promises)
+                
+            _ = combinedPromises
+                .then(execute: { (results: [PromiseKit.Result<Story>]) -> Void in
+                var stories = [Story]()
+                for case let .fulfilled(story) in results {
+                    stories.append(story)
+                }
+                fulfill(stories.orderBy(ids: ids))
+            })
+        }
+    }
+    
+    // MARK: - PINNED STORIES
+    
+    func getPinnedStoryIds(completion: @escaping (_ result: Result<[Int]>) -> Void) {
+        getObjects(forKey: Story.pinnedIdsCacheKey, completion: completion)
+    }
+    
+    func setPinnedStoryIds(ids: [Int]) {
+        setObjects(forKey: Story.pinnedIdsCacheKey, objects: ids)
+    }
+    
+    func addPinnedStory(id: Int) {
+        getPinnedStoryIds { (result: Result<[Int]>) in
+            var pinnedIds = result.value ?? [Int]()
+            if let pinnedIdIndex = pinnedIds.index(where: { (pinnedId) -> Bool in
+                return pinnedId == id
+            }) {
+                pinnedIds.remove(at: pinnedIdIndex)
+            }
+            pinnedIds.insert(id, at: 0)
+            self.setPinnedStoryIds(ids: pinnedIds)
+        }
+    }
+    
+    func removePinnedStory(id: Int) {
+        getPinnedStoryIds { (result: Result<[Int]>) in
+            var pinnedIds = result.value ?? [Int]()
+            if let pinnedIdIndex = pinnedIds.index(where: { (pinnedId) -> Bool in
+                return pinnedId == id
+            }) {
+                pinnedIds.remove(at: pinnedIdIndex)
+            }
+            self.setPinnedStoryIds(ids: pinnedIds)
+        }
     }
     
     // MARK: - STORY
     
     func getStory(_ id: Int, completion: @escaping (_ result: Result<Story>) -> Void) {
         getObject(forKey: Story.cacheKey(id), completion: completion)
+    }
+    
+    func getStory(id: Int) -> Promise<Story> {
+        return Promise { (fulfill: @escaping (Story) -> Void, reject: @escaping (Error) -> Void) in
+            getStory(id, completion: { (result) in
+                guard let story = result.value else {
+                    reject(result.error!)
+                    return
+                }
+                fulfill(story)
+            })
+        }
     }
     
     func setStory(_ story: Story) {
@@ -116,15 +186,23 @@ struct Cache {
     }
     
     func setArticle(_ article: ReadabilityArticle) {
-        setObject(forKey: article.cacheKey, object: article)        
+        setObject(forKey: article.cacheKey, object: article)
     }
+}
 
+extension Cache {
+    
+    func complete<T: Any>(error: Error, completion: @escaping (Result<T>) -> Void) {
+        self.completionReturnQueue.addOperation {
+            completion(Result.failure(error))
+        }
+    }
 }
 
 extension Cache {
     
     func hasFileCachedItemForKey(_ key: String?) -> Bool {
         guard let key = key else { return false }
-        return fileManager.fileExists(atPath: fileURL(forKey: key).path)        
+        return fileManager.fileExists(atPath: fileURL(forKey: key).path)
     }
 }

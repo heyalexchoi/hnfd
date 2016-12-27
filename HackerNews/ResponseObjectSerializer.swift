@@ -37,7 +37,7 @@ struct ResponseObjectSerializer {
         case .success(let json):
             serialize(any: json, completion: completion)
         case .failure(let error):
-            completion(Result.failure(error))
+            complete(error: error, completion: completion)
         }
     }
     
@@ -48,7 +48,7 @@ struct ResponseObjectSerializer {
         case .success(let json):
             serialize(any: json, completion: completion)
         case .failure(let error):
-            completion(Result.failure(error))
+            complete(error: error, completion: completion)
         }
     }
     
@@ -101,7 +101,7 @@ struct ResponseObjectSerializer {
                 let json = try JSONSerialization.jsonObject(with: data, options: [.allowFragments])
                 self.serialize(any: json, completion: completion)
             } catch let error {
-                completion(Result.failure(error))
+                complete(error: error, completion: completion)
             }
         })
     }
@@ -113,8 +113,16 @@ struct ResponseObjectSerializer {
                 let json = try JSONSerialization.jsonObject(with: data, options: [.allowFragments])
                 self.serialize(any: json, completion: completion)
             } catch let error {
-                completion(Result.failure(error))
+                complete(error: error, completion: completion)
             }
         })
+    }
+    
+    // MARK: - Errors
+    
+    static func complete<T: Any>(error: Error, completion: @escaping (Result<T>) -> Void) {
+        self.completionReturnQueue.addOperation {
+            completion(Result.failure(error))
+        }
     }
 }

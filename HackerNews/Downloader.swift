@@ -74,6 +74,41 @@ extension Downloader {
         let fileURL = DataSource.cache.fileURL(forKey: type.cacheKey)
         return download(request, destinationURL: fileURL, completion: completion)
     }
+    
+    @discardableResult static func download(stories ids: [Int], completion: ((_ result: Result<[Story]>) -> Void)?) -> [DownloadRequest] {
+        // could proably promisekit this
+        
+        let startTime = Date()
+        let timeOut = 3
+        
+        var stories = [Story]()
+        var failureCount = 0
+        
+        var completed = false
+        
+        func completeIfFinished() {
+            guard !completed else { return }
+            if stories.count + failureCount == ids.count
+                || startTime.timeIntervalSinceNow < TimeInterval(-timeOut) {
+                
+                completion?(Result.success(stories.orderBy(ids: ids)))
+                completed = true
+            }
+        }
+        
+        return ids.map { (id) -> DownloadRequest in
+            return downloadStory(id, completion: { (result: Result<Story>) in
+                guard let story = result.value else {
+                    failureCount += 1
+                    completeIfFinished()
+                    return
+                }
+                
+                stories.append(story)
+                completeIfFinished()
+            })
+        }
+    }
 }
 // MARK: - Article
 extension Downloader {

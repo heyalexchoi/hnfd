@@ -10,6 +10,7 @@
 		0C1EE00F1AE0B3E8009BD94E /* Global.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C1EE00E1AE0B3E8009BD94E /* Global.swift */; };
 		0C1EE0111AE0C0B4009BD94E /* ReadabilityViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C1EE0101AE0C0B4009BD94E /* ReadabilityViewController.swift */; };
 		0C2CF6141AEF21E70055ADC8 /* Private.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C2CF6131AEF21E70055ADC8 /* Private.swift */; };
+		0CC1A8121E0B38AB00CAF389 /* PromiseKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0CC1A8111E0B38AB00CAF389 /* PromiseKit.framework */; };
 		0CD3C88C1AD781DF005CC6C1 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CD3C88B1AD781DF005CC6C1 /* AppDelegate.swift */; };
 		0CD3C88E1AD781DF005CC6C1 /* StoriesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CD3C88D1AD781DF005CC6C1 /* StoriesViewController.swift */; };
 		0CD3C8931AD781DF005CC6C1 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0CD3C8921AD781DF005CC6C1 /* Images.xcassets */; };
@@ -70,6 +71,7 @@
 		0C1EE00E1AE0B3E8009BD94E /* Global.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Global.swift; sourceTree = "<group>"; };
 		0C1EE0101AE0C0B4009BD94E /* ReadabilityViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReadabilityViewController.swift; sourceTree = "<group>"; };
 		0C2CF6131AEF21E70055ADC8 /* Private.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Private.swift; sourceTree = "<group>"; };
+		0CC1A8111E0B38AB00CAF389 /* PromiseKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = PromiseKit.framework; path = Carthage/Build/iOS/PromiseKit.framework; sourceTree = "<group>"; };
 		0CD3C8861AD781DF005CC6C1 /* HackerNews.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HackerNews.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		0CD3C88A1AD781DF005CC6C1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		0CD3C88B1AD781DF005CC6C1 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -135,6 +137,7 @@
 				1716D1F21CC993ED0027EE3A /* Reachability.framework in Frameworks */,
 				177CF2FF1CD6A12700F373CD /* Alamofire.framework in Frameworks */,
 				177CF3011CD6A12700F373CD /* SwiftyJSON.framework in Frameworks */,
+				0CC1A8121E0B38AB00CAF389 /* PromiseKit.framework in Frameworks */,
 				624CD01D040FC6472DBBEBCF /* Pods_HackerNews.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -251,6 +254,7 @@
 		14AE43D8DF032F9A10DDB7A7 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				0CC1A8111E0B38AB00CAF389 /* PromiseKit.framework */,
 				177CF2FC1CD6A12700F373CD /* Alamofire.framework */,
 				177CF2FD1CD6A12700F373CD /* PINCache.framework */,
 				177CF2FE1CD6A12700F373CD /* SwiftyJSON.framework */,
@@ -458,6 +462,7 @@
 				"$(PROJECT_DIR)/Carthage/Build/iOS/Reachability.framework",
 				"$(PROJECT_DIR)/Carthage/Build/iOS/Alamofire.framework",
 				"$(PROJECT_DIR)/Carthage/Build/iOS/SwiftyJSON.framework",
+				"$(SRCROOT)/Carthage/Build/iOS/PromiseKit.framework",
 			);
 			name = Carthage;
 			outputPaths = (
@@ -719,7 +724,7 @@
 				INFOPLIST_FILE = HackerNews/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.2;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.alexchoi.$(PRODUCT_NAME:rfc1034identifier)";
+				PRODUCT_BUNDLE_IDENTIFIER = com.alexchoi.hnfd;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "HackerNews/HackerNews-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -742,7 +747,7 @@
 				INFOPLIST_FILE = HackerNews/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.2;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.alexchoi.$(PRODUCT_NAME:rfc1034identifier)";
+				PRODUCT_BUNDLE_IDENTIFIER = com.alexchoi.hnfd;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "HackerNews/HackerNews-Bridging-Header.h";
 				SWIFT_VERSION = 3.0;

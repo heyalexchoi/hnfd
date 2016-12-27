@@ -21,11 +21,3 @@ func merge<K,V>(_ dicts: [K: V]...) -> [K: V] {
     }
     return new
 }
-
-func pmap<T,U>(_ array: Array<T>, closure: (T) -> U) -> Array<U> {
-    var pmapped = Array<U>()
-    DispatchQueue.concurrentPerform(iterations: array.count) { (i) -> Void in
-        pmapped.append(closure(array[i]))
-    }
-    return pmapped
-}

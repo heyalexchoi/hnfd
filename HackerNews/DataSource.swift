@@ -8,6 +8,7 @@
 
 import Foundation
 import Reachability
+import PromiseKit
 
 struct DataSource {
     
@@ -57,6 +58,50 @@ extension DataSource {
             completion?(result)
         })
     }
+    
+    // MARK: - PINNED STORIES
+    
+    /*! this method currently has no failure results. limit and offset are not implemented. it only returns whatever stories are pinned and could be retrieved */
+    static func getPinnedStories(limit: Int, offset: Int, refresh: Bool = false, completion: ((_ result: Result<[Story]>) -> Void)?) {
+        // TO DO: errors
+        Cache.shared.getPinnedStoryIds { (result: Result<[Int]>) in
+            // TO DO: limit and offset
+            let ids = result.value ?? [Int]() // TO DO: errors?
+            
+            Cache.shared.getStories(ids: ids)
+            .then(execute: { (stories) -> Void in
+                completion?(Result.success(stories))
+            })
+            .catch(execute: { (error) in
+                debugPrint(error)
+                completion?(Result.success([Story]()))
+            })
+            
+            if shouldMakeNetworkRequest && refresh {
+                Downloader.download(stories: ids, completion: { (result: Result<[Story]>) in
+                    guard let stories = result.value else {
+                        completion?(Result.success([Story]()))
+                        return
+                    }
+                    completion?(Result.success(stories))
+                })
+            }
+        }
+    }
+    
+    static func getPinnedStoryIds(completion: @escaping (_ ids: [Int]) -> Void) {
+        Cache.shared.getPinnedStoryIds { (result: Result<[Int]>) in
+            completion(result.value ?? [Int]())
+        }
+    }
+    
+    static func addPinnedStory(id: Int) {
+        Cache.shared.addPinnedStory(id: id)
+    }
+    
+    static func removePinnedStory(id: Int) {
+        Cache.shared.removePinnedStory(id: id)
+    }
 }
 
 extension DataSource {
@@ -74,7 +119,7 @@ extension DataSource {
         } else if let completion = completion {
             cache.getArticle(story, completion: completion)
         }
-    }    
+    }
 }
 
 extension DataSource {

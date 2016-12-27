@@ -44,7 +44,6 @@ class StoryCell: UITableViewCell {
     let leftSwipeRecognizer = UISwipeGestureRecognizer()
     let rightSwipeRecognizer = UISwipeGestureRecognizer()
     
-    
     override init(style: UITableViewCellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         
@@ -74,8 +73,7 @@ class StoryCell: UITableViewCell {
         
         byTimeSpace.translatesAutoresizingMaskIntoConstraints = false
         articleContainer.addSubview(byTimeSpace)
-        
-        commentsLabel.numberOfLines = 0
+                
         commentsLabel.lineBreakMode = .byWordWrapping
         commentsLabel.textAlignment = .center
         
@@ -139,35 +137,24 @@ class StoryCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func estimatedHeight(_ width: CGFloat, title: String) -> CGFloat {
-        let attributedTitle = NSAttributedString(string: title, attributes: titleLabel.defaultTextAttributes)
-        let titleBoundingRect = attributedTitle.boundingRect(with: CGSize(width: width - 60, height: CGFloat.greatestFiniteMagnitude),
-            options: [.usesLineFragmentOrigin, .usesFontLeading],
-            context: nil)
-        let titleHeight = titleBoundingRect.height
-        let detailFont: UIFont = TextAttributes.detailAttributes[NSFontAttributeName] as! UIFont
-        let detailHeight = detailFont.lineHeight
-        return 15 + titleHeight + 5 + detailHeight + 5 + detailHeight + 15
+    func estimateHeight(story: Story, isPinned: Bool, width: CGFloat) -> CGFloat {
+        prepare(story: story, isPinned: isPinned, width: width)
+        return systemLayoutSizeFitting(CGSize(width: width, height: CGFloat.greatestFiniteMagnitude)).height        
     }
     
-    func prepare(_ story: Story) {
+    func prepare(story: Story, isPinned: Bool, width: CGFloat) {
+        titleLabel.preferredMaxLayoutWidth = width
         titleLabel.text = story.title
         byLabel.setText("by \(story.by)", attributes: TextAttributes.detailAttributes)
         
-        let commentsCountString = "\(story.descendants) comments"
-        let commentsCachedString = "comments: \(story.isCached)"
-        let articleCachedString = "article: \(story.isArticleCached)"
+        let commentsCountString = "\(story.descendants)"
         
-        let commentsString = commentsCountString
-            + "\n" + commentsCachedString
-            + "\n" + articleCachedString
-        
-        commentsLabel.setText(commentsString, attributes: TextAttributes.detailAttributes)
+        commentsLabel.setText(commentsCountString, attributes: TextAttributes.textAttributes)
         scoreLabel.setText("\(story.score) points", attributes: TextAttributes.detailAttributes)
         timeLabel.setText(String((story.date as NSDate).timeAgoSinceNow()), attributes: TextAttributes.detailAttributes)
-        URLLabel.setText(story.URL?.absoluteString, attributes: TextAttributes.detailAttributes)
-//        pinnedImageView.hidden = !story.saved
-        pinnedImageView.isHidden = true
+        URLLabel.setText(story.URLString, attributes: TextAttributes.detailAttributes)
+        
+        pinnedImageView.isHidden = !isPinned
     }
     
     func articleButtonDidPress() {
