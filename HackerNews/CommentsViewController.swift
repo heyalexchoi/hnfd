@@ -9,7 +9,6 @@
 import UIKit
 
 
-
 class CommentsViewController: UIViewController {
     
     var story: Story {
@@ -108,7 +107,7 @@ class CommentsViewController: UIViewController {
     
     func goToArticle() {
         // TO DO: manage navigation stack so user can go back and forth between article and comments without making huge chain
-        navigationController?.pushViewController(ReadabilityViewContoller(story: story), animated: true)
+        navigationController?.pushViewController(ArticleViewController(story: story), animated: true)
     }
     
     func cachedHeightForRowAtIndexPath(_ indexPath: IndexPath) -> CGFloat {

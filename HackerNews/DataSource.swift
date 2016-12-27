@@ -108,7 +108,7 @@ extension DataSource {
     
     // MARK: - Articles
     
-    static func getArticle(_ story: Story, refresh: Bool = false, completion: ((_ result: Result<ReadabilityArticle>) -> Void)?) {
+    static func getArticle(_ story: Story, refresh: Bool = false, completion: ((_ result: Result<MercuryArticle>) -> Void)?) {
         guard let URLString = story.URLString else {
             completion?(Result.failure(HNFDError.storyHasNoArticleURL))
             return
@@ -127,7 +127,7 @@ extension DataSource {
     @discardableResult static func fullySync(storiesType type: StoriesType,
                                              storiesHandler: ((_ storiesResult: Result<[Story]>) -> Void)?,
                                              storyHandler: ((_ storyResult: Result<Story>) -> Void)?,
-                                             articleHandler: ((_ articleResult: Result<ReadabilityArticle>) -> Void)?) {
+                                             articleHandler: ((_ articleResult: Result<MercuryArticle>) -> Void)?) {
         
         getStories(type, refresh: true, completion: { (storiesResult: Result<[Story]>) -> Void in
             guard let stories = storiesResult.value else {
@@ -145,7 +145,7 @@ extension DataSource {
     
     @discardableResult static func fullySync(story: Story,
                                              storyHandler: ((_ storyResult: Result<Story>) -> Void)?,
-                                             articleHandler: ((_ articleResult: Result<ReadabilityArticle>) -> Void)?) {
+                                             articleHandler: ((_ articleResult: Result<MercuryArticle>) -> Void)?) {
         
         getStory(story.id, refresh: true, completion: storyHandler)
         getArticle(story, completion: articleHandler)

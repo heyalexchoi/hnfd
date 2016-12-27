@@ -111,7 +111,7 @@ struct Story: ResponseObjectSerializable, DataSerializable, JSONSerializable {
     }
     var articleCacheKey: String? {
         guard let URLString = URLString else { return nil }
-        return ReadabilityArticle.cacheKeyForURLString(URLString)
+        return MercuryArticle.cacheKeyForURLString(URLString)
     }
     var isCached: Bool {
         return Cache.shared.hasFileCachedItemForKey(cacheKey)

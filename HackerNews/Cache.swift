@@ -177,7 +177,7 @@ struct Cache {
     
     // MARK: - ARTICLES
     
-    func getArticle(_ story: Story, completion: @escaping (_ result: Result<ReadabilityArticle>) -> Void) {
+    func getArticle(_ story: Story, completion: @escaping (_ result: Result<MercuryArticle>) -> Void) {
         guard let cacheKey = story.articleCacheKey else {
             completion(Result.failure(HNFDError.storyHasNoArticleURL))
             return
@@ -185,7 +185,7 @@ struct Cache {
         getObject(forKey: cacheKey, completion: completion)
     }
     
-    func setArticle(_ article: ReadabilityArticle) {
+    func setArticle(_ article: MercuryArticle) {
         setObject(forKey: article.cacheKey, object: article)
     }
 }

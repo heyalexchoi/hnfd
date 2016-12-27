@@ -113,9 +113,9 @@ extension Downloader {
 // MARK: - Article
 extension Downloader {
     
-    @discardableResult static func downloadArticle(URLString: String, completion: ((_ result: Result<ReadabilityArticle>) -> Void)?) -> DownloadRequest {
-        let request = ReadabilityRouter.article(URLString: URLString)
-        let fileURL = DataSource.cache.fileURL(forKey: ReadabilityArticle.cacheKeyForURLString(URLString))
+    @discardableResult static func downloadArticle(URLString: String, completion: ((_ result: Result<MercuryArticle>) -> Void)?) -> DownloadRequest {
+        let request = MercuryRouter.article(URLString: URLString)
+        let fileURL = DataSource.cache.fileURL(forKey: MercuryArticle.cacheKeyForURLString(URLString))
         return download(request, destinationURL: fileURL, completion: completion)
     }
 }
