@@ -119,13 +119,13 @@ extension StoriesViewController {
         }
     }
     
-    func story(forArticle article: ReadabilityArticle) -> Story? {
+    func story(forArticle article: MercuryArticle) -> Story? {
         return stories.first(where: { (story) -> Bool in
             return story.URLString == article.URLString
         })
     }
     
-    func reload(article: ReadabilityArticle) {
+    func reload(article: MercuryArticle) {
         if let story = story(forArticle: article) {
             reload(story: story)
         }
@@ -231,7 +231,7 @@ extension StoriesViewController: StoryCellDelegate {
         guard let story = storyForCell(cell) else { return }
         if story.kind == .Story
             && story.URLString != nil {
-                navigationController?.pushViewController(ReadabilityViewContoller(story: story), animated: true)
+                navigationController?.pushViewController(ArticleViewController(story: story), animated: true)
         } else {
             navigationController?.pushViewController(CommentsViewController(story: story), animated: true)
         }

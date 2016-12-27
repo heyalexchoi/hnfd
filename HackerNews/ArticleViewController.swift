@@ -6,9 +6,9 @@
 //  Copyright (c) 2015 Alex Choi. All rights reserved.
 //
 
-class ReadabilityViewContoller: UIViewController {
+class ArticleViewController: UIViewController {
     
-    var article: ReadabilityArticle?
+    var article: MercuryArticle?
     let story: Story
     let articleURL: URL?
     
@@ -26,11 +26,11 @@ class ReadabilityViewContoller: UIViewController {
         self.articleURL = story.URL as URL?
         super.init(nibName: nil, bundle: nil)
         
-        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .action, target: self, action: #selector(ReadabilityViewContoller.actionButtonDidPress))
+        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .action, target: self, action: #selector(ArticleViewController.actionButtonDidPress))
         
-        NotificationCenter.default.addObserver(self, selector: #selector(ReadabilityViewContoller.saveReadingProgress), name: NSNotification.Name.UIApplicationWillResignActive, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(ArticleViewController.saveReadingProgress), name: NSNotification.Name.UIApplicationWillResignActive, object: nil)
         
-        getReadabilityArticle()
+        getMercuryArticle()
     }
     
     required init(coder aDecoder: NSCoder) {
@@ -75,7 +75,7 @@ class ReadabilityViewContoller: UIViewController {
     }
 }
 
-extension ReadabilityViewContoller {
+extension ArticleViewController {
     
     func saveReadingProgress() {
         article?.readingProgress = readingProgress
@@ -92,7 +92,7 @@ extension ReadabilityViewContoller {
         webView.isHidden = false
     }
     
-    func getReadabilityArticle() {
+    func getMercuryArticle() {
         ProgressHUD.showAdded(to: view, animated: true)
         DataSource.getArticle(story, completion: { [weak self] (result) -> Void in
             ProgressHUD.hide(for: self?.view, animated: true)
@@ -118,7 +118,7 @@ extension ReadabilityViewContoller {
     }
 }
 
-extension ReadabilityViewContoller {
+extension ArticleViewController {
     
     var CSS: String {
         
@@ -207,7 +207,7 @@ extension ReadabilityViewContoller {
     }
 }
 
-extension ReadabilityViewContoller: UIWebViewDelegate {
+extension ArticleViewController: UIWebViewDelegate {
     
     func webView(_ webView: UIWebView, shouldStartLoadWith request: URLRequest, navigationType: UIWebViewNavigationType) -> Bool {
         if let URL = request.url , htmlLoaded {

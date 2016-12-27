@@ -1,5 +1,5 @@
 //
-//  ReadabilityArticle.swift
+//  MercuryArticle.swift
 //  HackerNews
 //
 //  Created by Alex Choi on 5/10/15.
@@ -9,24 +9,25 @@
 import SwiftyJSON
 
 
-struct ReadabilityArticle: ResponseObjectSerializable {
+struct MercuryArticle: ResponseObjectSerializable {
     
-    let content: String
-    let domain: String
-    let author: String
-    let URLString: String
-    let shortURL: URL?
     let title : String
+    let content: String
+    let author: String
+    let datePublished: Date?
+    let leadImageURL: URL?
+    let dek: String
+    let URLString: String
+    let domain: String
     let excerpt: String
     let wordCount: Int
     let totalPages: Int
-    let dek: String
-    let leadImageURL: URL?
-    let datePublished: Date?
-    
+    let renderedPages: Int
+
     var readingProgress: CGFloat
     
-    let readabilityDateFormat = "yyyy-MM-dd HH:mm:ss"
+    /* 2016-12-26T05:00:00.000Z */
+    let readabilityDateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
     
     init?(json: JSON) {
         guard let content = json["content"].string,
@@ -37,11 +38,11 @@ struct ReadabilityArticle: ResponseObjectSerializable {
         self.title = title
         domain = json["domain"].stringValue
         author = json["author"].stringValue
-        URLString = json["url"].stringValue
-        shortURL = URL(string: json["short_url"].stringValue)
+        URLString = json["url"].stringValue        
         excerpt = json["excerpt"].stringValue
         wordCount = json["word_count"].intValue
         totalPages = json["total_pages"].intValue
+        renderedPages = json["rendered_pages"].intValue
         dek = json["dek"].stringValue
         leadImageURL = URL(string: json["lead_image_url"].stringValue)
         datePublished = DateFormatter.dateFromString(json["date_published"].stringValue, format: readabilityDateFormat)
@@ -54,7 +55,6 @@ struct ReadabilityArticle: ResponseObjectSerializable {
             "domain": domain,
             "author": author,
             "url": URLString,
-            "short_url": shortURL?.absoluteString ?? "",
             "title": title,
             "excerpt": excerpt,
             "word_count": wordCount,
@@ -72,7 +72,7 @@ struct ReadabilityArticle: ResponseObjectSerializable {
 }
 
 // MARK: - CACHING
-extension ReadabilityArticle {
+extension MercuryArticle {
     
     static func cacheKeyForURLString(_ urlString: String) -> String {
         return "cached_article_\(urlString)"
@@ -83,7 +83,7 @@ extension ReadabilityArticle {
     }
 }
 
-extension ReadabilityArticle: DataSerializable {
+extension MercuryArticle: DataSerializable {
     
     var asData: Data {
         if let data = try? JSONSerialization.data(withJSONObject: asJSON) {

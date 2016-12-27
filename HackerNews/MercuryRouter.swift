@@ -1,5 +1,5 @@
 //
-//  ReadabilityRouter.swift
+//  MercuryRouter.swift
 //  HackerNews
 //
 //  Created by alexchoi on 11/2/16.
@@ -9,7 +9,7 @@
 import Foundation
 import Alamofire
 
-enum ReadabilityRouter: URLRequestConvertible {
+enum MercuryRouter: URLRequestConvertible {
     
     case article(URLString: String)
     
@@ -23,16 +23,15 @@ enum ReadabilityRouter: URLRequestConvertible {
     var path: String {
         switch self {
         case .article:
-            return "/content/v1/parser"
+            return "/parser"
         }
     }
     
-    var parameters: [String: AnyObject] {
+    var parameters: [String: Any] {
         switch self {
         case .article(let URLString):
             return [
-                "url": URLString as AnyObject,
-                "token": Private.Keys.readabilityParserAPIToken as AnyObject
+                "url": URLString
             ]
         }
     }
@@ -40,9 +39,10 @@ enum ReadabilityRouter: URLRequestConvertible {
     // MARK: URLRequestConvertible
     
     func asURLRequest() throws -> URLRequest {
-        let url = URL(string: "https://readability.com/api")!.appendingPathComponent(path)
+        let url = URL(string: "https://mercury.postlight.com")!.appendingPathComponent(path)
         var request = try URLEncoding.default.encode(URLRequest(url: url), with: parameters)
         request.httpMethod = method.rawValue
+        request.addValue(Private.Keys.mercuryParserAPIToken, forHTTPHeaderField: "x-api-key")
         return request
     }
 }
