@@ -44,6 +44,10 @@ class StoryCell: UITableViewCell {
     let leftSwipeRecognizer = UISwipeGestureRecognizer()
     let rightSwipeRecognizer = UISwipeGestureRecognizer()
     
+    let articleContainerLeftPadding: CGFloat = 15
+    let articleCommentsContainersPadding: CGFloat = 15
+    let commentsContainerWidth: CGFloat = 75
+    
     override init(style: UITableViewCellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         
@@ -120,7 +124,7 @@ class StoryCell: UITableViewCell {
         contentView.backgroundColor = UIColor.backgroundColor()        
         _ = articleContainer.anchorCenterYToCenterYOfView(contentView)
         _ = contentView.addConstraints(withVisualFormats: [
-            "H:|-15-[articleContainer]-15-[commentsContainer(==75)]|",
+            "H:|-\(articleContainerLeftPadding)-[articleContainer]-\(articleCommentsContainersPadding)-[commentsContainer(==\(commentsContainerWidth))]|",
             "V:|[commentsContainer]|",
             "H:|[articleButton][commentsButton(==commentsContainer)]|",
             "V:|[articleContainer]|",
@@ -143,7 +147,7 @@ class StoryCell: UITableViewCell {
     }
     
     func prepare(story: Story, isPinned: Bool, width: CGFloat) {
-        titleLabel.preferredMaxLayoutWidth = width
+        titleLabel.preferredMaxLayoutWidth = width - articleContainerLeftPadding - articleCommentsContainersPadding - commentsContainerWidth
         titleLabel.text = story.title
         byLabel.setText("by \(story.by)", attributes: TextAttributes.detailAttributes)
         
