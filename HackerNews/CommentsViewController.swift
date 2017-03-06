@@ -8,16 +8,114 @@
 
 import UIKit
 
+struct CommentTreeDataSource {
+    
+    // MARK: - INTERFACE
+    
+    var commentsCount: Int {
+        return flattenedTree.count
+    }
+
+    init(comments: [Comment] = []) {
+        tree = comments.map { CommentNode(comment: $0) }
+        flattenedTree = CommentTreeDataSource.flatten(tree: tree)
+    }
+
+    func comment(atIndex index: Int) -> Comment {
+        return flattenedTree[index].comment
+    }
+    
+    func isCommentExpanded(atIndex index: Int) -> Bool {
+        return flattenedTree[index].isExpanded
+    }
+    
+    mutating func setCommentIsExpanded(_ isExpanded: Bool, atIndex index: Int) {
+        guard let treeItem = treeItemForFlattenedIndex(index: index) else {
+            return
+        }
+        treeItem.isExpanded = isExpanded
+        flattenedTree = flatten(tree: tree)
+    }
+    
+    mutating func expandComment(atIndex index: Int) {
+        setCommentIsExpanded(true, atIndex: index)
+    }
+    
+    mutating func collapseComment(atIndex index: Int) {
+        setCommentIsExpanded(false, atIndex: index)
+    }
+    
+    // MARK: - PRIVATE
+    
+    private class CommentNode {
+        
+        var isExpanded = true
+        let children: [CommentNode]
+        let descendantIds: Set<Int>
+        
+        let comment: Comment
+        
+        init(comment: Comment) {
+            self.comment = comment
+            self.children = comment.children.map { CommentNode(comment: $0) }
+            
+            var descendantIds = Set<Int>()
+            for child in children {
+                descendantIds.insert(child.comment.id)
+                descendantIds = descendantIds.union(child.descendantIds)
+            }
+            
+            self.descendantIds = descendantIds
+        }
+        
+        func hasDescendant(withId id: Int) -> Bool {
+            return descendantIds.contains(id)
+        }
+        
+        static func findRecursively(nodes: [CommentNode], id: Int) -> CommentNode? {
+            for node in nodes {
+                if node.comment.id == id {
+                    return node
+                }
+                if node.hasDescendant(withId: id) {
+                    return findRecursively(nodes: node.children, id: id)
+                }
+            }
+            return nil
+        }
+    }
+    
+    private let tree: [CommentNode]
+    private var flattenedTree: [CommentNode] // flattened representation of tree, excluding all descendants of any collapsed nodes
+
+    private static func flatten(tree: [CommentNode]) -> [CommentNode] {
+        return tree.map {(comment) -> [CommentNode] in
+            guard comment.isExpanded else {
+                return [comment]
+            }
+            return [comment] + flatten(tree: comment.children)
+            }.flatMap { $0 }
+    }
+    
+    private func flatten(tree: [CommentNode]) -> [CommentNode] {
+        return CommentTreeDataSource.flatten(tree: tree)
+    }
+    
+    private func treeItemForFlattenedIndex(index: Int) -> CommentNode? {
+        let commentId = flattenedTree[index].comment.id
+        return CommentNode.findRecursively(nodes: tree, id: commentId)
+    }
+}
 
 class CommentsViewController: UIViewController {
     
     var story: Story {
         didSet {
-            flattenedComments = flatten(story.children)
+            commentTreeDataSource = CommentTreeDataSource(comments: story.children)
         }
     }
     
-    var flattenedComments = [Comment]()
+    var commentTreeDataSource = CommentTreeDataSource()
     let treeView = UITableView(frame: CGRect.zero, style: .plain)
     let header: CommentsHeaderView
     let prototypeCell = CommentCell(frame: CGRect.zero)
@@ -63,7 +161,6 @@ class CommentsViewController: UIViewController {
                 "treeView": treeView])
         
         getFullStory(false)
-        
     }
     
     override func viewDidLayoutSubviews() {
@@ -85,17 +182,7 @@ class CommentsViewController: UIViewController {
             self?.treeView.reloadData()
         }
     }
-    
-    func flatten(_ comments: [Comment]) -> [Comment] {
-        return comments.map { [ weak self] (comment) -> [Comment] in
-            if let strong_self = self {
-                return [comment] + strong_self.flatten(comment.children)
-            }
-            return [comment]
-            }
-            .flatMap { $0 }
-    }
-    
+
     func actionButtonDidPress() {
         var items: [Any] = [story]
         if let URL = story.URL {
@@ -111,13 +198,27 @@ class CommentsViewController: UIViewController {
     }
     
     func cachedHeightForRowAtIndexPath(_ indexPath: IndexPath) -> CGFloat {
-        let comment = flattenedComments[(indexPath as NSIndexPath).row]
+        guard let comment = comment(forIndexPath: indexPath) else {
+            return 0
+        }
         if let cachedHeight = cachedCellHeights[comment.id] {
             return cachedHeight
         }
         let estimatedHeight = prototypeCell.estimatedHeight(treeView.bounds.width, attributedText: comment.attributedText, level: comment.level)
         cachedCellHeights[comment.id] = estimatedHeight
         return estimatedHeight
+    }
+    
+    fileprivate func comment(forIndexPath indexPath: IndexPath) -> Comment? {
+        return commentTreeDataSource.comment(atIndex: indexPath.row)
+    }
+    
+    fileprivate func isCommentExpanded(forIndexPath indexPath: IndexPath) -> Bool {
+        return commentTreeDataSource.isCommentExpanded(atIndex: indexPath.row)
+    }
+    
+    fileprivate func setCommentIsExpanded(_ isExpanded: Bool, forIndexPath indexPath: IndexPath) {
+        commentTreeDataSource.setCommentIsExpanded(isExpanded, atIndex: indexPath.row)
     }
 }
 
@@ -128,7 +229,7 @@ extension CommentsViewController: UITableViewDataSource, UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return flattenedComments.count
+        return commentTreeDataSource.commentsCount
     }
     
     func tableView(_ tableView: UITableView, estimatedHeightForRowAt indexPath: IndexPath) -> CGFloat {
@@ -141,10 +242,19 @@ extension CommentsViewController: UITableViewDataSource, UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: CommentCell.identifier, for: indexPath) as! CommentCell
-        let comment = flattenedComments[(indexPath as NSIndexPath).row]
+        guard let comment = comment(forIndexPath: indexPath) else {
+            return cell
+        }
+
         cell.textView.delegate = self
         cell.prepare(comment, level: comment.level)
         return cell
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let isExpanded = isCommentExpanded(forIndexPath: indexPath)
+        setCommentIsExpanded(!isExpanded, forIndexPath: indexPath)
+        tableView.reloadData()
     }
 }
 
