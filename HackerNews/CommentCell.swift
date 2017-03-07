@@ -61,12 +61,18 @@ class CommentCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func estimateHeight(attributedBodyText: NSAttributedString, byText: String, date: Date, level: Int, width: CGFloat) -> CGFloat {
-        prepare(attributedBodyText: attributedBodyText, byText: byText, date: date, level: level, width: width, textViewDelegate: nil)
+    func estimateHeight(attributedBodyText: NSAttributedString, byText: String, date: Date, level: Int, isExpanded: Bool, width: CGFloat) -> CGFloat {
+        prepare(attributedBodyText: attributedBodyText, byText: byText, date: date, level: level, width: width, isExpanded: isExpanded, textViewDelegate: nil)
         return contentView.systemLayoutSizeFitting(UILayoutFittingCompressedSize).height
     }
     
-    func prepare(attributedBodyText: NSAttributedString, byText: String, date: Date, level: Int, width: CGFloat, textViewDelegate: UITextViewDelegate?) {
+    func prepare(attributedBodyText: NSAttributedString,
+                 byText: String,
+                 date: Date,
+                 level: Int,
+                 width: CGFloat,
+                 isExpanded: Bool,
+                 textViewDelegate: UITextViewDelegate?) {
         let indentationWidth = indentationWidthForLevel(level)
         indentationWidthConstraint.constant = indentationWidth
         byLabel.text = byText
@@ -75,7 +81,7 @@ class CommentCell: UITableViewCell {
         textView.delegate = textViewDelegate
         
         let textViewWidth = width - textViewRightPadding - indentationWidth
-        textViewHeightConstraint.constant = textView.sizeThatFits(CGSize(width: textViewWidth, height: 99999)).height
+        textViewHeightConstraint.constant = isExpanded ? textView.sizeThatFits(CGSize(width: textViewWidth, height: 99999)).height : 0
     }
     
     fileprivate func indentationWidthForLevel(_ level: Int) -> CGFloat {

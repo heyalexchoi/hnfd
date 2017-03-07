@@ -119,7 +119,7 @@ class CommentsViewController: UIViewController {
     let treeView = UITableView(frame: CGRect.zero, style: .plain)
     let header: CommentsHeaderView
     let prototypeCell = CommentCell(frame: CGRect.zero)
-    var cachedCellHeights = [Int: CGFloat]() // id: cell height
+    var cachedCellHeights = [String: CGFloat]() // key: height
     
     init(story: Story) {
         self.story = story
@@ -201,11 +201,21 @@ class CommentsViewController: UIViewController {
         guard let comment = comment(forIndexPath: indexPath) else {
             return 0
         }
-        if let cachedHeight = cachedCellHeights[comment.id] {
+        let isExpanded = isCommentExpanded(forIndexPath: indexPath)
+        let cacheKey = "\(comment.id)_\(isExpanded)"
+        
+        if let cachedHeight = cachedCellHeights[cacheKey] {
             return cachedHeight
         }
-        let estimatedHeight = prototypeCell.estimateHeight(attributedBodyText: comment.attributedText, byText: comment.by, date: comment.date, level: comment.level, width: treeView.bounds.width)
-        cachedCellHeights[comment.id] = estimatedHeight
+        
+        let estimatedHeight = prototypeCell.estimateHeight(attributedBodyText: comment.attributedText,
+                                                           byText: comment.by,
+                                                           date: comment.date,
+                                                           level: comment.level,
+                                                           isExpanded: isExpanded,
+                                                           width: treeView.bounds.width)
+        
+        cachedCellHeights[cacheKey] = estimatedHeight
         return estimatedHeight
     }
     
@@ -251,6 +261,7 @@ extension CommentsViewController: UITableViewDataSource, UITableViewDelegate {
                      date: comment.date,
                      level: comment.level,
                      width: treeView.bounds.width,
+                     isExpanded: isCommentExpanded(forIndexPath: indexPath),
                      textViewDelegate: self)
         return cell
     }
