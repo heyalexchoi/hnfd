@@ -75,7 +75,15 @@ class CommentCell: UITableViewCell {
                  textViewDelegate: UITextViewDelegate?) {
         let indentationWidth = indentationWidthForLevel(level)
         indentationWidthConstraint.constant = indentationWidth
-        byLabel.text = byText
+        let expandedText = isExpanded ? "[-]" : "[+]"
+        let expandedAttributedText = NSMutableAttributedString(string: expandedText,
+                                                        attributes: TextAttributes.textAttributes)
+        expandedAttributedText.addAttributes([NSFontAttributeName: UIFont.symbolFont()],
+                                             range: NSRange(location: 1, length: 1))
+
+        let byAttributedText = NSAttributedString(string: " \(byText)", attributes: TextAttributes.textAttributes)
+        byLabel.attributedText = expandedAttributedText.appending(byAttributedText)        
+        
         timeLabel.text = (date as NSDate).timeAgoSinceNow()
         textView.attributedText = attributedBodyText
         textView.delegate = textViewDelegate
