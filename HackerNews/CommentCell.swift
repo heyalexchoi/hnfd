@@ -12,15 +12,19 @@ class CommentCell: UITableViewCell {
         return "CommentCellIdentifier"
     }
     
-    let indentation = UIView()
-    var indentationWidthConstraint: NSLayoutConstraint
+    fileprivate let indentation = UIView()
+    fileprivate var indentationWidthConstraint: NSLayoutConstraint
+    fileprivate let textViewHeightConstraint: NSLayoutConstraint
     
-    let byLabel = Label()
-    let timeLabel = Label()
-    let textView = TextView()
+    fileprivate let byLabel = Label()
+    fileprivate let timeLabel = Label()
+    fileprivate let textView = TextView()
+    
+    fileprivate let textViewRightPadding: CGFloat = 15
     
     override init(style: UITableViewCellStyle, reuseIdentifier: String?) {
         indentationWidthConstraint = indentation.anchorWidthToConstant(15)
+        textViewHeightConstraint = textView.anchorHeightToConstant(0)
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         
         backgroundColor = UIColor.backgroundColor()
@@ -41,41 +45,40 @@ class CommentCell: UITableViewCell {
         textView.textContainer.lineFragmentPadding = 0
         textView.dataDetectorTypes = .all
         
+        _ = timeLabel.anchorCenterYToCenterYOfView(byLabel)
         _ = contentView.addConstraints(withVisualFormats: [
             "H:|[indentation][byLabel]-30-[timeLabel]-(>=0)-|",
             "H:|[indentation][textView]-15-|",
-            "V:|-15-[byLabel]-15-[textView]-15-|",
-            "V:[timeLabel]-15-[textView]",
+            "V:|-15-[byLabel]-15-[textView]-\(textViewRightPadding)-|",
             "V:|[indentation]|"], views: [
                 "byLabel": byLabel,
                 "timeLabel": timeLabel,
                 "textView": textView,
                 "indentation": indentation])
-        
     }
     
     required init(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func estimatedHeight(_ width: CGFloat, attributedText: NSAttributedString, level: Int) -> CGFloat {
-        let textBoundingRect = attributedText.boundingRect(with: CGSize(width: width - indentationWidthForLevel(level) - 15, height: CGFloat.greatestFiniteMagnitude),
-            options: [.usesLineFragmentOrigin, .usesFontLeading],
-            context: nil)
-        let textHeight = textBoundingRect.height
-        let detailFont: UIFont = TextAttributes.textAttributes[NSFontAttributeName] as! UIFont
-        let detailHeight = detailFont.lineHeight
-        return 15 + detailHeight + 15 + textHeight + 15
+    func estimateHeight(attributedBodyText: NSAttributedString, byText: String, date: Date, level: Int, width: CGFloat) -> CGFloat {
+        prepare(attributedBodyText: attributedBodyText, byText: byText, date: date, level: level, width: width, textViewDelegate: nil)
+        return contentView.systemLayoutSizeFitting(UILayoutFittingCompressedSize).height
     }
     
-    func prepare(_ comment: Comment, level: Int) {
-        indentationWidthConstraint.constant = indentationWidthForLevel(level)
-        byLabel.text = comment.by
-        timeLabel.text = (comment.date as NSDate).timeAgoSinceNow()
-        textView.attributedText = comment.attributedText
+    func prepare(attributedBodyText: NSAttributedString, byText: String, date: Date, level: Int, width: CGFloat, textViewDelegate: UITextViewDelegate?) {
+        let indentationWidth = indentationWidthForLevel(level)
+        indentationWidthConstraint.constant = indentationWidth
+        byLabel.text = byText
+        timeLabel.text = (date as NSDate).timeAgoSinceNow()
+        textView.attributedText = attributedBodyText
+        textView.delegate = textViewDelegate
+        
+        let textViewWidth = width - textViewRightPadding - indentationWidth
+        textViewHeightConstraint.constant = textView.sizeThatFits(CGSize(width: textViewWidth, height: 99999)).height
     }
     
-    func indentationWidthForLevel(_ level: Int) -> CGFloat {
+    fileprivate func indentationWidthForLevel(_ level: Int) -> CGFloat {
         return CGFloat((level + 2) * 15)
     }
 }

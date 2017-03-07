@@ -204,7 +204,7 @@ class CommentsViewController: UIViewController {
         if let cachedHeight = cachedCellHeights[comment.id] {
             return cachedHeight
         }
-        let estimatedHeight = prototypeCell.estimatedHeight(treeView.bounds.width, attributedText: comment.attributedText, level: comment.level)
+        let estimatedHeight = prototypeCell.estimateHeight(attributedBodyText: comment.attributedText, byText: comment.by, date: comment.date, level: comment.level, width: treeView.bounds.width)
         cachedCellHeights[comment.id] = estimatedHeight
         return estimatedHeight
     }
@@ -245,9 +245,13 @@ extension CommentsViewController: UITableViewDataSource, UITableViewDelegate {
         guard let comment = comment(forIndexPath: indexPath) else {
             return cell
         }
-
-        cell.textView.delegate = self
-        cell.prepare(comment, level: comment.level)
+        
+        cell.prepare(attributedBodyText: comment.attributedText,
+                     byText: comment.by,
+                     date: comment.date,
+                     level: comment.level,
+                     width: treeView.bounds.width,
+                     textViewDelegate: self)
         return cell
     }
     
