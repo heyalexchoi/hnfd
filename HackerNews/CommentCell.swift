@@ -16,6 +16,7 @@ class CommentCell: UITableViewCell {
     fileprivate var indentationWidthConstraint: NSLayoutConstraint
     fileprivate let textViewHeightConstraint: NSLayoutConstraint
     
+    fileprivate let expandedLabel = Label()
     fileprivate let byLabel = Label()
     fileprivate let timeLabel = Label()
     fileprivate let textView = TextView()
@@ -33,7 +34,7 @@ class CommentCell: UITableViewCell {
         layoutMargins = UIEdgeInsets.zero
         preservesSuperviewLayoutMargins = false
         
-        for view in [indentation, byLabel, timeLabel, textView] {
+        for view in [indentation, expandedLabel, byLabel, timeLabel, textView] {
             view.translatesAutoresizingMaskIntoConstraints = false
             contentView.addSubview(view)
         }
@@ -46,12 +47,15 @@ class CommentCell: UITableViewCell {
         textView.dataDetectorTypes = .all
         
         _ = timeLabel.anchorCenterYToCenterYOfView(byLabel)
+        _ = expandedLabel.anchorCenterYToCenterYOfView(byLabel)
+        
         _ = contentView.addConstraints(withVisualFormats: [
-            "H:|[indentation][byLabel]-30-[timeLabel]-(>=0)-|",
+            "H:|[indentation][expandedLabel]-5-[byLabel]-30-[timeLabel]-(>=0)-|",
             "H:|[indentation][textView]-15-|",
             "V:|-15-[byLabel]-15-[textView]-\(textViewRightPadding)-|",
             "V:|[indentation]|"], views: [
                 "byLabel": byLabel,
+                "expandedLabel": expandedLabel,
                 "timeLabel": timeLabel,
                 "textView": textView,
                 "indentation": indentation])
@@ -73,8 +77,10 @@ class CommentCell: UITableViewCell {
                  width: CGFloat,
                  isExpanded: Bool,
                  textViewDelegate: UITextViewDelegate?) {
+        
         let indentationWidth = indentationWidthForLevel(level)
         indentationWidthConstraint.constant = indentationWidth
+        expandedLabel.attributedText = isExpandedAttributedText(isExpanded: isExpanded)
         byLabel.text = byText
         timeLabel.text = (date as NSDate).timeAgoSinceNow()
         textView.attributedText = attributedBodyText
@@ -86,5 +92,14 @@ class CommentCell: UITableViewCell {
     
     fileprivate func indentationWidthForLevel(_ level: Int) -> CGFloat {
         return CGFloat((level + 2) * 15)
+    }
+    
+    fileprivate func isExpandedAttributedText(isExpanded: Bool) -> NSAttributedString {
+        let isExpandedText = isExpanded ? "[-]" : "[+]"
+        let isExpandedAttributedText = NSMutableAttributedString(string: isExpandedText,
+                                                                 attributes: TextAttributes.textAttributes)
+        isExpandedAttributedText.addAttributes([NSFontAttributeName: UIFont.symbolFont()],
+                                               range: NSRange(location: 1, length: 1))
+        return isExpandedAttributedText
     }
 }

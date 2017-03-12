@@ -29,4 +29,7 @@ extension UIFont {
         return UIFont(name: "Avenir-Heavy", size: 20)!
     }
     
+    class func symbolFont() -> UIFont {
+        return UIFont(name: "Menlo-Regular", size: 18)!
+    }
 }

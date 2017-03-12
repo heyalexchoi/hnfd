@@ -16,3 +16,12 @@ extension String {
         return "<a href=\(quotedString)>\(text)</a>"
     }
 }
+
+extension NSAttributedString {
+    
+    func appending(_ attributedString: NSAttributedString) -> NSAttributedString {
+        let mutableAttributedString = self.mutableCopy() as! NSMutableAttributedString
+        mutableAttributedString.append(attributedString)
+        return mutableAttributedString
+    }
+}
