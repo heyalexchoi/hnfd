@@ -14,8 +14,8 @@
 		0CD3C88C1AD781DF005CC6C1 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CD3C88B1AD781DF005CC6C1 /* AppDelegate.swift */; };
 		0CD3C88E1AD781DF005CC6C1 /* StoriesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CD3C88D1AD781DF005CC6C1 /* StoriesViewController.swift */; };
 		0CD3C8931AD781DF005CC6C1 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0CD3C8921AD781DF005CC6C1 /* Images.xcassets */; };
-		0CD3C8961AD781DF005CC6C1 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 0CD3C8941AD781DF005CC6C1 /* LaunchScreen.xib */; };
 		0CD3C8A21AD781DF005CC6C1 /* HackerNewsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CD3C8A11AD781DF005CC6C1 /* HackerNewsTests.swift */; };
+		0CD671AA1EA5628B00166DAE /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0CD671A91EA5628B00166DAE /* LaunchScreen.storyboard */; };
 		0CEE87D11DCAB83300FD3AE9 /* HNFDRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CEE87D01DCAB83300FD3AE9 /* HNFDRouter.swift */; };
 		0CEE87D31DCAB83A00FD3AE9 /* MercuryRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CEE87D21DCAB83A00FD3AE9 /* MercuryRouter.swift */; };
 		0CEE87D61DCAB8F100FD3AE9 /* ResponseObjectSerializer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CEE87D51DCAB8F100FD3AE9 /* ResponseObjectSerializer.swift */; };
@@ -77,10 +77,10 @@
 		0CD3C88B1AD781DF005CC6C1 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		0CD3C88D1AD781DF005CC6C1 /* StoriesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoriesViewController.swift; sourceTree = "<group>"; };
 		0CD3C8921AD781DF005CC6C1 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
-		0CD3C8951AD781DF005CC6C1 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
 		0CD3C89B1AD781DF005CC6C1 /* HackerNewsTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HackerNewsTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		0CD3C8A01AD781DF005CC6C1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		0CD3C8A11AD781DF005CC6C1 /* HackerNewsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HackerNewsTests.swift; sourceTree = "<group>"; };
+		0CD671A91EA5628B00166DAE /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
 		0CEE87D01DCAB83300FD3AE9 /* HNFDRouter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HNFDRouter.swift; sourceTree = "<group>"; };
 		0CEE87D21DCAB83A00FD3AE9 /* MercuryRouter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MercuryRouter.swift; sourceTree = "<group>"; };
 		0CEE87D51DCAB8F100FD3AE9 /* ResponseObjectSerializer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ResponseObjectSerializer.swift; sourceTree = "<group>"; };
@@ -104,7 +104,6 @@
 		1768BEC71B7EBF6A00497790 /* HNAppearance.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HNAppearance.m; sourceTree = "<group>"; };
 		1768BEC91B7EC35000497790 /* ErrorController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ErrorController.swift; sourceTree = "<group>"; };
 		177CF2FC1CD6A12700F373CD /* Alamofire.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Alamofire.framework; path = Carthage/Build/iOS/Alamofire.framework; sourceTree = "<group>"; };
-		177CF2FD1CD6A12700F373CD /* PINCache.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = PINCache.framework; path = Carthage/Build/iOS/PINCache.framework; sourceTree = "<group>"; };
 		177CF2FE1CD6A12700F373CD /* SwiftyJSON.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftyJSON.framework; path = Carthage/Build/iOS/SwiftyJSON.framework; sourceTree = "<group>"; };
 		178327971B1C09BE003C580A /* CommentsHeaderView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CommentsHeaderView.swift; sourceTree = "<group>"; };
 		178327991B1C0C84003C580A /* StoryActivity.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StoryActivity.swift; sourceTree = "<group>"; };
@@ -200,8 +199,8 @@
 				0CEE87D41DCAB8D300FD3AE9 /* Serialization */,
 				174A9A231AE19F58008CB6FC /* Views */,
 				0CD3C8921AD781DF005CC6C1 /* Images.xcassets */,
+				0CD671A91EA5628B00166DAE /* LaunchScreen.storyboard */,
 				1751B5CF1AEE0A4B000ADF55 /* DateTools.bundle */,
-				0CD3C8941AD781DF005CC6C1 /* LaunchScreen.xib */,
 				0CD3C8891AD781DF005CC6C1 /* Supporting Files */,
 				176654A21AE077C800B97098 /* HackerNews-Bridging-Header.h */,
 			);
@@ -256,7 +255,6 @@
 			children = (
 				0CC1A8111E0B38AB00CAF389 /* PromiseKit.framework */,
 				177CF2FC1CD6A12700F373CD /* Alamofire.framework */,
-				177CF2FD1CD6A12700F373CD /* PINCache.framework */,
 				177CF2FE1CD6A12700F373CD /* SwiftyJSON.framework */,
 				1716D1F11CC993ED0027EE3A /* Reachability.framework */,
 				17DEB0451CB1C86100D3246E /* AutolayoutExtensions.framework */,
@@ -420,8 +418,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0CD3C8961AD781DF005CC6C1 /* LaunchScreen.xib in Resources */,
 				0CD3C8931AD781DF005CC6C1 /* Images.xcassets in Resources */,
+				0CD671AA1EA5628B00166DAE /* LaunchScreen.storyboard in Resources */,
 				1751B5D01AEE0A4B000ADF55 /* DateTools.bundle in Resources */,
 				170B18451B52502D00ECE833 /* readability_article.css in Resources */,
 			);
@@ -608,17 +606,6 @@
 			targetProxy = 0CD3C89C1AD781DF005CC6C1 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
-
-/* Begin PBXVariantGroup section */
-		0CD3C8941AD781DF005CC6C1 /* LaunchScreen.xib */ = {
-			isa = PBXVariantGroup;
-			children = (
-				0CD3C8951AD781DF005CC6C1 /* Base */,
-			);
-			name = LaunchScreen.xib;
-			sourceTree = "<group>";
-		};
-/* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
 		0CD3C8A31AD781DF005CC6C1 /* Debug */ = {
