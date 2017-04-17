@@ -90,6 +90,18 @@ struct Cache {
         getObjects(forKey: type.rawValue, completion: completion)
     }
     
+    func getStories(withType type: StoriesType) -> Promise<[Story]> {
+        return Promise { (fulfill: @escaping ([Story]) -> Void, reject: @escaping (Error) -> Void) in
+            getStories(type, completion: { (result) in
+                guard let stories = result.value else {
+                    reject(result.error!)
+                    return
+                }
+                fulfill(stories)
+            })
+        }
+    }
+    
     func setStories(_ type: StoriesType, stories: [Story]) {
         setObjects(forKey: type.cacheKey, objects: stories)
     }

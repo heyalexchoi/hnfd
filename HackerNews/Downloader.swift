@@ -9,6 +9,7 @@
 import Foundation
 import Alamofire
 import SwiftyJSON
+import PromiseKit
 
 typealias Result = Alamofire.Result
 
@@ -73,6 +74,18 @@ extension Downloader {
         let request = HNFDRouter.stories(type: type)
         let fileURL = DataSource.cache.fileURL(forKey: type.cacheKey)
         return download(request, destinationURL: fileURL, completion: completion)
+    }
+    
+    static func downloadStories(withType type: StoriesType) -> Promise<[Story]> {
+        return Promise { (fulfill: @escaping ([Story]) -> Void, reject: @escaping (Error) -> Void) in
+            downloadStories(type, completion: { (result) in
+                guard let stories = result.value else {
+                    reject(result.error!)
+                    return
+                }
+                fulfill(stories)
+            })
+        }
     }
     
     @discardableResult static func download(stories ids: [Int], completion: ((_ result: Result<[Story]>) -> Void)?) -> [DownloadRequest] {

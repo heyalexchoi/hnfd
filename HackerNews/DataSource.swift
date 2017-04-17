@@ -16,7 +16,6 @@ struct DataSource {
     static let reachability: Reachability? = {
         guard let reachability = Reachability() else {
             ErrorController.showErrorNotification(HNFDError.unableToCreateReachability)
-            print("Unable to create Reachability")
             return nil
         }
         return reachability
@@ -31,17 +30,47 @@ extension DataSource {
     
     // MARK: - Stories
     
-    static func getStories(_ type: StoriesType, refresh: Bool = false, completion: ((_ result: Result<[Story]>) -> Void)?) {
+    /* Attempts to download stories with type. In case of timeout or download failure, falls back to cached values. */
+    static func getStories(withType type: StoriesType, timeout: TimeInterval = 2) -> Promise<[Story]> {
         
-        guard shouldMakeNetworkRequest && (!type.isCached || refresh) else {
-            cache.getStories(type, completion: { (result) in
-                OperationQueue.main.addOperation { completion?(result) }
-            })
-            return
+        func getStories(withType type: StoriesType) -> Promise<[Story]> {
+            guard shouldMakeNetworkRequest else {
+                return cache.getStories(withType: type)
+            }
+            
+            return Downloader.downloadStories(withType: type)
         }
         
-        Downloader.downloadStories(type) { (result) in
-            completion?(result)
+        guard type != .Pinned else {
+            return getPinnedStories()
+        }
+        
+        return Promise { (fulfill: @escaping ([Story]) -> Void, reject: @escaping (Error) -> Void) in
+            
+            _ = after(interval: timeout)
+                .then(execute: { (_) -> Promise<[Story]> in
+                    return cache.getStories(withType: type)
+                })
+                .then(execute: { (stories) -> Void in
+                    fulfill(stories)
+                })
+                .catch(execute: { (error) in
+                    reject(error)
+                })
+            
+            getStories(withType: type)
+            .then(execute: { (stories) -> Void in
+                fulfill(stories)
+            })
+            .catch(execute: { (error) in
+                cache.getStories(withType: type)
+                .then(execute: { (stories) -> Void in
+                    fulfill(stories)
+                })
+                .catch(execute: { (error) in
+                    reject(error)
+                })
+            })
         }
     }
     
@@ -61,37 +90,24 @@ extension DataSource {
     
     // MARK: - PINNED STORIES
     
-    /*! this method currently has no failure results. limit and offset are not implemented. it only returns whatever stories are pinned and could be retrieved */
-    static func getPinnedStories(limit: Int, offset: Int, refresh: Bool = false, completion: ((_ result: Result<[Story]>) -> Void)?) {
-        // TO DO: errors
-        Cache.shared.getPinnedStoryIds { (result: Result<[Int]>) in
-            // TO DO: limit and offset
-            let ids = result.value ?? [Int]() // TO DO: errors?
-            
-            Cache.shared.getStories(ids: ids)
-            .then(execute: { (stories) -> Void in
-                completion?(Result.success(stories))
-            })
-            .catch(execute: { (error) in
-                debugPrint(error)
-                completion?(Result.success([Story]()))
-            })
-            
-            if shouldMakeNetworkRequest && refresh {
-                Downloader.download(stories: ids, completion: { (result: Result<[Story]>) in
-                    guard let stories = result.value else {
-                        completion?(Result.success([Story]()))
-                        return
-                    }
-                    completion?(Result.success(stories))
-                })
-            }
+    fileprivate static func getPinnedStories() -> Promise<[Story]> {
+        return getPinnedStoryIds()
+        .then { (ids) -> Promise<[Story]> in
+            return Cache.shared.getStories(ids: ids)
         }
     }
     
     static func getPinnedStoryIds(completion: @escaping (_ ids: [Int]) -> Void) {
         Cache.shared.getPinnedStoryIds { (result: Result<[Int]>) in
             completion(result.value ?? [Int]())
+        }
+    }
+    
+    static func getPinnedStoryIds() -> Promise<[Int]> {
+        return Promise { (fulfill: @escaping ([Int]) -> Void, reject: @escaping (Error) -> Void) in
+            getPinnedStoryIds(completion: { (ids) in
+                fulfill(ids)
+            })
         }
     }
     
@@ -124,30 +140,32 @@ extension DataSource {
 
 extension DataSource {
     
-    @discardableResult static func fullySync(storiesType type: StoriesType,
-                                             storiesHandler: ((_ storiesResult: Result<[Story]>) -> Void)?,
-                                             storyHandler: ((_ storyResult: Result<Story>) -> Void)?,
-                                             articleHandler: ((_ articleResult: Result<MercuryArticle>) -> Void)?) {
-        
-        getStories(type, refresh: true, completion: { (storiesResult: Result<[Story]>) -> Void in
-            guard let stories = storiesResult.value else {
-                storiesHandler?(Result.failure(storiesResult.error!))
-                return
-            }
+    /* Initiates downloads for article and full story. */
+    
+    static func fullySync(storiesType type: StoriesType, timeout: TimeInterval) -> Promise<Void> {
+        return Promise { (fulfill: @escaping () -> Void, reject: @escaping (Error) -> Void) in
             
-            for story in stories {
-                fullySync(story: story, storyHandler: storyHandler, articleHandler: articleHandler)
+            _ = after(interval: timeout)
+                .then(execute: { (_) -> Void in
+                    reject(HNFDError.timeout)
+                })
+
+            _ = getStories(withType: type)
+                .then { (stories) -> Void in
+                    for story in stories {
+                        fullySync(story: story)
+                    }
+                }
+                .then {() -> Void in
+                    fulfill()
             }
-            
-            storiesHandler?(Result.success(stories))
-        })
+        }
     }
     
-    @discardableResult static func fullySync(story: Story,
-                                             storyHandler: ((_ storyResult: Result<Story>) -> Void)?,
-                                             articleHandler: ((_ articleResult: Result<MercuryArticle>) -> Void)?) {
-        
-        getStory(story.id, refresh: true, completion: storyHandler)
-        getArticle(story, completion: articleHandler)
+    static func fullySync(story: Story) {
+        Downloader.downloadStory(story.id, completion: nil)
+        if let urlString = story.URLString {
+            Downloader.downloadArticle(URLString: urlString, completion: nil)
+        }
     }
 }

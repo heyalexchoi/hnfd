@@ -33,26 +33,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     func application(_ application: UIApplication, performFetchWithCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
         
-        var completed = false
-        
-        func complete() {
-            if !completed {
-                completionHandler(.newData)
-                completed = true
-            }
+        DataSource.fullySync(storiesType: .Top, timeout: 25)
+        .then { () -> (Void) in
+            completionHandler(.newData)
         }
-        // kill after 25 seconds
-        DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + .seconds(25)) {
-            complete()
+        .catch { (error) in
+            completionHandler(.failed)
         }
-        
-        // queue story downloads, then kill
-        DataSource.fullySync(storiesType: .Top,
-                             storiesHandler: { (storiesResult: Result<[Story]>) -> Void in
-                                complete()
-        },
-                             storyHandler: nil,
-                             articleHandler: nil)
     }
     
     func application(_ application: UIApplication, handleEventsForBackgroundURLSession identifier: String, completionHandler: @escaping () -> Void) {

@@ -50,7 +50,7 @@ class StoriesViewController: UIViewController {
         view.addSubview(tableView)
         
         tableView.addPullToRefresh { [weak self] () -> Void in
-            self?.getStories(refresh: true)
+            self?.getStories()
         }
         tableView.pullToRefreshView.activityIndicatorViewStyle = .white
         
@@ -59,7 +59,7 @@ class StoriesViewController: UIViewController {
             "V:|[tableView]|"], views: [
                 "tableView": tableView])
         
-        getStories(refresh: true)
+        getStories(showHUD: true)
         loadPinnedStories()
     }
 }
@@ -68,54 +68,33 @@ class StoriesViewController: UIViewController {
 
 extension StoriesViewController {
     
-    func loadStories(result: Result<[Story]>, refresh: Bool, scrollToTop: Bool, showHUD: Bool) {
+    func loadStories(_ stories: [Story], scrollToTop: Bool, showHUD: Bool) {
         
         ProgressHUD.hideAllHUDs(for: tableView, animated: true)
         tableView.pullToRefreshView.stopAnimating()
-        
-        guard let stories = result.value else {
-            ErrorController.showErrorNotification(result.error)
-            return
-        }
-        
-        if refresh {
-            self.stories = [Story]()
-        }
-        
+
         title = storiesType.title
-        self.stories += stories
+        self.stories = stories
         
         tableView.reloadData()
         
         if scrollToTop {
             tableView.setContentOffset(CGPoint(x: 0, y: 0), animated: true)
         }
-        
-        for story in stories {
-            DataSource.fullySync(story: story, storyHandler: { [weak self] (storyResult) in
-                if let story = storyResult.value {
-                    self?.reload(story: story)
-                }
-                }, articleHandler: { [weak self] (articleResult) in
-                    if let article = articleResult.value {
-                        self?.reload(article: article)
-                    }
-            })
-        }
+        // fully sync?
     }
     
-    func getStories(refresh: Bool = false, scrollToTop: Bool = false, showHUD: Bool = false) {
+    func getStories(scrollToTop: Bool = false, showHUD: Bool = false) {
         if showHUD {
             ProgressHUD.showAdded(to: tableView, animated: true)
         }
-        guard storiesType != .Pinned else {
-            DataSource.getPinnedStories(limit: 0, offset: 0, refresh: refresh) { [weak self] (result: Result<[Story]>) -> Void in
-                self?.loadStories(result: result, refresh: refresh, scrollToTop: scrollToTop, showHUD: showHUD)
-            }
-            return
+        
+        DataSource.getStories(withType: storiesType)
+        .then { (stories) -> Void in
+            self.loadStories(stories, scrollToTop: scrollToTop, showHUD: showHUD)
         }
-        DataSource.getStories(storiesType, refresh: refresh) { [weak self] (result: Result<[Story]>) -> Void in
-            self?.loadStories(result: result, refresh: refresh, scrollToTop: scrollToTop, showHUD: showHUD)
+        .catch { (error) in
+            ErrorController.showErrorNotification(error)
         }
     }
     
@@ -170,7 +149,7 @@ extension StoriesViewController {
     func menuDidFinishSelection(_ type: StoriesType) {
         storiesType = type
         title = type.title
-        getStories(refresh: true, scrollToTop: true, showHUD: true)
+        getStories(scrollToTop: true, showHUD: true)
         menu.close()
     }
     
