@@ -70,6 +70,18 @@ extension Downloader {
         return download(request, destinationURL: fileURL, completion: completion)
     }
     
+    static func downloadStory(id: Int) -> Promise<Story> {
+        return Promise { (fulfill: @escaping (Story) -> Void, reject: @escaping (Error) -> Void) in
+            downloadStory(id) { (result) in
+                guard let story = result.value else {
+                    reject(result.error!)
+                    return
+                }
+                fulfill(story)
+            }
+        }
+    }
+    
     @discardableResult static func downloadStories(_ type: StoriesType, completion: ((_ result: Result<[Story]>) -> Void)?) -> DownloadRequest {
         let request = HNFDRouter.stories(type: type)
         let fileURL = DataSource.cache.fileURL(forKey: type.cacheKey)
