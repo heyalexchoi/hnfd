@@ -81,7 +81,8 @@ extension StoriesViewController {
         if scrollToTop {
             tableView.setContentOffset(CGPoint(x: 0, y: 0), animated: true)
         }
-        // fully sync?
+        
+        _ = DataSource.fullySync(stories: stories, timeout: 2)
     }
     
     func getStories(scrollToTop: Bool = false, showHUD: Bool = false) {

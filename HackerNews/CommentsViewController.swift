@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import PromiseKit
 
 struct CommentTreeDataSource {
     
@@ -15,12 +16,12 @@ struct CommentTreeDataSource {
     var commentsCount: Int {
         return flattenedTree.count
     }
-
+    
     init(comments: [Comment] = []) {
         tree = comments.map { CommentNode(comment: $0) }
         flattenedTree = CommentTreeDataSource.flatten(tree: tree)
     }
-
+    
     func comment(atIndex index: Int) -> Comment {
         return flattenedTree[index].comment
     }
@@ -87,7 +88,7 @@ struct CommentTreeDataSource {
     
     private let tree: [CommentNode]
     private var flattenedTree: [CommentNode] // flattened representation of tree, excluding all descendants of any collapsed nodes
-
+    
     private static func flatten(tree: [CommentNode]) -> [CommentNode] {
         return tree.map {(comment) -> [CommentNode] in
             guard comment.isExpanded else {
@@ -150,7 +151,7 @@ class CommentsViewController: UIViewController {
         view.addSubview(treeView)
         
         treeView.addPullToRefresh { [weak self] () -> Void in
-            self?.getFullStory(true)
+            self?.getFullStory(showHUD: false)
         }
         
         header.linkLabel.delegate = self
@@ -160,7 +161,7 @@ class CommentsViewController: UIViewController {
             "V:|[treeView]|"], views: [
                 "treeView": treeView])
         
-        getFullStory(false)
+        getFullStory(showHUD: true)
     }
     
     override func viewDidLayoutSubviews() {
@@ -169,20 +170,25 @@ class CommentsViewController: UIViewController {
         header.frame = CGRect(origin: CGPoint.zero, size: header.systemLayoutSizeFitting(UILayoutFittingCompressedSize))
     }
     
-    func getFullStory(_ refresh: Bool) {
-        if !refresh { ProgressHUD.showAdded(to: view, animated: true) }
-        DataSource.getStory(story.id, refresh: refresh) { [weak self] (result) in
-            ProgressHUD.hideAllHUDs(for: self?.view, animated: true)
-            self?.treeView.pullToRefreshView.stopAnimating()
-            guard let story = result.value else {
-                ErrorController.showErrorNotification(result.error)
-                return
+    func getFullStory(showHUD: Bool) {
+        if showHUD {
+            ProgressHUD.showAdded(to: view, animated: true)
+        }
+        
+        _ = DataSource.getStory(story.id, timeout: 2)
+            .always {
+                ProgressHUD.hideAllHUDs(for: self.view, animated: true)
+                self.treeView.pullToRefreshView.stopAnimating()
             }
-            self?.story = story
-            self?.treeView.reloadData()
+            .then { (story) -> Void in                
+                self.story = story
+                self.treeView.reloadData()
+            }
+            .catch { (error) in
+                ErrorController.showErrorNotification(error)
         }
     }
-
+    
     func actionButtonDidPress() {
         var items: [Any] = [story]
         if let URL = story.URL {

@@ -88,6 +88,39 @@ extension DataSource {
         })
     }
     
+    static func getStory(_ id: Int, timeout: TimeInterval = 2) -> Promise<Story> {
+        guard shouldMakeNetworkRequest else {
+            return cache.getStory(id: id)
+        }
+        return Promise { (fulfill: @escaping (Story) -> Void, reject: @escaping (Error) -> Void) in
+            _ = after(interval: timeout)
+                .then(execute: { (_) -> Promise<Story> in
+                    return cache.getStory(id: id)
+                })
+                .then(execute: { (story) -> Void in
+                    fulfill(story)
+                })
+                .catch(execute: { (error) in
+                    reject(error)
+                })
+            
+            Downloader.downloadStory(id: id)
+                .then(execute: { (story) -> Void in
+                    fulfill(story)
+                })
+                .catch(execute: { (error) in
+                    cache.getStory(id: id)
+                        .then(execute: { (story) -> Void in
+                            fulfill(story)
+                        })
+                        .catch(execute: { (error) in
+                            reject(error)
+                        })
+                })
+        }
+    }
+
+    
     // MARK: - PINNED STORIES
     
     fileprivate static func getPinnedStories() -> Promise<[Story]> {
@@ -142,27 +175,44 @@ extension DataSource {
     
     /* Initiates downloads for article and full story. */
     
-    static func fullySync(storiesType type: StoriesType, timeout: TimeInterval) -> Promise<Void> {
+    @discardableResult static func fullySync(storiesType type: StoriesType, timeout: TimeInterval) -> Promise<Void> {
         return Promise { (fulfill: @escaping () -> Void, reject: @escaping (Error) -> Void) in
             
             _ = after(interval: timeout)
                 .then(execute: { (_) -> Void in
                     reject(HNFDError.timeout)
                 })
-
-            _ = getStories(withType: type)
-                .then { (stories) -> Void in
-                    for story in stories {
-                        fullySync(story: story)
-                    }
-                }
-                .then {() -> Void in
-                    fulfill()
-            }
+            
+            _ = getStories(withType: type, timeout: timeout)
+            .then(execute: { (stories) -> Promise<Void> in
+                return fullySync(stories: stories, timeout: timeout)
+            })
+            .then(execute: { () -> Void in
+                fulfill()
+            })
+            .catch(execute: { (error) in
+                reject(error)
+            })
         }
     }
     
-    static func fullySync(story: Story) {
+    @discardableResult static func fullySync(stories: [Story], timeout: TimeInterval) -> Promise<Void> {
+        return Promise { (fulfill: @escaping () -> Void, reject: @escaping (Error) -> Void) in
+            
+            _ = after(interval: timeout)
+                .then(execute: { (_) -> Void in
+                    reject(HNFDError.timeout)
+                })
+            
+            for story in stories {
+                fullySync(story: story)
+            }
+            
+            fulfill()
+        }
+    }
+    
+    @discardableResult static func fullySync(story: Story) {
         Downloader.downloadStory(story.id, completion: nil)
         if let urlString = story.URLString {
             Downloader.downloadArticle(URLString: urlString, completion: nil)
