@@ -175,7 +175,8 @@ extension DataSource {
     
     /* Initiates downloads for article and full story. */
     
-    @discardableResult static func fullySync(storiesType type: StoriesType, timeout: TimeInterval) -> Promise<Void> {
+    @discardableResult
+    static func fullySync(storiesType type: StoriesType, timeout: TimeInterval) -> Promise<Void> {
         return Promise { (fulfill: @escaping () -> Void, reject: @escaping (Error) -> Void) in
             
             _ = after(interval: timeout)
@@ -196,7 +197,8 @@ extension DataSource {
         }
     }
     
-    @discardableResult static func fullySync(stories: [Story], timeout: TimeInterval) -> Promise<Void> {
+    @discardableResult
+    static func fullySync(stories: [Story], timeout: TimeInterval) -> Promise<Void> {
         return Promise { (fulfill: @escaping () -> Void, reject: @escaping (Error) -> Void) in
             
             _ = after(interval: timeout)
@@ -212,7 +214,8 @@ extension DataSource {
         }
     }
     
-    @discardableResult static func fullySync(story: Story) {
+    
+    static func fullySync(story: Story) {
         Downloader.downloadStory(story.id, completion: nil)
         if let urlString = story.URLString {
             Downloader.downloadArticle(URLString: urlString, completion: nil)
