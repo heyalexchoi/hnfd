@@ -44,6 +44,7 @@
 		17922A1E1B005BA1001460B2 /* Comment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17922A1D1B005BA1001460B2 /* Comment.swift */; };
 		17922A201B005BAD001460B2 /* MercuryArticle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17922A1F1B005BAD001460B2 /* MercuryArticle.swift */; };
 		17922A221B005CF1001460B2 /* Cache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17922A211B005CF1001460B2 /* Cache.swift */; };
+		17B1A0F71F1FC22000A9B75A /* CommentTreeDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17B1A0F61F1FC22000A9B75A /* CommentTreeDataSource.swift */; };
 		17CC031E1AFEA88D005719A7 /* TextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17CC031D1AFEA88D005719A7 /* TextView.swift */; };
 		17CC03201AFEA8B4005719A7 /* StoriesTitleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17CC031F1AFEA8B4005719A7 /* StoriesTitleView.swift */; };
 		17DEB0461CB1C86100D3246E /* AutolayoutExtensions.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 17DEB0451CB1C86100D3246E /* AutolayoutExtensions.framework */; };
@@ -111,6 +112,7 @@
 		17922A1D1B005BA1001460B2 /* Comment.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Comment.swift; sourceTree = "<group>"; };
 		17922A1F1B005BAD001460B2 /* MercuryArticle.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MercuryArticle.swift; sourceTree = "<group>"; };
 		17922A211B005CF1001460B2 /* Cache.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Cache.swift; sourceTree = "<group>"; };
+		17B1A0F61F1FC22000A9B75A /* CommentTreeDataSource.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CommentTreeDataSource.swift; sourceTree = "<group>"; };
 		17CC031D1AFEA88D005719A7 /* TextView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextView.swift; sourceTree = "<group>"; };
 		17CC031F1AFEA8B4005719A7 /* StoriesTitleView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StoriesTitleView.swift; sourceTree = "<group>"; };
 		17DEB0451CB1C86100D3246E /* AutolayoutExtensions.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AutolayoutExtensions.framework; path = Carthage/Build/iOS/AutolayoutExtensions.framework; sourceTree = "<group>"; };
@@ -294,6 +296,7 @@
 			isa = PBXGroup;
 			children = (
 				17F20FF01B7EE6E7005EB2FF /* HNFDError.swift */,
+				17B1A0F61F1FC22000A9B75A /* CommentTreeDataSource.swift */,
 				17922A1B1B005B9B001460B2 /* Story.swift */,
 				178327991B1C0C84003C580A /* StoryActivity.swift */,
 				17922A1D1B005BA1001460B2 /* Comment.swift */,
@@ -447,7 +450,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
 			showEnvVarsInLog = 0;
 		};
 		17DEB0471CB1C87300D3246E /* Carthage */ = {
@@ -481,7 +484,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
 			showEnvVarsInLog = 0;
 		};
 		9388333E23024CA23EFCB13D /* [CP] Copy Pods Resources */ = {
@@ -583,6 +586,7 @@
 				17922A1E1B005BA1001460B2 /* Comment.swift in Sources */,
 				17FB84DF1AE21A1C00C87786 /* CommentCell.swift in Sources */,
 				176156CA1BF7F001001D6ACA /* UIImageExtension.swift in Sources */,
+				17B1A0F71F1FC22000A9B75A /* CommentTreeDataSource.swift in Sources */,
 				17922A1C1B005B9B001460B2 /* Story.swift in Sources */,
 				176156C51BF7EFAA001D6ACA /* UIColorExtension.swift in Sources */,
 				0CEE87D11DCAB83300FD3AE9 /* HNFDRouter.swift in Sources */,
