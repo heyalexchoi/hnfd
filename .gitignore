@@ -21,3 +21,5 @@ Carthage
 Pods
 /HackerNews/Private.swift
 *.DS_Store
+
+*.xcworkspace
