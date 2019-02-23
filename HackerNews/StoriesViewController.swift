@@ -23,6 +23,8 @@ class StoriesViewController: UIViewController {
     fileprivate let titleView = StoriesTitleView()
     fileprivate let menu = REMenu()
     
+    fileprivate let defaultStoryRequestLimit = 25
+    
     override var title: String? {
         didSet {
             titleView.title = title
@@ -61,6 +63,13 @@ class StoriesViewController: UIViewController {
         
         getStories(showHUD: true)
         loadPinnedStories()
+        
+        tableView.addInfiniteScrolling { [weak self] in
+            if let self = self {
+                let offset = self.stories.count
+                self.getStories(offset: offset)
+            }
+        }
     }
 }
 
@@ -68,15 +77,17 @@ class StoriesViewController: UIViewController {
 
 extension StoriesViewController {
     
-    fileprivate func loadStories(_ stories: [Story], scrollToTop: Bool, showHUD: Bool) {
+    fileprivate func loadStories(_ stories: [Story], appendStories: Bool, scrollToTop: Bool, showHUD: Bool) {
         
         ProgressHUD.hideAllHUDs(for: tableView, animated: true)
         tableView.pullToRefreshView.stopAnimating()
 
         title = storiesType.title
-        self.stories = stories
+        
+        self.stories = appendStories ? self.stories + stories : stories
         
         tableView.reloadData()
+        tableView.infiniteScrollingView?.stopAnimating()
         
         if scrollToTop {
             tableView.setContentOffset(CGPoint(x: 0, y: 0), animated: true)
@@ -85,14 +96,14 @@ extension StoriesViewController {
         _ = DataSource.fullySync(stories: stories, timeout: 2)
     }
     
-    fileprivate func getStories(scrollToTop: Bool = false, showHUD: Bool = false) {
+    fileprivate func getStories(offset: Int = 0, scrollToTop: Bool = false, showHUD: Bool = false) {
+        let appendStories = offset == 0 ? false : true
         if showHUD {
             ProgressHUD.showAdded(to: tableView, animated: true)
         }
-        
-        DataSource.getStories(withType: storiesType)
+        DataSource.getStories(withType: storiesType, limit: defaultStoryRequestLimit, offset: offset)
         .then { (stories) -> Void in
-            self.loadStories(stories, scrollToTop: scrollToTop, showHUD: showHUD)
+            self.loadStories(stories, appendStories: appendStories, scrollToTop: scrollToTop, showHUD: showHUD)
         }
         .catch { (error) in
             ErrorController.showErrorNotification(error)

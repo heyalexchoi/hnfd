@@ -32,8 +32,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
     
     func application(_ application: UIApplication, performFetchWithCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
-        
-        DataSource.fullySync(storiesType: .Top, timeout: 25)
+        // just prefetch the first 25 top stories
+        DataSource.fullySync(storiesType: .Top, limit: 25, offset: 0, timeout: 25)
         .then { () -> (Void) in
             completionHandler(.newData)
         }

@@ -12,7 +12,7 @@ import Alamofire
 
 enum HNFDRouter: URLRequestConvertible {
     
-    case stories(type: StoriesType)
+    case stories(type: StoriesType, limit: Int, offset: Int)
     case story(id: Int)
     
     var method: Alamofire.HTTPMethod {
@@ -24,15 +24,20 @@ enum HNFDRouter: URLRequestConvertible {
     
     var path: String {
         switch self {
-        case .stories(let type):
+        case .stories(let type, _, _):
             return "\(type.rawValue)"
         case .story(let id):
             return "/items/\(id)"
         }
     }
     
-    var parameters: [String: AnyObject] {
+    var parameters: [String: Any] {
         switch self {
+        case .stories(_, let limit, let offset):
+            return [
+                "limit": limit,
+                "offset": offset
+            ]
         default:
             return [:]
         }
