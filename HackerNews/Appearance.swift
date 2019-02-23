@@ -15,6 +15,7 @@ struct TextAttributes {
     static let detailAttributes = [NSFontAttributeName: UIFont.detailFont(), NSForegroundColorAttributeName: UIColor.textColor()]
     static let textReaderAttributes = [NSFontAttributeName: UIFont.textReaderFont(), NSForegroundColorAttributeName: UIColor.textColor()]
     static let titleAttributes = [NSFontAttributeName: UIFont.titleFont(), NSForegroundColorAttributeName: UIColor.textColor()]
+    static let largeTitleAttributes = [NSFontAttributeName: UIFont.largeTitleFont(), NSForegroundColorAttributeName: UIColor.textColor()]
     static let centerAlignment: [String: AnyObject] = {
         let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.alignment = .center

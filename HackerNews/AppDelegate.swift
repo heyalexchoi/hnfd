@@ -22,7 +22,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             let searchNavigationController = UINavigationController(rootViewController: SearchViewController())
 //            tabBarController.viewControllers = [storiesNavigationController, searchNavigationController]
             tabBarController.viewControllers = [searchNavigationController]
-
+//            window.backgroundColor = UIColor.backgroundColor()
             window.rootViewController = tabBarController
             window.makeKeyAndVisible()
         }

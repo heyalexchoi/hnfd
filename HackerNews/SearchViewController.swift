@@ -10,6 +10,7 @@ import UIKit
 
 class SearchViewController: UITableViewController {
     
+    var items: [Story] = []
     /// Search controller to help us with filtering.
     private var searchController: UISearchController!
     
@@ -28,8 +29,16 @@ class SearchViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        tableView.register(StoryCell.self, forCellReuseIdentifier: StoryCell.identifier)
-        tableView.backgroundColor = UIColor.backgroundColor()
+        TableViewControllerSharedComponent.viewDidLoad(tableViewController: self)
+        
+//        navigationController?.navigationBar.prefersLargeTitles = true
+//        navigationController?.navigationBar.largeTitleTextAttributes = TextAttributes.largeTitleAttributes
+//        navigationController?.view.backgroundColor = UIColor.backgroundColor()
+//        navigationController?.navigationBar.barTintColor = UIColor.backgroundColor()
+//        view.backgroundColor = UIColor.backgroundColor()
+        
+//        tableView.register(StoryCell.self, forCellReuseIdentifier: StoryCell.identifier)
+//        tableView.backgroundColor = UIColor.backgroundColor()
         
         resultsTableController = SearchResultsViewController()
         
@@ -38,6 +47,17 @@ class SearchViewController: UITableViewController {
         searchController = UISearchController(searchResultsController: resultsTableController)
         searchController.searchResultsUpdater = self
         searchController.searchBar.autocapitalizationType = .none
+        searchController.searchBar.backgroundColor = UIColor.backgroundColor()
+        searchController.searchBar.searchBarStyle = .prominent
+        searchController.searchBar.isTranslucent = false
+        // lol fuck you apple
+        if let textfield = searchController.searchBar.value(forKey: "searchField") as? UITextField {
+            if let backgroundview = textfield.subviews.first {
+                backgroundview.backgroundColor = UIColor.white
+                backgroundview.layer.cornerRadius = 10;
+                backgroundview.clipsToBounds = true;
+            }
+        }
         
         // For iOS 11 and later, place the search bar in the navigation bar.
         navigationItem.searchController = searchController
@@ -59,20 +79,10 @@ class SearchViewController: UITableViewController {
          */
         definesPresentationContext = true
 
-        
-
-        // Do any additional setup after loading the view.
-        let request = HNAlgoliaSearchRouter.search(query: "")
-        _ = APIClient.request(request) { [weak self] (result: Result<HNAlgoliaSearchResponseWrapper>) in
-            guard let stories = result.value?.stories else {
-                return
-            }
-            self?.items = stories
-            self?.tableView.reloadData()
-        }
+        search(query: "")
     }
     
-    var items: [Story] = []
+    
     
 
     /*
@@ -85,6 +95,21 @@ class SearchViewController: UITableViewController {
     }
     */
 
+}
+
+extension SearchViewController {
+    
+    func search(query: String) {
+        let request = HNAlgoliaSearchRouter.search(query: query)
+        _ = APIClient.request(request) { [weak self] (result: Result<HNAlgoliaSearchResponseWrapper>) in
+            guard let stories = result.value?.stories else {
+                return
+            }
+            self?.items = stories
+            self?.tableView.reloadData()
+        }
+    }
+    
 }
 
 // MARK: - UITableViewDelegate
@@ -169,33 +194,13 @@ extension SearchViewController: UISearchControllerDelegate {
 
 extension SearchViewController: UISearchResultsUpdating {
     
-    
     func updateSearchResults(for searchController: UISearchController) {
-//        // Update the filtered array based on the search text.
-//        let searchResults = products
-//
-//        // Strip out all the leading and trailing spaces.
-//        let whitespaceCharacterSet = CharacterSet.whitespaces
-//        let strippedString =
-//            searchController.searchBar.text!.trimmingCharacters(in: whitespaceCharacterSet)
-//        let searchItems = strippedString.components(separatedBy: " ") as [String]
-//
-//        // Build all the "AND" expressions for each value in searchString.
-//        let andMatchPredicates: [NSPredicate] = searchItems.map { searchString in
-//            findMatches(searchString: searchString)
-//        }
-//
-//        // Match up the fields of the Product object.
-//        let finalCompoundPredicate =
-//            NSCompoundPredicate(andPredicateWithSubpredicates: andMatchPredicates)
-//
-//        let filteredResults = searchResults.filter { finalCompoundPredicate.evaluate(with: $0) }
-//
-//        // Apply the filtered results to the search results table.
-//        if let resultsController = searchController.searchResultsController as? ResultsTableController {
-//            resultsController.filteredProducts = filteredResults
-//            resultsController.tableView.reloadData()
-//        }
+        let query = searchController.searchBar.text ?? ""
+        search(query: query) // this should probably be async so the ui update can follow the query result
+        if let resultsController = searchController.searchResultsController as? SearchResultsViewController {
+            resultsController.results = items
+            resultsController.tableView.reloadData()
+        }
     }
     
 }
