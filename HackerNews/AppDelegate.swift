@@ -17,7 +17,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         window = UIWindow(frame: UIScreen.main.bounds)
         if let window = window {
-            window.rootViewController = UINavigationController(rootViewController: StoriesViewController())
+            let tabBarController = UITabBarController()
+            let storiesNavigationController = UINavigationController(rootViewController: StoriesViewController())
+            let searchNavigationController = UINavigationController(rootViewController: SearchViewController())
+//            tabBarController.viewControllers = [storiesNavigationController, searchNavigationController]
+            tabBarController.viewControllers = [searchNavigationController]
+
+            window.rootViewController = tabBarController
             window.makeKeyAndVisible()
         }
         

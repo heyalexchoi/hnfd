@@ -34,6 +34,11 @@ struct Appearance {
         UIBarButtonItem.appearance().setTitleTextAttributes(TextAttributes.textAttributes, for: UIControlState())
         UIApplication.shared.statusBarStyle = .lightContent
         
+        UITabBarItem.appearance().setTitleTextAttributes(TextAttributes.textAttributes, for: .selected)
+        UITabBarItem.appearance().setTitleTextAttributes(TextAttributes.textAttributes, for: .normal)
+        UITabBar.appearance().barTintColor = UIColor.backgroundColor()
+        UITabBar.appearance().isTranslucent = false
+        
         HNAppearance.setAppearances() // for appearances that weren't accessible from swift
     }
 

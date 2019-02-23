@@ -52,6 +52,28 @@ struct ResponseObjectSerializer {
         }
     }
     
+    /* works with alamofire's request request response json to turn json objects <Any> into a ResponseObjectSerializable model object. Work is performed on response processing queue and completion block results are returned on completion return queue */
+    static func serialize<T: ResponseObjectSerializable>(response: Alamofire.DataResponse<Any>, completion: @escaping (Result<T>) -> Void) {
+        
+        switch response.result {
+        case .success(let json):
+            serialize(any: json, completion: completion)
+        case .failure(let error):
+            complete(error: error, completion: completion)
+        }
+    }
+    
+    /* works with alamofire's request request response json to turn json objects <Any> into a an array of ResponseObjectSerializable model objects. Work is performed on response processing queue and completion block results are returned on completion return queue */
+    static func serialize<T: ResponseObjectSerializable>(response: Alamofire.DataResponse<Any>, completion: @escaping (Result<[T]>) -> Void) {
+        
+        switch response.result {
+        case .success(let json):
+            serialize(any: json, completion: completion)
+        case .failure(let error):
+            complete(error: error, completion: completion)
+        }
+    }
+    
     // MARK: - Serialize type 'Any' json objects
     
     static func serialize<T: ResponseObjectSerializable>(any: Any, completion: @escaping (Result<[T]>) -> Void) {

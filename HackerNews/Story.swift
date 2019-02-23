@@ -75,6 +75,40 @@ extension Int: JSONSerializable {
     }
 }
 
+struct HNAlgoliaSearchResponseWrapper: ResponseObjectSerializable {
+    let stories: [Story]
+    init?(json: JSON) {
+        let hits = json["hits"].arrayValue
+        stories = hits.map { HNAlgoliaSearchStory(json: $0)?.story }.compactMap { $0 }
+    }
+}
+
+struct HNAlgoliaSearchStory: ResponseObjectSerializable {
+    let story: Story
+    init?(json: JSON) {
+        guard let dictionary = json.dictionaryObject else {
+            return nil
+        }
+        // map hn algolia search json dict to hnfd dict
+        let map = Story.algoliaHNToHNFDPropertyMap
+        var newDict = [String: Any]()
+        for (key, value) in dictionary {
+            guard let newKey = map[key] else {
+                continue
+            }
+            newDict[newKey] = value
+        }
+        // type property doesn't map well. have to scan tags. this could be improved but no need yet https://hn.algolia.com/api
+        let tags = (dictionary["_tags"] as? [String]) ?? [String]()
+        newDict["type"] = tags.contains("comment") ? "comment" : "story"
+        
+        guard let story = Story(json: JSON(newDict)) else {
+            return nil
+        }
+        self.story = story
+    }
+}
+
 struct Story: ResponseObjectSerializable, DataSerializable, JSONSerializable {
     
     enum Kind: String {
@@ -141,6 +175,20 @@ struct Story: ResponseObjectSerializable, DataSerializable, JSONSerializable {
         self.children = json["children"].arrayValue.map { Comment(json: $0, level: 1) } .filter { !$0.deleted }
         self.date = Date(timeIntervalSince1970: TimeInterval(self.time))
         self.updated = json["updated"].stringValue
+    }
+    
+    static var algoliaHNToHNFDPropertyMap: [String: String] {
+        // maps property keys of algolia search api story objects
+        // to those of the hnfd api story objects
+        return [
+            "author": "by",
+            "num_comments": "descendants",
+            "objectID": "_id",
+            "points": "score",
+            "created_at_i": "time",
+            "title": "title",
+            "url": "url"
+        ]
     }
     
     var asJSON: Any {
