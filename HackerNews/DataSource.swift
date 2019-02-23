@@ -31,14 +31,14 @@ extension DataSource {
     // MARK: - Stories
     
     /* Attempts to download stories with type. In case of timeout or download failure, falls back to cached values. */
-    static func getStories(withType type: StoriesType, timeout: TimeInterval = 2) -> Promise<[Story]> {
+    static func getStories(withType type: StoriesType, limit: Int, offset: Int, timeout: TimeInterval = 2) -> Promise<[Story]> {
         
         func getStories(withType type: StoriesType) -> Promise<[Story]> {
             guard shouldMakeNetworkRequest else {
                 return cache.getStories(withType: type)
             }
             
-            return Downloader.downloadStories(withType: type)
+            return Downloader.downloadStories(withType: type, limit: limit, offset: offset)
         }
         
         guard type != .Pinned else {
@@ -176,7 +176,7 @@ extension DataSource {
     /* Initiates downloads for article and full story. */
     
     @discardableResult
-    static func fullySync(storiesType type: StoriesType, timeout: TimeInterval) -> Promise<Void> {
+    static func fullySync(storiesType type: StoriesType, limit: Int, offset: Int, timeout: TimeInterval) -> Promise<Void> {
         return Promise { (fulfill: @escaping () -> Void, reject: @escaping (Error) -> Void) in
             
             _ = after(interval: timeout)
@@ -184,7 +184,7 @@ extension DataSource {
                     reject(HNFDError.timeout)
                 })
             
-            _ = getStories(withType: type, timeout: timeout)
+            _ = getStories(withType: type, limit: limit, offset: offset, timeout: timeout)
             .then(execute: { (stories) -> Promise<Void> in
                 return fullySync(stories: stories, timeout: timeout)
             })

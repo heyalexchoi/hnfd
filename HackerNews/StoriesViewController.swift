@@ -61,6 +61,12 @@ class StoriesViewController: UIViewController {
         
         getStories(showHUD: true)
         loadPinnedStories()
+        tableView.addInfiniteScroll { (tableView) -> Void in
+            // update table view
+            
+            // finish infinite scroll animation
+            tableView.finishInfiniteScroll()
+        }
     }
 }
 
@@ -89,8 +95,10 @@ extension StoriesViewController {
         if showHUD {
             ProgressHUD.showAdded(to: tableView, animated: true)
         }
-        
-        DataSource.getStories(withType: storiesType)
+        // // wa wa wee waa
+        let limit = 25
+        let offset = 0
+        DataSource.getStories(withType: storiesType, limit: limit, offset: offset)
         .then { (stories) -> Void in
             self.loadStories(stories, scrollToTop: scrollToTop, showHUD: showHUD)
         }
