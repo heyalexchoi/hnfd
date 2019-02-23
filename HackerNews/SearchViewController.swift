@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import PromiseKit
 
 class SearchViewController: UITableViewController {
     
@@ -80,11 +81,12 @@ class SearchViewController: UITableViewController {
         definesPresentationContext = true
 
         search(query: "")
+            .then { [weak self] (stories) -> Void in
+                self?.items = stories
+                self?.tableView.reloadData()
+        }
     }
     
-    
-    
-
     /*
     // MARK: - Navigation
 
@@ -99,14 +101,16 @@ class SearchViewController: UITableViewController {
 
 extension SearchViewController {
     
-    func search(query: String) {
-        let request = HNAlgoliaSearchRouter.search(query: query)
-        _ = APIClient.request(request) { [weak self] (result: Result<HNAlgoliaSearchResponseWrapper>) in
-            guard let stories = result.value?.stories else {
-                return
+    func search(query: String) -> Promise<[Story]> {
+        return Promise { (fulfill: @escaping ([Story]) -> Void, reject: @escaping (Error) -> Void) in
+            let request = HNAlgoliaSearchRouter.search(query: query)
+            _ = APIClient.request(request) { (result: Result<HNAlgoliaSearchResponseWrapper>) in
+                guard let stories = result.value?.stories else {
+                    reject(result.error!)
+                    return
+                }
+                fulfill(stories)
             }
-            self?.items = stories
-            self?.tableView.reloadData()
         }
     }
     
@@ -196,10 +200,12 @@ extension SearchViewController: UISearchResultsUpdating {
     
     func updateSearchResults(for searchController: UISearchController) {
         let query = searchController.searchBar.text ?? ""
-        search(query: query) // this should probably be async so the ui update can follow the query result
-        if let resultsController = searchController.searchResultsController as? SearchResultsViewController {
-            resultsController.results = items
-            resultsController.tableView.reloadData()
+        search(query: query)
+        .then { (stories) -> Void in
+            if let resultsController = searchController.searchResultsController as? SearchResultsViewController {
+                resultsController.results = stories
+                resultsController.tableView.reloadData()
+            }
         }
     }
     
