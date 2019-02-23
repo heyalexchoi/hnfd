@@ -75,6 +75,52 @@ extension Int: JSONSerializable {
     }
 }
 
+struct JsonMapper {
+    /**
+     Transforms a JSON to another JSON.
+     First, using the given mapping dictionary to map values from one key to another,
+     eg: mapping dictionary ["object_id": "id"]
+     will produce json with ["id": 1234] from json with ["object_id": 1234].
+     Then, applying given additional transformations.
+     */
+    static func transform(
+        json: JSON,
+        mappingDict: [String: String],
+        additional: (([String: Any]) -> [String: Any]))
+        -> JSON? {
+        guard let dictionary = json.dictionaryObject else {
+            return nil
+        }
+        let newDict = DictionaryMapper.transform(dict: dictionary, mappingDict: mappingDict, additional: additional)
+        return JSON(newDict)
+    }
+}
+
+struct DictionaryMapper {
+    
+    /**
+     Transforms a dictionary to another dictionary.
+     First, using the given mapping dictionary to map values from one key to another,
+     eg: mapping dictionary ["object_id": "id"]
+     will produce dictionary with ["id": 1234] from dictionary with ["object_id": 1234].
+     Then, applying given additional transformations.
+     */
+    static func transform(
+        dict: [String: Any],
+        mappingDict: [String: String],
+        additional: (([String: Any]) -> [String: Any]))
+        -> [String: Any] {
+            var newDict = [String: Any]()
+            for (key, value) in dict {
+                guard let newKey = mappingDict[key] else {
+                    continue
+                }
+                newDict[newKey] = value
+            }
+            return additional(newDict)
+    }
+}
+
 struct HNAlgoliaSearchResponseWrapper: ResponseObjectSerializable {
     let stories: [Story]
     init?(json: JSON) {
@@ -83,30 +129,110 @@ struct HNAlgoliaSearchResponseWrapper: ResponseObjectSerializable {
     }
 }
 
-struct HNAlgoliaSearchStory: ResponseObjectSerializable {
+struct HNPWAStory: ResponseObjectSerializable {
+    
     let story: Story
+    
     init?(json: JSON) {
-        guard let dictionary = json.dictionaryObject else {
-            return nil
+        let transformedJSONOptional = JsonMapper.transform(json: json, mappingDict: HNPWAStory.toHNFDStoryPropertyMap, additional: HNPWAStory.additionalMapping)
+
+        guard let transformedJSON = transformedJSONOptional,
+            let story = Story(json: transformedJSON) else {
+                return nil
         }
-        // map hn algolia search json dict to hnfd dict
-        let map = Story.algoliaHNToHNFDPropertyMap
-        var newDict = [String: Any]()
-        for (key, value) in dictionary {
-            guard let newKey = map[key] else {
-                continue
-            }
-            newDict[newKey] = value
-        }
-        // type property doesn't map well. have to scan tags. this could be improved but no need yet https://hn.algolia.com/api
-        let tags = (dictionary["_tags"] as? [String]) ?? [String]()
-        newDict["type"] = tags.contains("comment") ? "comment" : "story"
         
-        guard let story = Story(json: JSON(newDict)) else {
-            return nil
-        }
         self.story = story
     }
+}
+
+extension HNPWAStory {
+    
+    static var toHNFDStoryPropertyMap: [String: String] {
+        // maps property keys of hnpwa api story objects
+        // to those of the hnfd api story objects
+        return [
+            "user": "by",
+            "comments_count": "descendants",
+            "id": "_id",
+            "points": "score",
+            "time": "time",
+            "title": "title",
+            "url": "url",
+            "comments": "children" // these json need to be transformed too
+        ]
+    }
+    
+    static func additionalMapping(dict: [String: Any]) -> [String: Any] {
+        var dict = dict
+        dict["type"] = "story" // 🤷🏽‍♀️
+        // map comments / children
+        return dict
+    }
+}
+
+struct HNPWAComment {
+    static var toHNFDCommentPropertyMap: [String: String] {
+        // maps property keys of hnpwa api comment objects
+        // to those of the hnfd api comment objects
+        return [
+            "user": "by",
+            "id": "_id",
+            "time": "time",
+            "content": "text",
+            "comments_count": "descendants",
+            "comments": "children", // these json need to be transformed too
+            // need level - or maybe i apply it on the front end
+        ]
+    }
+    static func additionalMapping(dict: [String: Any]) -> [String: Any] {
+        guard let children = dict["children"] as? [[String: Any]] else {
+            return dict
+        }
+        var dict = dict
+        dict["children"] = children.map { DictionaryMapper.transform(dict: $0, mappingDict: HNPWAComment.toHNFDCommentPropertyMap, additional: HNPWAComment.additionalMapping) }
+        return dict
+    }
+}
+
+struct HNAlgoliaSearchStory: ResponseObjectSerializable {
+    
+    let story: Story
+    
+    init?(json: JSON) {
+        let transformedJSONOptional = JsonMapper.transform(json: json, mappingDict: HNAlgoliaSearchStory.toHNFDStoryPropertyMap, additional: HNAlgoliaSearchStory.additionalMapping)
+        guard let transformedJSON = transformedJSONOptional,
+            let story = Story(json: transformedJSON) else {
+            return nil
+        }
+        
+        self.story = story
+    }
+}
+
+extension HNAlgoliaSearchStory {
+    
+    static var toHNFDStoryPropertyMap: [String: String] {
+        // maps property keys of algolia search api story objects
+        // to those of the hnfd api story objects
+        return [
+            "author": "by",
+            "num_comments": "descendants",
+            "objectID": "_id",
+            "points": "score",
+            "created_at_i": "time",
+            "title": "title",
+            "url": "url"
+        ]
+    }
+    
+    static func additionalMapping(dict: [String: Any]) -> [String: Any] {
+        var dict = dict
+        // type property doesn't map well. have to scan tags. this could be improved but no need yet https://hn.algolia.com/api
+        let tags = (dict["_tags"] as? [String]) ?? [String]()
+        dict["type"] = tags.contains("comment") ? "comment" : "story"
+        return dict
+    }
+    
 }
 
 struct Story: ResponseObjectSerializable, DataSerializable, JSONSerializable {
@@ -176,21 +302,7 @@ struct Story: ResponseObjectSerializable, DataSerializable, JSONSerializable {
         self.date = Date(timeIntervalSince1970: TimeInterval(self.time))
         self.updated = json["updated"].stringValue
     }
-    
-    static var algoliaHNToHNFDPropertyMap: [String: String] {
-        // maps property keys of algolia search api story objects
-        // to those of the hnfd api story objects
-        return [
-            "author": "by",
-            "num_comments": "descendants",
-            "objectID": "_id",
-            "points": "score",
-            "created_at_i": "time",
-            "title": "title",
-            "url": "url"
-        ]
-    }
-    
+
     var asJSON: Any {
         return [
             "by": by,
