@@ -24,6 +24,7 @@ class StoriesTableViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        view.backgroundColor = UIColor.backgroundColor()
         tableView.backgroundColor = UIColor.backgroundColor()
         tableView.register(StoryCell.self, forCellReuseIdentifier: StoryCell.identifier)
         tableView.dataSource = self
@@ -32,10 +33,10 @@ class StoriesTableViewController: UIViewController {
         tableView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(tableView)
         
-        tableView.addPullToRefresh { [weak self] () -> Void in
-
-        }
-        tableView.pullToRefreshView.activityIndicatorViewStyle = .white
+//        tableView.addPullToRefresh { [weak self] () -> Void in
+//
+//        }
+//        tableView.pullToRefreshView.activityIndicatorViewStyle = .white
         
         _ = view.addConstraints(withVisualFormats: [
             "H:|[tableView]|",
@@ -45,9 +46,14 @@ class StoriesTableViewController: UIViewController {
 //        getStories(showHUD: true)
         loadPinnedStories()
         
-        tableView.addInfiniteScrolling { [weak self] in
-        }
+//        tableView.addInfiniteScrolling { [weak self] in
+//        }
     }
+}
+
+extension StoriesTableViewController {
+    
+    
 }
 
 // MARK: - Stories
@@ -57,7 +63,7 @@ extension StoriesTableViewController {
     func loadStories(_ stories: [Story], appendStories: Bool, scrollToTop: Bool, showHUD: Bool) {
         
         ProgressHUD.hideAllHUDs(for: tableView, animated: true)
-        tableView.pullToRefreshView.stopAnimating()
+        tableView.pullToRefreshView?.stopAnimating()
         
         self.stories = appendStories ? self.stories + stories : stories
         

@@ -128,84 +128,13 @@ struct HNAlgoliaSearchResponseWrapper: ResponseObjectSerializable {
         stories = hits.map { HNAlgoliaSearchStory(json: $0)?.story }.compactMap { $0 }
     }
 }
-//
-//struct HNPWAStory: ResponseObjectSerializable {
-//    
-//    let story: Story
-//    
-//    init?(json: JSON) {
-//        let transformedJSONOptional = JsonMapper.transform(json: json, mappingDict: HNPWAStory.toHNFDStoryPropertyMap, additional: HNPWAStory.additionalMapping)
-//
-//        guard let transformedJSON = transformedJSONOptional,
-//            let story = Story(json: transformedJSON) else {
-//                return nil
-//        }
-//        
-//        self.story = story
-//    }
-//}
-//
-//extension HNPWAStory {
-//    
-//    static var toHNFDStoryPropertyMap: [String: String] {
-//        // maps property keys of hnpwa api story objects
-//        // to those of the hnfd api story objects
-//        return [
-//            "user": "by",
-//            "comments_count": "descendants",
-//            "id": "_id",
-//            "points": "score",
-//            "time": "time",
-//            "title": "title",
-//            "url": "url",
-//            "comments": "children" // these json need to be transformed too
-//        ]
-//    }
-//    
-//    static func additionalMapping(dict: [String: Any]) -> [String: Any] {
-//        var dict = dict
-//        dict["type"] = "story" // 🤷🏽‍♀️
-//        // map comments / children
-//        guard let children = dict["children"] as? [[String: Any]] else {
-//            return dict
-//        }
-//
-//        dict["children"] = children.map { DictionaryMapper.transform(dict: $0, mappingDict: HNPWAComment.toHNFDCommentPropertyMap, additional: HNPWAComment.additionalMapping) }
-//
-//        return dict
-//    }
-//}
-//
-//struct HNPWAComment {
-//    static var toHNFDCommentPropertyMap: [String: String] {
-//        // maps property keys of hnpwa api comment objects
-//        // to those of the hnfd api comment objects
-//        return [
-//            "user": "by",
-//            "id": "_id",
-//            "time": "time",
-//            "content": "text",
-//            "comments_count": "descendants",
-//            "comments": "children", // these json need to be transformed too
-//            // need level - or maybe i apply it on the front end
-//        ]
-//    }
-//    static func additionalMapping(dict: [String: Any]) -> [String: Any] {
-//        guard let children = dict["children"] as? [[String: Any]] else {
-//            return dict
-//        }
-//        var dict = dict
-//        dict["children"] = children.map { DictionaryMapper.transform(dict: $0, mappingDict: HNPWAComment.toHNFDCommentPropertyMap, additional: HNPWAComment.additionalMapping) }
-//        return dict
-//    }
-//}
 
 struct HNAlgoliaSearchStory: ResponseObjectSerializable {
     
     let story: Story
     
     init?(json: JSON) {
-        let transformedJSONOptional = JsonMapper.transform(json: json, mappingDict: HNAlgoliaSearchStory.toHNFDStoryPropertyMap, additional: HNAlgoliaSearchStory.additionalMapping)
+        let transformedJSONOptional = JsonMapper.transform(json: json, mappingDict: HNAlgoliaSearchStory.toStoryPropertyMap, additional: HNAlgoliaSearchStory.additionalMapping)
         guard let transformedJSON = transformedJSONOptional,
             let story = Story(json: transformedJSON) else {
             return nil
@@ -216,8 +145,8 @@ struct HNAlgoliaSearchStory: ResponseObjectSerializable {
 }
 
 extension HNAlgoliaSearchStory {
-    
-    static var toHNFDStoryPropertyMap: [String: String] {
+
+    static var toStoryPropertyMap: [String: String] {
         // maps property keys of algolia search api story objects
         // to those of the hnfd api story objects
         return [
@@ -235,7 +164,17 @@ extension HNAlgoliaSearchStory {
         var dict = dict
         // type property doesn't map well. have to scan tags. this could be improved but no need yet https://hn.algolia.com/api
         let tags = (dict["_tags"] as? [String]) ?? [String]()
-        dict["type"] = tags.contains("comment") ? "comment" : "story"
+        let mapsToLink = ["story", "show_hn"]
+        let mapsToAsk = ["ask_hn", "poll", "pollopt"]
+        
+        if !Set(mapsToLink).intersection(tags).isEmpty {
+            dict["type"] = "link"
+        } else if !Set(mapsToAsk).intersection(tags).isEmpty {
+            dict["type"] = "ask"
+        } else {
+            dict["type"] = "link" // 🤷🏽‍♀️
+        }
+        
         return dict
     }
     

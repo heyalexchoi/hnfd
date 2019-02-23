@@ -31,12 +31,12 @@ class SearchViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        view.backgroundColor = UIColor.backgroundColor()
+        
         addChildViewController(storiesViewController)
         view.addSubviewsWithAutoLayout(storiesViewController.view)
         _ = storiesViewController.view.anchorAllEdgesToView(view)
         storiesViewController.didMove(toParentViewController: self)
-        
-        
         
         resultsTableController = SearchResultsViewController()
         
@@ -74,12 +74,6 @@ class SearchViewController: UIViewController {
          The search controller should be presented modally and match the physical size of this view controller.
          */
         definesPresentationContext = true
-
-        search(query: "")
-            .then { [weak self] (stories) -> Void in
-                self?.items = stories
-                self?.storiesViewController.loadStories(stories, appendStories: false, scrollToTop: false, showHUD: false)
-        }
     }
     
     /*
@@ -91,6 +85,15 @@ class SearchViewController: UIViewController {
         // Pass the selected object to the new view controller.
     }
     */
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        search(query: "")
+            .then { [weak self] (stories) -> Void in
+                self?.items = stories
+                self?.storiesViewController.loadStories(stories, appendStories: false, scrollToTop: false, showHUD: false)
+        }
+    }
 
 }
 

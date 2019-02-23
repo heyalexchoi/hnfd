@@ -28,6 +28,7 @@ class CommentsViewController: UIViewController {
         header = CommentsHeaderView(story: story)
         super.init(nibName:nil, bundle: nil)
         title = "Comments"
+        hidesBottomBarWhenPushed = true
     }
     
     required init(coder aDecoder: NSCoder) {
