@@ -37,7 +37,7 @@ enum HNPWARouter: URLRequestConvertible {
     // MARK: URLRequestConvertible
     
     func asURLRequest() throws -> URLRequest {
-        let url = URL(string: "https://api.hnpwa.com/")!.appendingPathComponent(path)
+        let url = URL(string: "https://api.hnpwa.com")!.appendingPathComponent(path)
         var request = try URLEncoding.default.encode(URLRequest(url: url), with: parameters)
         request.httpMethod = method.rawValue
         return request

@@ -71,23 +71,48 @@ class CommentsViewController: UIViewController {
         header.frame = CGRect(origin: CGPoint.zero, size: header.systemLayoutSizeFitting(UILayoutFittingCompressedSize))
     }
     
+    func getStory(id: Int) -> Promise<Story> {
+        return Promise { (fulfill: @escaping (Story) -> Void, reject: @escaping (Error) -> Void) in
+            let request = HNPWARouter.item(id: id)
+            _ = APIClient.request(request) { (result: Result<HNPWAStory>) in
+                guard let story = result.value else {
+                    reject(result.error!)
+                    return
+                }
+                fulfill(story.story)
+            }
+        }
+    }
+    
     func getFullStory(showHUD: Bool) {
         if showHUD {
             ProgressHUD.showAdded(to: treeView, animated: true)
         }
-        
-        _ = DataSource.getStory(story.id, timeout: 2)
+        _ = getStory(id: story.id)
             .always {
                 ProgressHUD.hideAllHUDs(for: self.treeView, animated: true)
                 self.treeView.pullToRefreshView.stopAnimating()
             }
-            .then { (story) -> Void in                
+            .then { (story) -> Void in
                 self.story = story
                 self.treeView.reloadData()
             }
             .catch { (error) in
                 ErrorController.showErrorNotification(error)
         }
+
+//        _ = DataSource.getStory(story.id, timeout: 2)
+//            .always {
+//                ProgressHUD.hideAllHUDs(for: self.treeView, animated: true)
+//                self.treeView.pullToRefreshView.stopAnimating()
+//            }
+//            .then { (story) -> Void in
+//                self.story = story
+//                self.treeView.reloadData()
+//            }
+//            .catch { (error) in
+//                ErrorController.showErrorNotification(error)
+//        }
     }
     
     func actionButtonDidPress() {

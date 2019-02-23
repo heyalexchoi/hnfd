@@ -166,6 +166,12 @@ extension HNPWAStory {
         var dict = dict
         dict["type"] = "story" // 🤷🏽‍♀️
         // map comments / children
+        guard let children = dict["children"] as? [[String: Any]] else {
+            return dict
+        }
+
+        dict["children"] = children.map { DictionaryMapper.transform(dict: $0, mappingDict: HNPWAComment.toHNFDCommentPropertyMap, additional: HNPWAComment.additionalMapping) }
+
         return dict
     }
 }

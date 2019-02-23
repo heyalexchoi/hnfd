@@ -9,8 +9,9 @@
 import UIKit
 import PromiseKit
 
-class SearchViewController: UITableViewController {
+class SearchViewController: UIViewController {
     
+    let storiesViewController = StoriesTableViewController()
     var items: [Story] = []
     /// Search controller to help us with filtering.
     private var searchController: UISearchController!
@@ -30,20 +31,14 @@ class SearchViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        TableViewControllerSharedComponent.viewDidLoad(tableViewController: self)
+        addChildViewController(storiesViewController)
+        view.addSubviewsWithAutoLayout(storiesViewController.view)
+        _ = storiesViewController.view.anchorAllEdgesToView(view)
+        storiesViewController.didMove(toParentViewController: self)
         
-//        navigationController?.navigationBar.prefersLargeTitles = true
-//        navigationController?.navigationBar.largeTitleTextAttributes = TextAttributes.largeTitleAttributes
-//        navigationController?.view.backgroundColor = UIColor.backgroundColor()
-//        navigationController?.navigationBar.barTintColor = UIColor.backgroundColor()
-//        view.backgroundColor = UIColor.backgroundColor()
         
-//        tableView.register(StoryCell.self, forCellReuseIdentifier: StoryCell.identifier)
-//        tableView.backgroundColor = UIColor.backgroundColor()
         
         resultsTableController = SearchResultsViewController()
-        
-        resultsTableController.tableView.delegate = self
         
         searchController = UISearchController(searchResultsController: resultsTableController)
         searchController.searchResultsUpdater = self
@@ -83,7 +78,7 @@ class SearchViewController: UITableViewController {
         search(query: "")
             .then { [weak self] (stories) -> Void in
                 self?.items = stories
-                self?.tableView.reloadData()
+                self?.storiesViewController.loadStories(stories, appendStories: false, scrollToTop: false, showHUD: false)
         }
     }
     
@@ -118,43 +113,6 @@ extension SearchViewController {
 
 // MARK: - UITableViewDelegate
 
-extension SearchViewController {
-    
-    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-//        let selectedProduct: Product
-//
-//        // Check to see which table view cell was selected.
-//        if tableView === self.tableView {
-//            selectedProduct = products[indexPath.row]
-//        } else {
-//            selectedProduct = resultsTableController.filteredProducts[indexPath.row]
-//        }
-//
-//        // Set up the detail view controller to show.
-//        let detailViewController = DetailViewController.detailViewControllerForProduct(selectedProduct)
-//
-//        navigationController?.pushViewController(detailViewController, animated: true)
-//
-//        tableView.deselectRow(at: indexPath, animated: false)
-    }
-    
-}
-
-// MARK: - UITableViewDataSource
-
-extension SearchViewController {
-    
-    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return items.count
-    }
-    
-    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: StoryCell.identifier, for: indexPath) as! StoryCell
-        cell.prepare(story: items[indexPath.row], isPinned: false, width: tableView.bounds.width)
-        return cell
-    }
-    
-}
 
 // MARK: - UISearchBarDelegate
 
