@@ -13,7 +13,7 @@ class StoriesViewController: UIViewController {
     
     fileprivate var stories = [Story]()
     fileprivate var pinnedStoryIds = [Int]()
-    fileprivate var storiesType: StoriesType = .Top
+    fileprivate var storiesType: StoriesType = .News
 
     fileprivate let tableView = UITableView(frame: CGRect.zero, style: .plain)
     
@@ -23,7 +23,7 @@ class StoriesViewController: UIViewController {
     fileprivate let titleView = StoriesTitleView()
     fileprivate let menu = REMenu()
     
-    fileprivate let defaultStoryRequestLimit = 25
+    fileprivate var page = 1
     
     override var title: String? {
         didSet {
@@ -66,8 +66,7 @@ class StoriesViewController: UIViewController {
         
         tableView.addInfiniteScrolling { [weak self] in
             if let self = self {
-                let offset = self.stories.count
-                self.getStories(offset: offset)
+                self.getStories(page: self.page)
             }
         }
     }
@@ -96,12 +95,12 @@ extension StoriesViewController {
         _ = DataSource.fullySync(stories: stories, timeout: 2)
     }
     
-    fileprivate func getStories(offset: Int = 0, scrollToTop: Bool = false, showHUD: Bool = false) {
-        let appendStories = offset == 0 ? false : true
+    fileprivate func getStories(page: Int = 1, scrollToTop: Bool = false, showHUD: Bool = false) {
+        let appendStories = page == 1 ? false : true
         if showHUD {
             ProgressHUD.showAdded(to: tableView, animated: true)
         }
-        DataSource.getStories(withType: storiesType, limit: defaultStoryRequestLimit, offset: offset)
+        DataSource.getStories(withType: storiesType, page: page)
         .then { (stories) -> Void in
             self.loadStories(stories, appendStories: appendStories, scrollToTop: scrollToTop, showHUD: showHUD)
         }
@@ -220,7 +219,7 @@ extension StoriesViewController: StoryCellDelegate {
     
     func cellDidSelectStoryArticle(_ cell: StoryCell) {
         guard let story = storyForCell(cell) else { return }
-        if story.kind == .Story
+        if story.kind == .Link
             && story.URLString != nil {
                 navigationController?.pushViewController(ArticleViewController(story: story), animated: true)
         } else {

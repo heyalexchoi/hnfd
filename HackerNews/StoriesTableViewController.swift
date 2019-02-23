@@ -167,7 +167,7 @@ extension StoriesTableViewController: StoryCellDelegate {
     
     func cellDidSelectStoryArticle(_ cell: StoryCell) {
         guard let story = storyForCell(cell) else { return }
-        if story.kind == .Story
+        if story.kind == .Link
             && story.URLString != nil {
             navigationController?.pushViewController(ArticleViewController(story: story), animated: true)
         } else {

@@ -12,6 +12,7 @@ import Alamofire
 enum HNPWARouter: URLRequestConvertible {
     
     case item(id: Int)
+    case stories(type: StoriesType, page: Int)
     
     var method: Alamofire.HTTPMethod {
         switch self {
@@ -24,6 +25,8 @@ enum HNPWARouter: URLRequestConvertible {
         switch self {
         case .item(let id):
             return "/v0/item/\(id).json"
+        case .stories(let type, let page):
+            return "/v0/\(type.rawValue)/\(page).json"
         }
     }
     

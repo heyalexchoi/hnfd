@@ -20,8 +20,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             let tabBarController = UITabBarController()
             let storiesNavigationController = UINavigationController(rootViewController: StoriesViewController())
             let searchNavigationController = UINavigationController(rootViewController: SearchViewController())
-//            tabBarController.viewControllers = [storiesNavigationController, searchNavigationController]
-            tabBarController.viewControllers = [searchNavigationController]
+            tabBarController.viewControllers = [storiesNavigationController, searchNavigationController]
+//            tabBarController.viewControllers = [searchNavigationController]
 //            window.backgroundColor = UIColor.backgroundColor()
             window.rootViewController = tabBarController
             window.makeKeyAndVisible()
@@ -39,7 +39,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     func application(_ application: UIApplication, performFetchWithCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
         // just prefetch the first 25 top stories
-        DataSource.fullySync(storiesType: .Top, limit: 25, offset: 0, timeout: 25)
+        DataSource.fullySync(storiesType: .News, page: 1, timeout: 25)
         .then { () -> (Void) in
             completionHandler(.newData)
         }
