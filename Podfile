@@ -13,7 +13,6 @@ target 'HackerNews' do
   pod 'DateTools'
   pod 'SVPullToRefresh'
   pod 'DTCoreText', :git => 'https://github.com/davbeck/DTCoreText.git'
-  pod 'REMenu'
   pod 'NYXImagesKit'
   pod 'UIImage+Additions'
   pod 'UIImage-Helpers'

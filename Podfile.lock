@@ -15,7 +15,6 @@ PODS:
   - HexColors (2.3.0)
   - MBProgressHUD (0.9.1)
   - NYXImagesKit (2.3)
-  - REMenu (1.10)
   - SVPullToRefresh (0.4.1)
   - TSMessages (0.9.13):
     - HexColors (~> 2.3.0)
@@ -28,7 +27,6 @@ DEPENDENCIES:
   - DTCoreText (from `https://github.com/davbeck/DTCoreText.git`)
   - MBProgressHUD
   - NYXImagesKit
-  - REMenu
   - SVPullToRefresh
   - TSMessages (from `https://github.com/KrauseFx/TSMessages.git`, commit `7ef3990de3c626e8f3e50bfabb53f76997e374ce`)
   - UIImage+Additions
@@ -57,12 +55,11 @@ SPEC CHECKSUMS:
   HexColors: 6ad3947c3447a055a3aa8efa859def096351fe5f
   MBProgressHUD: c47f2c166c126cf2ce36498d80f33e754d4e93ad
   NYXImagesKit: 8163e3335a40eaa173ca5bbbf81fafb57d3947eb
-  REMenu: 30dad195930adf6c5eeb8041e3257aa60bf9fa49
   SVPullToRefresh: ba2e718695a43253d8bea6852d2960097dc15d8c
   TSMessages: 6e403b790139636c15ab4f51946537095e03e79c
   UIImage+Additions: 6181430b139099649e56171d58a52d6c37d57e42
   UIImage-Helpers: 06b04a42bdd222844035602e87e936765c80f620
 
-PODFILE CHECKSUM: 4b8225a46f74fe92cf7c008ac005e7c9202ce670
+PODFILE CHECKSUM: '03439018caf71f46b2521881eecd1450dcde39df'
 
 COCOAPODS: 1.2.1
