@@ -86,13 +86,13 @@ struct Cache {
     
     // MARK: - STORIES
     
-    func getStories(_ type: StoriesType, completion: @escaping (_ result: Result<[Story]>) -> Void) {
-        getObjects(forKey: type.rawValue, completion: completion)
+    func getStories(_ type: StoriesType, page: Int, completion: @escaping (_ result: Result<[Story]>) -> Void) {
+        getObjects(forKey: type.cacheKey(page: page), completion: completion)
     }
     
-    func getStories(withType type: StoriesType) -> Promise<[Story]> {
+    func getStories(withType type: StoriesType, page: Int) -> Promise<[Story]> {
         return Promise { (fulfill: @escaping ([Story]) -> Void, reject: @escaping (Error) -> Void) in
-            getStories(type, completion: { (result) in
+            getStories(type, page: page, completion: { (result) in
                 guard let stories = result.value else {
                     reject(result.error!)
                     return
@@ -102,8 +102,8 @@ struct Cache {
         }
     }
     
-    func setStories(_ type: StoriesType, stories: [Story]) {
-        setObjects(forKey: type.cacheKey, objects: stories)
+    func setStories(_ type: StoriesType, page: Int, stories: [Story]) {
+        setObjects(forKey: type.cacheKey(page: page), objects: stories)
     }
     
     func getStories(ids: [Int], timeout: TimeInterval = 2) -> Promise<[Story]> {

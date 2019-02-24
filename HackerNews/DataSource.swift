@@ -35,7 +35,7 @@ extension DataSource {
         
         func getStories(withType type: StoriesType) -> Promise<[Story]> {
             guard shouldMakeNetworkRequest else {
-                return cache.getStories(withType: type)
+                return cache.getStories(withType: type, page: page)
             }
             
             return Downloader.downloadStories(withType: type, page: page)
@@ -49,7 +49,7 @@ extension DataSource {
             
             _ = after(interval: timeout)
                 .then(execute: { (_) -> Promise<[Story]> in
-                    return cache.getStories(withType: type)
+                    return cache.getStories(withType: type, page: page)
                 })
                 .then(execute: { (stories) -> Void in
                     fulfill(stories)
@@ -63,7 +63,7 @@ extension DataSource {
                 fulfill(stories)
             })
             .catch(execute: { (error) in
-                cache.getStories(withType: type)
+                cache.getStories(withType: type, page: page)
                 .then(execute: { (stories) -> Void in
                     fulfill(stories)
                 })

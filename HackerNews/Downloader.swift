@@ -13,10 +13,6 @@ import PromiseKit
 
 typealias Result = Alamofire.Result
 
-protocol Downloadable {
-    var cacheKey: String { get }
-}
-
 struct Downloader {
     
     static let backgroundSessionIdentifier =  "com.hnfd.background"
@@ -84,7 +80,7 @@ extension Downloader {
     
     @discardableResult static func downloadStories(_ type: StoriesType, page: Int, completion: ((_ result: Result<[Story]>) -> Void)?) -> DownloadRequest {
         let request = HNPWARouter.stories(type: type, page: page)
-        let fileURL = DataSource.cache.fileURL(forKey: type.cacheKey)
+        let fileURL = DataSource.cache.fileURL(forKey: type.cacheKey(page: page))
         return download(request, destinationURL: fileURL, completion: completion)
     }
     

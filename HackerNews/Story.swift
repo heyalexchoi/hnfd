@@ -9,16 +9,20 @@
 import SwiftyJSON
 import DTCoreText
 
-extension StoriesType: Downloadable {
-    var cacheKey: String {
-        return rawValue
+extension StoriesType {
+    
+    func cacheKey(page: Int) -> String {
+        return "stories?type=\(rawValue)&page=\(page)"
     }
+    
 }
 
-extension Story: Downloadable {
+extension Story {
+    
     var cacheKey: String {
         return type(of: self).cacheKey(id)
     }
+    
 }
 
 extension Sequence where Iterator.Element == Story {
@@ -53,9 +57,7 @@ enum StoriesType: String {
     var title: String {
         return rawValue.capitalized
     }
-    var isCached: Bool {
-        return Cache.shared.hasFileCachedItemForKey(cacheKey)
-    }
+
 }
 
 extension Story {
