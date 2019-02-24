@@ -42,7 +42,7 @@ extension DataSource {
         }
         
         guard type != .Pinned else {
-            return getPinnedStories()
+            return getPinnedStories(page: page)
         }
         
         return Promise { (fulfill: @escaping ([Story]) -> Void, reject: @escaping (Error) -> Void) in
@@ -123,33 +123,9 @@ extension DataSource {
     
     // MARK: - PINNED STORIES
     
-    fileprivate static func getPinnedStories() -> Promise<[Story]> {
-        return getPinnedStoryIds()
-        .then { (ids) -> Promise<[Story]> in
-            return Cache.shared.getStories(ids: ids)
-        }
-    }
-    
-    static func getPinnedStoryIds(completion: @escaping (_ ids: [Int]) -> Void) {
-        Cache.shared.getPinnedStoryIds { (result: Result<[Int]>) in
-            completion(result.value ?? [Int]())
-        }
-    }
-    
-    static func getPinnedStoryIds() -> Promise<[Int]> {
-        return Promise { (fulfill: @escaping ([Int]) -> Void, reject: @escaping (Error) -> Void) in
-            getPinnedStoryIds(completion: { (ids) in
-                fulfill(ids)
-            })
-        }
-    }
-    
-    static func addPinnedStory(id: Int) {
-        Cache.shared.addPinnedStory(id: id)
-    }
-    
-    static func removePinnedStory(id: Int) {
-        Cache.shared.removePinnedStory(id: id)
+    fileprivate static func getPinnedStories(page: Int) -> Promise<[Story]> {
+        let ids = SharedState.shared.pinnedStoryIds
+        return Cache.shared.getStories(ids: ids.paginate(page: page, per_page: 30))
     }
 }
 

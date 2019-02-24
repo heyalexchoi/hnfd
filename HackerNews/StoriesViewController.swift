@@ -54,16 +54,13 @@ class StoriesViewController: UIViewController {
 
 extension StoriesViewController {
     
-    fileprivate func getStories(page: Int = 1, scrollToTop: Bool = false, showHUD: Bool = false) {
+    func getStories(page: Int = 1, scrollToTop: Bool = false, showHUD: Bool = false) {
         let appendStories = page == 1 ? false : true
         if showHUD {
             storiesViewController.showHUD()
         }
         DataSource.getStories(withType: storiesType, page: page)
         .then { [weak self] (stories) -> Void in
-//            guard stories.count > 0 else {
-//                throw "No more content!"
-//            }
             self?.storiesViewController.loadStories(stories, appendStories: appendStories, scrollToTop: scrollToTop, showHUD: showHUD)
             self?.page = page + 1
         }

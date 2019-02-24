@@ -35,8 +35,11 @@ class StoriesTableViewController: UIViewController {
             "H:|[tableView]|",
             "V:|[tableView]|"], views: [
                 "tableView": tableView])
-        
-        loadPinnedStories()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        tableView.reloadData()
     }
 }
 
@@ -195,33 +198,15 @@ extension StoriesTableViewController: StoryCellDelegate {
 
 extension StoriesTableViewController {
     
-    fileprivate func loadPinnedStories() {
-        DataSource.getPinnedStoryIds { [weak self] (ids) in
-            self?.pinnedStoryIds = ids
-            self?.tableView.reloadData()
-        }
-    }
-    
     fileprivate func addPinnedStory(id: Int) {
-        if let pinnedIdIndex = index(forPinnedStoryId: id) {
-            pinnedStoryIds.remove(at: pinnedIdIndex)
-        }
-        pinnedStoryIds.append(id)
-        DataSource.addPinnedStory(id: id)
+        SharedState.shared.addPinnedStory(id: id)
     }
     
     fileprivate func removePinnedStory(id: Int) {
-        if let pinnedIdIndex = index(forPinnedStoryId: id) {
-            pinnedStoryIds.remove(at: pinnedIdIndex)
-        }
-        DataSource.removePinnedStory(id: id)
+        SharedState.shared.removePinnedStory(id: id)
     }
     
     fileprivate func isStoryPinned(id: Int) -> Bool {
-        return pinnedStoryIds.contains(id)
-    }
-    
-    fileprivate func index(forPinnedStoryId id: Int) -> Int? {
-        return pinnedStoryIds.index(where: { $0 == id })
+        return SharedState.shared.isStoryIdPinned(id: id)
     }
 }

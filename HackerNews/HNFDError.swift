@@ -16,6 +16,7 @@ enum HNFDError: Error {
     case storyHasNoArticleURL
     case responseObjectSerializableFailedToInitialize(unserializedObject: Any)
     case timeout
+    case noMoreContent
     
     var description: String {
         switch self {
@@ -29,6 +30,8 @@ enum HNFDError: Error {
             return underlying.localizedDescription
         case .timeout:
             return "HNFD request timed out."
+        case .noMoreContent:
+            return "There is no more content"
         }
     }
     

@@ -140,31 +140,6 @@ struct Cache {
         setObjects(forKey: Story.pinnedIdsCacheKey, objects: ids)
     }
     
-    func addPinnedStory(id: Int) {
-        getPinnedStoryIds { (result: Result<[Int]>) in
-            var pinnedIds = result.value ?? [Int]()
-            if let pinnedIdIndex = pinnedIds.index(where: { (pinnedId) -> Bool in
-                return pinnedId == id
-            }) {
-                pinnedIds.remove(at: pinnedIdIndex)
-            }
-            pinnedIds.insert(id, at: 0)
-            self.setPinnedStoryIds(ids: pinnedIds)
-        }
-    }
-    
-    func removePinnedStory(id: Int) {
-        getPinnedStoryIds { (result: Result<[Int]>) in
-            var pinnedIds = result.value ?? [Int]()
-            if let pinnedIdIndex = pinnedIds.index(where: { (pinnedId) -> Bool in
-                return pinnedId == id
-            }) {
-                pinnedIds.remove(at: pinnedIdIndex)
-            }
-            self.setPinnedStoryIds(ids: pinnedIds)
-        }
-    }
-    
     // MARK: - STORY
     
     func getStory(_ id: Int, completion: @escaping (_ result: Result<Story>) -> Void) {
@@ -216,5 +191,45 @@ extension Cache {
     func hasFileCachedItemForKey(_ key: String?) -> Bool {
         guard let key = key else { return false }
         return fileManager.fileExists(atPath: fileURL(forKey: key).path)
+    }
+}
+
+class SharedState {
+    
+    static let shared = SharedState()
+    var pinnedStoryIds = [Int]()
+    let cache = Cache.shared
+    
+    init() {
+        cache.getPinnedStoryIds { [weak self] (result: Result<[Int]>) in
+            self?.pinnedStoryIds = result.value ?? [Int]()
+        }
+    }
+    
+    // Mark: - Pinned Ids
+    
+    func indexForPinnedStory(id: Int) -> Int? {
+        return pinnedStoryIds.index(where: { (pinnedId) -> Bool in
+            return pinnedId == id
+        })
+    }
+    
+    func isStoryIdPinned(id: Int) -> Bool {
+        return indexForPinnedStory(id: id) != nil
+    }
+    
+    func addPinnedStory(id: Int) {
+        if let pinnedIdIndex = indexForPinnedStory(id: id) {
+            pinnedStoryIds.remove(at: pinnedIdIndex)
+        }
+        pinnedStoryIds.insert(id, at: 0)
+        cache.setPinnedStoryIds(ids: pinnedStoryIds)
+    }
+
+    func removePinnedStory(id: Int) {
+        if let pinnedIdIndex = indexForPinnedStory(id: id) {
+            pinnedStoryIds.remove(at: pinnedIdIndex)
+        }
+        cache.setPinnedStoryIds(ids: pinnedStoryIds)
     }
 }
