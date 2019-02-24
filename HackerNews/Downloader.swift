@@ -13,10 +13,6 @@ import PromiseKit
 
 typealias Result = Alamofire.Result
 
-protocol Downloadable {
-    var cacheKey: String { get }
-}
-
 struct Downloader {
     
     static let backgroundSessionIdentifier =  "com.hnfd.background"
@@ -65,7 +61,7 @@ extension Downloader {
 extension Downloader {
     
     @discardableResult static func downloadStory(_ id: Int, completion: ((_ result: Result<Story>) -> Void)?) -> DownloadRequest {
-        let request = HNFDRouter.story(id: id)
+        let request = HNPWARouter.item(id: id)
         let fileURL = DataSource.cache.fileURL(forKey: Story.cacheKey(id))
         return download(request, destinationURL: fileURL, completion: completion)
     }
@@ -82,15 +78,15 @@ extension Downloader {
         }
     }
     
-    @discardableResult static func downloadStories(_ type: StoriesType, limit: Int, offset: Int, completion: ((_ result: Result<[Story]>) -> Void)?) -> DownloadRequest {
-        let request = HNFDRouter.stories(type: type, limit: limit, offset: offset)
-        let fileURL = DataSource.cache.fileURL(forKey: type.cacheKey)
+    @discardableResult static func downloadStories(_ type: StoriesType, page: Int, completion: ((_ result: Result<[Story]>) -> Void)?) -> DownloadRequest {
+        let request = HNPWARouter.stories(type: type, page: page)
+        let fileURL = DataSource.cache.fileURL(forKey: type.cacheKey(page: page))
         return download(request, destinationURL: fileURL, completion: completion)
     }
     
-    static func downloadStories(withType type: StoriesType, limit: Int, offset: Int) -> Promise<[Story]> {
+    static func downloadStories(withType type: StoriesType, page: Int) -> Promise<[Story]> {
         return Promise { (fulfill: @escaping ([Story]) -> Void, reject: @escaping (Error) -> Void) in
-            downloadStories(type, limit: limit, offset: offset, completion: { (result) in
+            downloadStories(type, page: page, completion: { (result) in
                 guard let stories = result.value else {
                     reject(result.error!)
                     return

@@ -17,7 +17,23 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         window = UIWindow(frame: UIScreen.main.bounds)
         if let window = window {
-            window.rootViewController = UINavigationController(rootViewController: StoriesViewController())
+            let tabBarController = UITabBarController()
+            let newsNavigationController = UINavigationController(rootViewController: StoriesViewController(type: .News))
+//            let newestNavigationController = UINavigationController(rootViewController: StoriesViewController(type: .Newest))
+            let showNavigationController = UINavigationController(rootViewController: StoriesViewController(type: .Show))
+            let askNavigationController = UINavigationController(rootViewController: StoriesViewController(type: .Ask))
+//            let jobNavigationController = UINavigationController(rootViewController: StoriesViewController(type: .Job))
+            let savedNavigationController = UINavigationController(rootViewController: SavedStoriesViewController())
+            let searchNavigationController = UINavigationController(rootViewController: SearchViewController())
+            tabBarController.viewControllers = [
+                newsNavigationController,
+                askNavigationController,
+//                newestNavigationController,
+                showNavigationController,
+//                jobNavigationController,
+                savedNavigationController,
+                searchNavigationController]
+            window.rootViewController = tabBarController
             window.makeKeyAndVisible()
         }
         
@@ -33,7 +49,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     func application(_ application: UIApplication, performFetchWithCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
         // just prefetch the first 25 top stories
-        DataSource.fullySync(storiesType: .Top, limit: 25, offset: 0, timeout: 25)
+        DataSource.fullySync(storiesType: .News, page: 1, timeout: 25)
         .then { () -> (Void) in
             completionHandler(.newData)
         }

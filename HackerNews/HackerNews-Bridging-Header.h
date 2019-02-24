@@ -8,7 +8,6 @@
 #import <DateTools/DateTools.h>
 #import <SVPullToRefresh/SVPullToRefresh.h>
 #import <DTCoreText/DTCoreText.h>
-#import <REMenu/REMenu.h>
 #import <NYXImagesKit/NYXImagesKit.h>
 #import <UIImage_Additions/UIImage+Additions.h>
 #import <TSMessages/TSMessageView.h>

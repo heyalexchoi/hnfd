@@ -7,68 +7,44 @@
 //
 
 import UIKit
-import REMenu
 
 class StoriesViewController: UIViewController {
     
-    fileprivate var stories = [Story]()
-    fileprivate var pinnedStoryIds = [Int]()
-    fileprivate var storiesType: StoriesType = .Top
-
-    fileprivate let tableView = UITableView(frame: CGRect.zero, style: .plain)
+    fileprivate var page = 1
+    fileprivate let storiesViewController = StoriesTableViewController()
+    fileprivate let storiesType: StoriesType
     
-    fileprivate let prototypeCell = StoryCell(frame: CGRect.zero)
-    fileprivate var cachedCellHeights = [Int: CGFloat]() // id: cell height
+    // MARK: - UIViewController
     
-    fileprivate let titleView = StoriesTitleView()
-    fileprivate let menu = REMenu()
-    
-    fileprivate let defaultStoryRequestLimit = 25
-    
-    override var title: String? {
-        didSet {
-            titleView.title = title
-        }
+    init(type: StoriesType) {
+        storiesType = type
+        super.init(nibName: nil, bundle: nil)
+        title = storiesType.title
     }
 
-    // MARK: - UIViewController
+    required init?(coder aDecoder: NSCoder) {
+        storiesType = .News
+        super.init(coder: aDecoder)
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        setupMenu()
-        
-        navigationItem.titleView = titleView
-        titleView.tapHandler = { [weak self] () -> Void in
-            self?.toggleMenu()
-        }
-        
-        tableView.backgroundColor = UIColor.backgroundColor()
-        tableView.register(StoryCell.self, forCellReuseIdentifier: StoryCell.identifier)
-        tableView.dataSource = self
-        tableView.delegate = self
-        tableView.tableFooterView = UIView() // avoid empty cells
-        tableView.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(tableView)
-        
-        tableView.addPullToRefresh { [weak self] () -> Void in
-            self?.getStories()
-        }
-        tableView.pullToRefreshView.activityIndicatorViewStyle = .white
-        
-        _ = view.addConstraints(withVisualFormats: [
-            "H:|[tableView]|",
-            "V:|[tableView]|"], views: [
-                "tableView": tableView])
+        addChildViewController(storiesViewController)
+        view.addSubviewsWithAutoLayout(storiesViewController.view)
+        _ = storiesViewController.view.anchorAllEdgesToView(view)
+        storiesViewController.didMove(toParentViewController: self)
         
         getStories(showHUD: true)
-        loadPinnedStories()
         
-        tableView.addInfiniteScrolling { [weak self] in
-            if let self = self {
-                let offset = self.stories.count
-                self.getStories(offset: offset)
+        storiesViewController.addPullToRefresh { [weak self] in
+            self?.getStories()
+        }
+        storiesViewController.addInfiniteScroll { [weak self] in
+            guard let self = self else {
+                return
             }
+            self.getStories(page: self.page)
         }
     }
 }
@@ -77,206 +53,18 @@ class StoriesViewController: UIViewController {
 
 extension StoriesViewController {
     
-    fileprivate func loadStories(_ stories: [Story], appendStories: Bool, scrollToTop: Bool, showHUD: Bool) {
-        
-        ProgressHUD.hideAllHUDs(for: tableView, animated: true)
-        tableView.pullToRefreshView.stopAnimating()
-
-        title = storiesType.title
-        
-        self.stories = appendStories ? self.stories + stories : stories
-        
-        tableView.reloadData()
-        tableView.infiniteScrollingView?.stopAnimating()
-        
-        if scrollToTop {
-            tableView.setContentOffset(CGPoint(x: 0, y: 0), animated: true)
-        }
-        
-        _ = DataSource.fullySync(stories: stories, timeout: 2)
-    }
-    
-    fileprivate func getStories(offset: Int = 0, scrollToTop: Bool = false, showHUD: Bool = false) {
-        let appendStories = offset == 0 ? false : true
+    func getStories(page: Int = 1, scrollToTop: Bool = false, showHUD: Bool = false) {
+        let appendStories = page == 1 ? false : true
         if showHUD {
-            ProgressHUD.showAdded(to: tableView, animated: true)
+            storiesViewController.showHUD()
         }
-        DataSource.getStories(withType: storiesType, limit: defaultStoryRequestLimit, offset: offset)
-        .then { (stories) -> Void in
-            self.loadStories(stories, appendStories: appendStories, scrollToTop: scrollToTop, showHUD: showHUD)
+        DataSource.getStories(withType: storiesType, page: page)
+        .then { [weak self] (stories) -> Void in
+            self?.storiesViewController.loadStories(stories, appendStories: appendStories, scrollToTop: scrollToTop, showHUD: showHUD)
+            self?.page = page + 1
         }
         .catch { (error) in
             ErrorController.showErrorNotification(error)
         }
-    }
-    
-    fileprivate func story(forArticle article: MercuryArticle) -> Story? {
-        return stories.first(where: { (story) -> Bool in
-            return story.URLString == article.URLString
-        })
-    }
-    
-    fileprivate func reload(article: MercuryArticle) {
-        if let story = story(forArticle: article) {
-            reload(story: story)
-        }
-    }
-    
-    fileprivate func reload(story: Story) {
-        if let indexPath = indexPath(for: story) {
-            tableView.reloadRows(at: [indexPath], with: .none)
-        }
-    }
-    
-    fileprivate func storyForIndexPath(_ indexPath: IndexPath) -> Story {
-        return stories[indexPath.item]        
-    }
-    
-    fileprivate func storyForCell(_ cell: StoryCell) -> Story? {
-        guard let indexPath = tableView.indexPath(for: cell) else { return nil }
-        return storyForIndexPath(indexPath)
-    }
-    
-    fileprivate func indexPath(for story: Story) -> IndexPath? {
-        guard let index = stories.index(where: { $0.id == story.id }) else {
-            return nil
-        }
-        
-        return IndexPath(item: index, section: 0)
-    }
-}
-
-// MARK: - Menu
-
-extension StoriesViewController {
-    
-    fileprivate func setupMenu() {
-        menu.items = StoriesType.allValues.map { (type) -> REMenuItem in
-            return REMenuItem(title: type.title, image: nil, highlightedImage: nil, action: { [weak self] (_) -> Void in
-                self?.menuDidFinishSelection(type)
-                })
-        }
-    }
-    
-    fileprivate func menuDidFinishSelection(_ type: StoriesType) {
-        storiesType = type
-        title = type.title
-        getStories(scrollToTop: true, showHUD: true)
-        menu.close()
-    }
-    
-    fileprivate func toggleMenu() {
-        if menu.isOpen {
-            menu.close()
-        } else {
-            menu.show(in: view)
-        }
-    }
-}
-
-// MARK: - Cell heights
-extension StoriesViewController {
-    
-    fileprivate func cachedHeightForRowAtIndexPath(_ indexPath: IndexPath) -> CGFloat {
-        let story = storyForIndexPath(indexPath)
-        if let cachedHeight = cachedCellHeights[story.id] {
-            return cachedHeight
-        }
-        let estimatedHeight = prototypeCell.estimateHeight(story: story, isPinned: isStoryPinned(id: story.id), width: tableView.bounds.width)
-        cachedCellHeights[story.id] = estimatedHeight
-        return estimatedHeight
-    }
-    
-}
-
-extension StoriesViewController: UITableViewDataSource, UITableViewDelegate {
-    
-    func numberOfSections(in tableView: UITableView) -> Int {
-        return 1
-    }
-    
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return stories.count
-    }
-    
-    func tableView(_ tableView: UITableView, estimatedHeightForRowAt indexPath: IndexPath) -> CGFloat {
-        return cachedHeightForRowAtIndexPath(indexPath)
-    }
-    
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return cachedHeightForRowAtIndexPath(indexPath)
-    }
-    
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: StoryCell.identifier, for: indexPath) as! StoryCell
-        cell.delegate = self
-        let story = storyForIndexPath(indexPath)
-        cell.prepare(story: story, isPinned: isStoryPinned(id: story.id), width: tableView.bounds.width)
-        return cell
-    }
-}
-
-extension StoriesViewController: StoryCellDelegate {
-    
-    func cellDidSelectStoryArticle(_ cell: StoryCell) {
-        guard let story = storyForCell(cell) else { return }
-        if story.kind == .Story
-            && story.URLString != nil {
-                navigationController?.pushViewController(ArticleViewController(story: story), animated: true)
-        } else {
-            navigationController?.pushViewController(CommentsViewController(story: story), animated: true)
-        }
-    }
-    
-    func cellDidSelectStoryComments(_ cell: StoryCell) {
-        guard let story = storyForCell(cell) else { return }
-        navigationController?.pushViewController(CommentsViewController(story: story), animated: true)
-    }
-    
-    func cellDidSwipeLeft(_ cell: StoryCell) {
-        guard let story = storyForCell(cell) else { return }
-        removePinnedStory(id: story.id)
-        guard let indexPath = indexPath(for: story) else { return }
-        tableView.reloadRows(at: [indexPath], with: .left)
-    }
-    
-    func cellDidSwipeRight(_ cell: StoryCell) {
-        guard let story = storyForCell(cell) else { return }
-        addPinnedStory(id: story.id)
-        guard let indexPath = indexPath(for: story) else { return }
-        tableView.reloadRows(at: [indexPath], with: .right)
-    }
-}
-
-extension StoriesViewController {
-    
-    fileprivate func loadPinnedStories() {
-        DataSource.getPinnedStoryIds { [weak self] (ids) in
-            self?.pinnedStoryIds = ids
-            self?.tableView.reloadData()
-        }
-    }
-    
-    fileprivate func addPinnedStory(id: Int) {
-        if let pinnedIdIndex = index(forPinnedStoryId: id) {
-            pinnedStoryIds.remove(at: pinnedIdIndex)
-        }
-        pinnedStoryIds.append(id)
-        DataSource.addPinnedStory(id: id)
-    }
-
-    fileprivate func removePinnedStory(id: Int) {
-        if let pinnedIdIndex = index(forPinnedStoryId: id) {
-            pinnedStoryIds.remove(at: pinnedIdIndex)
-        }
-        DataSource.removePinnedStory(id: id)
-    }
-    
-    fileprivate func isStoryPinned(id: Int) -> Bool {
-        return pinnedStoryIds.contains(id)
-    }
-    
-    fileprivate func index(forPinnedStoryId id: Int) -> Int? {
-        return pinnedStoryIds.index(where: { $0 == id })
     }
 }

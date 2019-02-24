@@ -9,16 +9,20 @@
 import SwiftyJSON
 import DTCoreText
 
-extension StoriesType: Downloadable {
-    var cacheKey: String {
-        return rawValue
+extension StoriesType {
+    
+    func cacheKey(page: Int) -> String {
+        return "stories?type=\(rawValue)&page=\(page)"
     }
+    
 }
 
-extension Story: Downloadable {
+extension Story {
+    
     var cacheKey: String {
         return type(of: self).cacheKey(id)
     }
+    
 }
 
 extension Sequence where Iterator.Element == Story {
@@ -41,21 +45,19 @@ extension Sequence where Iterator.Element == Story {
 
 enum StoriesType: String {
     
-    case Top = "topstories"
-    case New = "newstories"
-    case Show = "showstories"
-    case Ask = "askstories"
-    case Job = "jobstories"
-    case Pinned = "pinnedstories"
+    case News = "news"
+    case Newest = "newest"
+    case Show = "show"
+    case Ask = "ask"
+    case Job = "jobs"
+    case Pinned = "pinned"
     
-    static var allValues = [Top, New, Show, Ask, Job, Pinned]
+    static var allValues = [News, Newest, Show, Ask, Job, Pinned]
     
     var title: String {
-        return rawValue.replacingOccurrences(of: "stories", with: "").capitalized
+        return rawValue.capitalized
     }
-    var isCached: Bool {
-        return Cache.shared.hasFileCachedItemForKey(cacheKey)
-    }
+
 }
 
 extension Story {
@@ -75,13 +77,118 @@ extension Int: JSONSerializable {
     }
 }
 
+struct JsonMapper {
+    /**
+     Transforms a JSON to another JSON.
+     First, using the given mapping dictionary to map values from one key to another,
+     eg: mapping dictionary ["object_id": "id"]
+     will produce json with ["id": 1234] from json with ["object_id": 1234].
+     Then, applying given additional transformations.
+     */
+    static func transform(
+        json: JSON,
+        mappingDict: [String: String],
+        additional: (([String: Any]) -> [String: Any]))
+        -> JSON? {
+        guard let dictionary = json.dictionaryObject else {
+            return nil
+        }
+        let newDict = DictionaryMapper.transform(dict: dictionary, mappingDict: mappingDict, additional: additional)
+        return JSON(newDict)
+    }
+}
+
+struct DictionaryMapper {
+    
+    /**
+     Transforms a dictionary to another dictionary.
+     First, using the given mapping dictionary to map values from one key to another,
+     eg: mapping dictionary ["object_id": "id"]
+     will produce dictionary with ["id": 1234] from dictionary with ["object_id": 1234].
+     Then, applying given additional transformations.
+     */
+    static func transform(
+        dict: [String: Any],
+        mappingDict: [String: String],
+        additional: (([String: Any]) -> [String: Any]))
+        -> [String: Any] {
+            var newDict = [String: Any]()
+            for (key, value) in dict {
+                guard let newKey = mappingDict[key] else {
+                    continue
+                }
+                newDict[newKey] = value
+            }
+            return additional(newDict)
+    }
+}
+
+struct HNAlgoliaSearchResponseWrapper: ResponseObjectSerializable {
+    let stories: [Story]
+    init?(json: JSON) {
+        let hits = json["hits"].arrayValue
+        stories = hits.map { HNAlgoliaSearchStory(json: $0)?.story }.compactMap { $0 }
+    }
+}
+
+struct HNAlgoliaSearchStory: ResponseObjectSerializable {
+    
+    let story: Story
+    
+    init?(json: JSON) {
+        let transformedJSONOptional = JsonMapper.transform(json: json, mappingDict: HNAlgoliaSearchStory.toStoryPropertyMap, additional: HNAlgoliaSearchStory.additionalMapping)
+        guard let transformedJSON = transformedJSONOptional,
+            let story = Story(json: transformedJSON) else {
+            return nil
+        }
+        
+        self.story = story
+    }
+}
+
+extension HNAlgoliaSearchStory {
+
+    static var toStoryPropertyMap: [String: String] {
+        // maps property keys of algolia search api story objects
+        // to those of the hnfd api story objects
+        return [
+            "author": "user",
+            "num_comments": "comments_count",
+            "objectID": "id",
+            "points": "points",
+            "created_at_i": "time",
+            "title": "title",
+            "url": "url"
+        ]
+    }
+    
+    static func additionalMapping(dict: [String: Any]) -> [String: Any] {
+        var dict = dict
+        // type property doesn't map well. have to scan tags. this could be improved but no need yet https://hn.algolia.com/api
+        let tags = (dict["_tags"] as? [String]) ?? [String]()
+        let mapsToLink = ["story", "show_hn"]
+        let mapsToAsk = ["ask_hn", "poll", "pollopt"]
+        
+        if !Set(mapsToLink).intersection(tags).isEmpty {
+            dict["type"] = "link"
+        } else if !Set(mapsToAsk).intersection(tags).isEmpty {
+            dict["type"] = "ask"
+        } else {
+            dict["type"] = "link" // 🤷🏽‍♀️
+        }
+        
+        return dict
+    }
+    
+}
+
 struct Story: ResponseObjectSerializable, DataSerializable, JSONSerializable {
     
     enum Kind: String {
         case Job = "job",
-        Story = "story",
-        Poll = "poll",
-        PollOpt = "pollopt"
+        Link = "link",
+        Ask = "ask"
+        
         func toJSON() -> AnyObject {
             return rawValue as AnyObject
         }
@@ -123,39 +230,38 @@ struct Story: ResponseObjectSerializable, DataSerializable, JSONSerializable {
     init?(json: JSON) {
         guard let kind = Kind(rawValue: json["type"].stringValue)
             else { return nil }
-        
-        self.by = json["by"].stringValue
-        self.descendants = json["descendants"].intValue
-        self.id = json["_id"].intValue
-        self.kids = json["kids"].arrayValue.map { $0.intValue }
-        self.score = json["score"].intValue
-        self.text = json["text"].stringValue
+        self.by = json["user"].stringValue
+        self.descendants = json["comments_count"].intValue
+        self.id = json["id"].intValue
+        self.kids = json["kids"].arrayValue.map { $0.intValue } // don't think i use this anyway
+        self.score = json["points"].intValue
+        self.text = json["content"].stringValue
         // could probably make this a lazy var:
         let data = text.data(using: String.Encoding.utf8)!
         self.attributedText = data.count > 0 ? NSAttributedString(htmlData: data, options: [DTUseiOS6Attributes: true, DTDefaultFontName: UIFont.textReaderFont().fontName, DTDefaultFontSize: UIFont.textReaderFont().pointSize, DTDefaultTextColor: UIColor.textColor(), DTDefaultLinkColor: UIColor.tintColor()], documentAttributes: nil) : NSAttributedString(string: "")
         self.time = json["time"].intValue
         self.title = json["title"].stringValue
-        self.kind = kind
+        self.kind = kind // rethink this one. important, even?
         self.URLString = json["url"].string
         self.URL = Foundation.URL(string: json["url"].string ?? "")
-        self.children = json["children"].arrayValue.map { Comment(json: $0, level: 1) } .filter { !$0.deleted }
+        self.children = json["comments"].arrayValue.map { Comment(json: $0, level: 1) } .filter { !$0.deleted }
         self.date = Date(timeIntervalSince1970: TimeInterval(self.time))
-        self.updated = json["updated"].stringValue
+        self.updated = json["updated"].stringValue // don't think i use this
     }
-    
+
     var asJSON: Any {
         return [
-            "by": by,
-            "descendants": descendants,
-            "_id": id,
+            "user": by,
+            "comments_count": descendants,
+            "id": id,
             "kids": kids,
-            "score": score,
-            "text": text,
+            "points": score,
+            "content": text,
             "time": time,
             "title": title,
             "type": kind.toJSON(),
             "url": URL?.absoluteString ?? "",
-            "children": children.map { $0.toJSON() }
+            "comments": children.map { $0.toJSON() }
         ]
     }
     

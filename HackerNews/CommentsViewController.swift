@@ -28,6 +28,7 @@ class CommentsViewController: UIViewController {
         header = CommentsHeaderView(story: story)
         super.init(nibName:nil, bundle: nil)
         title = "Comments"
+        hidesBottomBarWhenPushed = true
     }
     
     required init(coder aDecoder: NSCoder) {
@@ -75,13 +76,13 @@ class CommentsViewController: UIViewController {
         if showHUD {
             ProgressHUD.showAdded(to: treeView, animated: true)
         }
-        
+
         _ = DataSource.getStory(story.id, timeout: 2)
             .always {
                 ProgressHUD.hideAllHUDs(for: self.treeView, animated: true)
                 self.treeView.pullToRefreshView.stopAnimating()
             }
-            .then { (story) -> Void in                
+            .then { (story) -> Void in
                 self.story = story
                 self.treeView.reloadData()
             }

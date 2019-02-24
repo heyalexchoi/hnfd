@@ -86,13 +86,13 @@ struct Cache {
     
     // MARK: - STORIES
     
-    func getStories(_ type: StoriesType, completion: @escaping (_ result: Result<[Story]>) -> Void) {
-        getObjects(forKey: type.rawValue, completion: completion)
+    func getStories(_ type: StoriesType, page: Int, completion: @escaping (_ result: Result<[Story]>) -> Void) {
+        getObjects(forKey: type.cacheKey(page: page), completion: completion)
     }
     
-    func getStories(withType type: StoriesType) -> Promise<[Story]> {
+    func getStories(withType type: StoriesType, page: Int) -> Promise<[Story]> {
         return Promise { (fulfill: @escaping ([Story]) -> Void, reject: @escaping (Error) -> Void) in
-            getStories(type, completion: { (result) in
+            getStories(type, page: page, completion: { (result) in
                 guard let stories = result.value else {
                     reject(result.error!)
                     return
@@ -102,8 +102,8 @@ struct Cache {
         }
     }
     
-    func setStories(_ type: StoriesType, stories: [Story]) {
-        setObjects(forKey: type.cacheKey, objects: stories)
+    func setStories(_ type: StoriesType, page: Int, stories: [Story]) {
+        setObjects(forKey: type.cacheKey(page: page), objects: stories)
     }
     
     func getStories(ids: [Int], timeout: TimeInterval = 2) -> Promise<[Story]> {
@@ -138,31 +138,6 @@ struct Cache {
     
     func setPinnedStoryIds(ids: [Int]) {
         setObjects(forKey: Story.pinnedIdsCacheKey, objects: ids)
-    }
-    
-    func addPinnedStory(id: Int) {
-        getPinnedStoryIds { (result: Result<[Int]>) in
-            var pinnedIds = result.value ?? [Int]()
-            if let pinnedIdIndex = pinnedIds.index(where: { (pinnedId) -> Bool in
-                return pinnedId == id
-            }) {
-                pinnedIds.remove(at: pinnedIdIndex)
-            }
-            pinnedIds.insert(id, at: 0)
-            self.setPinnedStoryIds(ids: pinnedIds)
-        }
-    }
-    
-    func removePinnedStory(id: Int) {
-        getPinnedStoryIds { (result: Result<[Int]>) in
-            var pinnedIds = result.value ?? [Int]()
-            if let pinnedIdIndex = pinnedIds.index(where: { (pinnedId) -> Bool in
-                return pinnedId == id
-            }) {
-                pinnedIds.remove(at: pinnedIdIndex)
-            }
-            self.setPinnedStoryIds(ids: pinnedIds)
-        }
     }
     
     // MARK: - STORY
@@ -216,5 +191,45 @@ extension Cache {
     func hasFileCachedItemForKey(_ key: String?) -> Bool {
         guard let key = key else { return false }
         return fileManager.fileExists(atPath: fileURL(forKey: key).path)
+    }
+}
+
+class SharedState {
+    
+    static let shared = SharedState()
+    var pinnedStoryIds = [Int]()
+    let cache = Cache.shared
+    
+    init() {
+        cache.getPinnedStoryIds { [weak self] (result: Result<[Int]>) in
+            self?.pinnedStoryIds = result.value ?? [Int]()
+        }
+    }
+    
+    // Mark: - Pinned Ids
+    
+    func indexForPinnedStory(id: Int) -> Int? {
+        return pinnedStoryIds.index(where: { (pinnedId) -> Bool in
+            return pinnedId == id
+        })
+    }
+    
+    func isStoryIdPinned(id: Int) -> Bool {
+        return indexForPinnedStory(id: id) != nil
+    }
+    
+    func addPinnedStory(id: Int) {
+        if let pinnedIdIndex = indexForPinnedStory(id: id) {
+            pinnedStoryIds.remove(at: pinnedIdIndex)
+        }
+        pinnedStoryIds.insert(id, at: 0)
+        cache.setPinnedStoryIds(ids: pinnedStoryIds)
+    }
+
+    func removePinnedStory(id: Int) {
+        if let pinnedIdIndex = indexForPinnedStory(id: id) {
+            pinnedStoryIds.remove(at: pinnedIdIndex)
+        }
+        cache.setPinnedStoryIds(ids: pinnedStoryIds)
     }
 }
