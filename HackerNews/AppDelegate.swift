@@ -18,11 +18,19 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         window = UIWindow(frame: UIScreen.main.bounds)
         if let window = window {
             let tabBarController = UITabBarController()
-            let storiesNavigationController = UINavigationController(rootViewController: StoriesViewController())
+            let newsNavigationController = UINavigationController(rootViewController: StoriesViewController(type: .News))
+//            let newestNavigationController = UINavigationController(rootViewController: StoriesViewController(type: .Newest))
+            let showNavigationController = UINavigationController(rootViewController: StoriesViewController(type: .Show))
+            let askNavigationController = UINavigationController(rootViewController: StoriesViewController(type: .Ask))
+            let jobNavigationController = UINavigationController(rootViewController: StoriesViewController(type: .Job))
             let searchNavigationController = UINavigationController(rootViewController: SearchViewController())
-            tabBarController.viewControllers = [storiesNavigationController, searchNavigationController]
-//            tabBarController.viewControllers = [searchNavigationController]
-//            window.backgroundColor = UIColor.backgroundColor()
+            tabBarController.viewControllers = [
+                newsNavigationController,
+//                newestNavigationController,
+                showNavigationController,
+                askNavigationController,
+                jobNavigationController,
+                searchNavigationController]
             window.rootViewController = tabBarController
             window.makeKeyAndVisible()
         }

@@ -17,8 +17,6 @@ class StoriesTableViewController: UIViewController {
     fileprivate let prototypeCell = StoryCell(frame: CGRect.zero)
     fileprivate var cachedCellHeights = [Int: CGFloat]() // id: cell height
     
-    fileprivate let defaultStoryRequestLimit = 25
-    
     // MARK: - UIViewController
     
     override func viewDidLoad() {
@@ -33,30 +31,16 @@ class StoriesTableViewController: UIViewController {
         tableView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(tableView)
         
-//        tableView.addPullToRefresh { [weak self] () -> Void in
-//
-//        }
-//        tableView.pullToRefreshView.activityIndicatorViewStyle = .white
-        
         _ = view.addConstraints(withVisualFormats: [
             "H:|[tableView]|",
             "V:|[tableView]|"], views: [
                 "tableView": tableView])
         
-//        getStories(showHUD: true)
         loadPinnedStories()
-        
-//        tableView.addInfiniteScrolling { [weak self] in
-//        }
     }
 }
 
-extension StoriesTableViewController {
-    
-    
-}
-
-// MARK: - Stories
+// MARK: - Interface
 
 extension StoriesTableViewController {
     
@@ -77,19 +61,25 @@ extension StoriesTableViewController {
         _ = DataSource.fullySync(stories: stories, timeout: 2)
     }
     
-//    fileprivate func getStories(offset: Int = 0, scrollToTop: Bool = false, showHUD: Bool = false) {
-//        let appendStories = offset == 0 ? false : true
-//        if showHUD {
-//            ProgressHUD.showAdded(to: tableView, animated: true)
-//        }
-//        DataSource.getStories(withType: storiesType, limit: defaultStoryRequestLimit, offset: offset)
-//            .then { (stories) -> Void in
-//                self.loadStories(stories, appendStories: appendStories, scrollToTop: scrollToTop, showHUD: showHUD)
-//            }
-//            .catch { (error) in
-//                ErrorController.showErrorNotification(error)
-//        }
-//    }
+    func showHUD() {
+        ProgressHUD.showAdded(to: tableView, animated: true)
+    }
+    
+    func addInfiniteScroll(_ action: @escaping () -> Void) {
+        tableView.addInfiniteScrolling { () -> Void in
+            action()
+        }
+        tableView.pullToRefreshView.activityIndicatorViewStyle = .white
+    }
+    
+    func addPullToRefresh(_ action: @escaping () -> Void) {
+        tableView.addPullToRefresh { () -> Void in
+            action()
+        }
+    }
+}
+
+extension StoriesTableViewController {
     
     fileprivate func story(forArticle article: MercuryArticle) -> Story? {
         return stories.first(where: { (story) -> Bool in
