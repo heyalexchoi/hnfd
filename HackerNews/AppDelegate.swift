@@ -22,14 +22,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 //            let newestNavigationController = UINavigationController(rootViewController: StoriesViewController(type: .Newest))
             let showNavigationController = UINavigationController(rootViewController: StoriesViewController(type: .Show))
             let askNavigationController = UINavigationController(rootViewController: StoriesViewController(type: .Ask))
-            let jobNavigationController = UINavigationController(rootViewController: StoriesViewController(type: .Job))
+//            let jobNavigationController = UINavigationController(rootViewController: StoriesViewController(type: .Job))
+            let savedNavigationController = UINavigationController(rootViewController: SavedStoriesViewController())
             let searchNavigationController = UINavigationController(rootViewController: SearchViewController())
             tabBarController.viewControllers = [
                 newsNavigationController,
+                askNavigationController,
 //                newestNavigationController,
                 showNavigationController,
-                askNavigationController,
-                jobNavigationController,
+//                jobNavigationController,
+                savedNavigationController,
                 searchNavigationController]
             window.rootViewController = tabBarController
             window.makeKeyAndVisible()
