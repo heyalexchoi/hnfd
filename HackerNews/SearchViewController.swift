@@ -30,7 +30,17 @@ class SearchViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        // could do big title but it looks kinda dumb with big 'search' right above search bar that also says 'search'
+        // i would prefer that the search bar replace the navigation item / bar title view
+        // so that the search bar was in the same place to begin with as it ends up when its activated (right at the top)
+        // already sunk a LOT of time into trying lots of different things
+        // doesn't seem like there's an obvious way to do it through cocoa apis
+        // best bet if i ever end up caring enough to do it is probably a fake navigation bar
+//        viewController.navigationController?.navigationBar.prefersLargeTitles = true
+//        viewController.navigationController?.navigationBar.largeTitleTextAttributes = TextAttributes.largeTitleAttributes
+        navigationController?.view.backgroundColor = UIColor.backgroundColor()
+        navigationController?.navigationBar.barTintColor = UIColor.backgroundColor()
+
         view.backgroundColor = UIColor.backgroundColor()
         
         addChildViewController(storiesViewController)
@@ -46,15 +56,16 @@ class SearchViewController: UIViewController {
         searchController.searchBar.backgroundColor = UIColor.backgroundColor()
         searchController.searchBar.searchBarStyle = .prominent
         searchController.searchBar.isTranslucent = false
+        
+        // without this, the search bar background is black??? this makes it white again and then corrects the corner radius back to how it is supposed to look
         // lol fuck you apple
         if let textfield = searchController.searchBar.value(forKey: "searchField") as? UITextField {
             if let backgroundview = textfield.subviews.first {
-                backgroundview.backgroundColor = UIColor.white
+                backgroundview.backgroundColor = .white
                 backgroundview.layer.cornerRadius = 10;
                 backgroundview.clipsToBounds = true;
             }
         }
-        
         // For iOS 11 and later, place the search bar in the navigation bar.
         navigationItem.searchController = searchController
         
@@ -74,27 +85,14 @@ class SearchViewController: UIViewController {
          The search controller should be presented modally and match the physical size of this view controller.
          */
         definesPresentationContext = true
-    }
-    
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
-    }
-    */
-    
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
+        
         search(query: "")
-            .then { [weak self] (stories) -> Void in
-                self?.items = stories
-                self?.storiesViewController.loadStories(stories, appendStories: false, scrollToTop: false, showHUD: false)
+        .then { [weak self] (stories) -> Void in
+            self?.items = stories
+            self?.storiesViewController.loadStories(stories, appendStories: false, scrollToTop: false, showHUD: false)
         }
     }
-
+    
 }
 
 extension SearchViewController {
@@ -113,9 +111,6 @@ extension SearchViewController {
     }
     
 }
-
-// MARK: - UITableViewDelegate
-
 
 // MARK: - UISearchBarDelegate
 
@@ -159,15 +154,20 @@ extension SearchViewController: UISearchControllerDelegate {
 
 extension SearchViewController: UISearchResultsUpdating {
     
-    func updateSearchResults(for searchController: UISearchController) {
+    @objc func searchAndUpdateUI(searchController: UISearchController) {
         let query = searchController.searchBar.text ?? ""
         search(query: query)
-        .then { (stories) -> Void in
-            if let resultsController = searchController.searchResultsController as? SearchResultsViewController {
-                resultsController.results = stories
-                resultsController.tableView.reloadData()
-            }
+            .then { (stories) -> Void in
+                if let resultsController = searchController.searchResultsController as? SearchResultsViewController {
+                    resultsController.results = stories
+                    resultsController.storiesViewController.loadStories(stories, appendStories: false, scrollToTop: false, showHUD: false)
+                }
         }
     }
     
+    func updateSearchResults(for searchController: UISearchController) {
+        // to limit network activity, reload half a second after last key press.
+        NSObject.cancelPreviousPerformRequests(withTarget: self, selector: #selector(SearchViewController.searchAndUpdateUI(searchController:)), object: searchController)
+        perform(#selector(SearchViewController.searchAndUpdateUI(searchController:)), with: searchController, afterDelay: 0.25)
+        }
 }

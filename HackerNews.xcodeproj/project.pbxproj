@@ -32,7 +32,6 @@
 		1758333F2220EE940075216E /* SearchResultsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1758333E2220EE940075216E /* SearchResultsViewController.swift */; };
 		175833412220F2ED0075216E /* HNAlgoliaSearchRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 175833402220F2ED0075216E /* HNAlgoliaSearchRouter.swift */; };
 		175833432220F7A70075216E /* APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 175833422220F7A70075216E /* APIClient.swift */; };
-		17583345222135DA0075216E /* TableViewControllerSharedComponent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17583344222135DA0075216E /* TableViewControllerSharedComponent.swift */; };
 		175997821B52419B00E3F263 /* DateFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 175997811B52419B00E3F263 /* DateFormatter.swift */; };
 		176156C51BF7EFAA001D6ACA /* UIColorExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 176156C41BF7EFAA001D6ACA /* UIColorExtension.swift */; };
 		176156C81BF7EFEE001D6ACA /* UIFontExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 176156C71BF7EFEE001D6ACA /* UIFontExtension.swift */; };
@@ -105,7 +104,6 @@
 		1758333E2220EE940075216E /* SearchResultsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchResultsViewController.swift; sourceTree = "<group>"; };
 		175833402220F2ED0075216E /* HNAlgoliaSearchRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HNAlgoliaSearchRouter.swift; sourceTree = "<group>"; };
 		175833422220F7A70075216E /* APIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIClient.swift; sourceTree = "<group>"; };
-		17583344222135DA0075216E /* TableViewControllerSharedComponent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableViewControllerSharedComponent.swift; sourceTree = "<group>"; };
 		175997811B52419B00E3F263 /* DateFormatter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DateFormatter.swift; sourceTree = "<group>"; };
 		176156C41BF7EFAA001D6ACA /* UIColorExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIColorExtension.swift; sourceTree = "<group>"; };
 		176156C71BF7EFEE001D6ACA /* UIFontExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIFontExtension.swift; sourceTree = "<group>"; };
@@ -302,7 +300,6 @@
 			isa = PBXGroup;
 			children = (
 				1758333C2220EB730075216E /* SearchViewController.swift */,
-				17583344222135DA0075216E /* TableViewControllerSharedComponent.swift */,
 				1758333E2220EE940075216E /* SearchResultsViewController.swift */,
 				0CD3C88D1AD781DF005CC6C1 /* StoriesViewController.swift */,
 				0C1EE0101AE0C0B4009BD94E /* ArticleViewController.swift */,
@@ -606,7 +603,6 @@
 				17F20FF11B7EE6E7005EB2FF /* HNFDError.swift in Sources */,
 				1758333D2220EB730075216E /* SearchViewController.swift in Sources */,
 				17922A201B005BAD001460B2 /* MercuryArticle.swift in Sources */,
-				17583345222135DA0075216E /* TableViewControllerSharedComponent.swift in Sources */,
 				17CC03201AFEA8B4005719A7 /* StoriesTitleView.swift in Sources */,
 				17E621151AED4C0B00FF84AC /* WebViewController.swift in Sources */,
 				17922A1E1B005BA1001460B2 /* Comment.swift in Sources */,

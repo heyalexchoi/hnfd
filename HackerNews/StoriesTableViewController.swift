@@ -173,6 +173,7 @@ extension StoriesTableViewController: StoryCellDelegate {
     
     func cellDidSelectStoryArticle(_ cell: StoryCell) {
         guard let story = storyForCell(cell) else { return }
+        let navigationController = self.navigationController ?? presentingViewController?.navigationController
         if story.kind == .Link
             && story.URLString != nil {
             navigationController?.pushViewController(ArticleViewController(story: story), animated: true)
@@ -183,6 +184,7 @@ extension StoriesTableViewController: StoryCellDelegate {
     
     func cellDidSelectStoryComments(_ cell: StoryCell) {
         guard let story = storyForCell(cell) else { return }
+        let navigationController = self.navigationController ?? presentingViewController?.navigationController
         navigationController?.pushViewController(CommentsViewController(story: story), animated: true)
     }
     
