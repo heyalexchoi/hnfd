@@ -11,7 +11,7 @@ import Alamofire
 
 enum HNAlgoliaSearchRouter: URLRequestConvertible {
     
-    case search(query: String)
+    case search(query: String, page: Int)
     
     var method: Alamofire.HTTPMethod {
         switch self {
@@ -29,10 +29,11 @@ enum HNAlgoliaSearchRouter: URLRequestConvertible {
     
     var parameters: [String: Any] {
         switch self {
-        case .search(let query):
+        case .search(let query, let page):
             return [
                 "query": query,
-                "tags": "story" // could do comments, or even by author, but static for now
+                "tags": "story", // could do comments, or even by author, but static for now
+                "page": page
             ]
         }
     }

@@ -11,6 +11,7 @@ import UIKit
 class SearchResultsViewController: UIViewController {
 
     var results: [Story] = []
+    var page = 1
     let storiesViewController = StoriesTableViewController()
     
     override func viewDidLoad() {

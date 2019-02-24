@@ -72,13 +72,14 @@ extension StoriesTableViewController {
         tableView.addInfiniteScrolling { () -> Void in
             action()
         }
-        tableView.pullToRefreshView.activityIndicatorViewStyle = .white
+        tableView.infiniteScrollingView.activityIndicatorViewStyle = .white
     }
     
     func addPullToRefresh(_ action: @escaping () -> Void) {
         tableView.addPullToRefresh { () -> Void in
             action()
         }
+        tableView.pullToRefreshView.activityIndicatorViewStyle = .white
     }
 }
 

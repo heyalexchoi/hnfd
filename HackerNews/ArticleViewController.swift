@@ -31,6 +31,7 @@ class ArticleViewController: UIViewController {
         NotificationCenter.default.addObserver(self, selector: #selector(ArticleViewController.saveReadingProgress), name: NSNotification.Name.UIApplicationWillResignActive, object: nil)
         
         getMercuryArticle()
+        hidesBottomBarWhenPushed = true
     }
     
     required init(coder aDecoder: NSCoder) {
