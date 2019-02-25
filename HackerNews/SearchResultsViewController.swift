@@ -10,7 +10,7 @@ import UIKit
 
 class SearchResultsViewController: UIViewController {
 
-    var page = 1
+    var page = 0 // max page currently loaded (vs page to fetch next)
     fileprivate let storiesViewController = StoriesTableViewController()
     
     override func viewDidLoad() {

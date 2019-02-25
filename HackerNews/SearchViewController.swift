@@ -19,9 +19,15 @@ class SearchViewController: UIViewController {
     /// Secondary search results table view.
     fileprivate var resultsTableController: SearchResultsViewController!
     
-    fileprivate var page = 1
+    fileprivate var query: String {
+        return searchController.searchBar.text ?? ""
+    }
+
+    fileprivate var page = 0 // max page currently loaded (vs page to fetch next)
     
     fileprivate let throttler = Throttler(minimumDelay: 0.3)
+    
+    fileprivate var lastQuery = (term: "", page: 0)
 
     init() {
         super.init(nibName: nil, bundle: nil)
@@ -94,14 +100,14 @@ class SearchViewController: UIViewController {
             guard let self = self else {
                 return
             }
-            self.loadMostPopular(page: self.page, appendStories: true, showHUD: false)
+            self.loadMostPopular(page: self.page + 1, appendStories: true, showHUD: false)
         }
         
         resultsTableController.addInfiniteScroll { [weak self] in
             guard let self = self else {
                 return
             }
-            self.searchAndUpdateUI(page: self.resultsTableController.page, shouldAppend: true, shouldScrollToTop: false, shouldShowHUD: false)
+            self.searchAndUpdateUI(page: self.resultsTableController.page + 1, shouldAppend: true, shouldScrollToTop: false, shouldShowHUD: false)
         }
         
         loadMostPopular(page: 0, appendStories: false, showHUD: true)
@@ -112,7 +118,7 @@ class SearchViewController: UIViewController {
             .then { [weak self] (stories) -> Void in
                 self?.items = stories
                 self?.storiesViewController.loadStories(stories, appendStories: appendStories, scrollToTop: false, showHUD: showHUD)
-                self?.page = page + 1
+                self?.page = page
         }
     }
     
@@ -123,12 +129,13 @@ extension SearchViewController {
     func search(query: String, page: Int) -> Promise<[Story]> {
         return Promise { (fulfill: @escaping ([Story]) -> Void, reject: @escaping (Error) -> Void) in
             let request = HNAlgoliaSearchRouter.search(query: query, page: page, perPage: 10)
-            _ = APIClient.request(request) { (result: Result<HNAlgoliaSearchResponseWrapper>) in
+            _ = APIClient.request(request) { [weak self] (result: Result<HNAlgoliaSearchResponseWrapper>) in
                 guard let stories = result.value?.stories else {
                     reject(result.error!)
                     return
                 }
                 fulfill(stories)
+                self?.lastQuery = (term: query, page: page)
             }
         }
     }
@@ -178,19 +185,25 @@ extension SearchViewController: UISearchControllerDelegate {
 extension SearchViewController: UISearchResultsUpdating {
     
     @objc func searchAndUpdateUI(page: Int, shouldAppend: Bool = false, shouldScrollToTop: Bool = false, shouldShowHUD: Bool = false) {
-        let query = searchController.searchBar.text ?? ""
+        
         print("--- query: \(query)")
         search(query: query, page: page)
             .then { [weak self] (stories) -> Void in
                 self?.resultsTableController.loadStories(stories, appendStories: shouldAppend, scrollToTop: shouldScrollToTop, showHUD: shouldShowHUD)
-                self?.resultsTableController.page = page + 1
+                self?.resultsTableController.page = page
         }
     }
     
     func updateSearchResults(for searchController: UISearchController) {
+        
+        guard (term: query, page: resultsTableController.page) != lastQuery else {
+            return
+        }
+        
         throttler.throttle { [weak self] in
             self?.searchAndUpdateUI(page: 0, shouldAppend: false, shouldScrollToTop: true, shouldShowHUD: true)
         }
     
     }
+    
 }
