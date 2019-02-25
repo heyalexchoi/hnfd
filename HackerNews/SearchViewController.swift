@@ -20,6 +20,8 @@ class SearchViewController: UIViewController {
     fileprivate var resultsTableController: SearchResultsViewController!
     
     fileprivate var page = 1
+    
+    fileprivate let throttler = Throttler(minimumDelay: 0.3)
 
     init() {
         super.init(nibName: nil, bundle: nil)
@@ -95,7 +97,7 @@ class SearchViewController: UIViewController {
             self.loadMostPopular(page: self.page, appendStories: true, showHUD: false)
         }
         
-        resultsTableController.storiesViewController.addInfiniteScroll { [weak self] in
+        resultsTableController.addInfiniteScroll { [weak self] in
             guard let self = self else {
                 return
             }
@@ -120,7 +122,7 @@ extension SearchViewController {
     
     func search(query: String, page: Int) -> Promise<[Story]> {
         return Promise { (fulfill: @escaping ([Story]) -> Void, reject: @escaping (Error) -> Void) in
-            let request = HNAlgoliaSearchRouter.search(query: query, page: page)
+            let request = HNAlgoliaSearchRouter.search(query: query, page: page, perPage: 10)
             _ = APIClient.request(request) { (result: Result<HNAlgoliaSearchResponseWrapper>) in
                 guard let stories = result.value?.stories else {
                     reject(result.error!)
@@ -177,19 +179,18 @@ extension SearchViewController: UISearchResultsUpdating {
     
     @objc func searchAndUpdateUI(page: Int, shouldAppend: Bool = false, shouldScrollToTop: Bool = false, shouldShowHUD: Bool = false) {
         let query = searchController.searchBar.text ?? ""
+        print("--- query: \(query)")
         search(query: query, page: page)
             .then { [weak self] (stories) -> Void in
-                self?.resultsTableController.results = stories
-                self?.resultsTableController.storiesViewController.loadStories(stories, appendStories: shouldAppend, scrollToTop: shouldScrollToTop, showHUD: shouldShowHUD)
+                self?.resultsTableController.loadStories(stories, appendStories: shouldAppend, scrollToTop: shouldScrollToTop, showHUD: shouldShowHUD)
                 self?.resultsTableController.page = page + 1
         }
     }
     
     func updateSearchResults(for searchController: UISearchController) {
-        // eg typing in search bar
-        // THROTTLED: to limit network activity, reload half a second after last key press.
-//        NSObject.cancelPreviousPerformRequests(withTarget: self, selector: #selector(SearchViewController.searchAndUpdateUI), object: nil)
-//        perform(#selector(SearchViewController.searchAndUpdateUI), with: searchController, afterDelay: 0.25)
-        searchAndUpdateUI(page: 0, shouldAppend: false, shouldScrollToTop: true, shouldShowHUD: true)
+        throttler.throttle { [weak self] in
+            self?.searchAndUpdateUI(page: 0, shouldAppend: false, shouldScrollToTop: true, shouldShowHUD: true)
+        }
+    
     }
 }
