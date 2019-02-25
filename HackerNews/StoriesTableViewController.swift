@@ -58,7 +58,15 @@ extension StoriesTableViewController {
         tableView.infiniteScrollingView?.stopAnimating()
         
         if scrollToTop {
-            tableView.setContentOffset(CGPoint(x: 0, y: 0), animated: true)
+            // setting offset 0 sticks the first cell underneath the nav bar
+            // this is how you do it 😘
+            let adjustedTopOffset = -tableView.adjustedContentInset.top
+            // table view ignores command to scroll to top without this dispatch main
+            // even when this is called on the main thread. tried a bunch of things. 🤷🏽‍♀️
+            // fuck you apple 🖕🏽
+            DispatchQueue.main.async { [weak self] in
+                self?.tableView.setContentOffset(CGPoint(x: 0, y: adjustedTopOffset), animated: false)
+            }
         }
         
         _ = DataSource.fullySync(stories: stories, timeout: 2)

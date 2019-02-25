@@ -10,8 +10,8 @@ import Foundation
 import Alamofire
 
 enum HNAlgoliaSearchRouter: URLRequestConvertible {
-    
-    case search(query: String, page: Int)
+    // note: this api pages with index starting at 0
+    case search(query: String, page: Int, perPage: Int)
     
     var method: Alamofire.HTTPMethod {
         switch self {
@@ -29,11 +29,12 @@ enum HNAlgoliaSearchRouter: URLRequestConvertible {
     
     var parameters: [String: Any] {
         switch self {
-        case .search(let query, let page):
+        case .search(let query, let page, let perPage):
             return [
                 "query": query,
                 "tags": "story", // could do comments, or even by author, but static for now
-                "page": page
+                "page": page,
+                "hitsPerPage": perPage
             ]
         }
     }

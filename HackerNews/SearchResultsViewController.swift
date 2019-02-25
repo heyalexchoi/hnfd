@@ -10,9 +10,8 @@ import UIKit
 
 class SearchResultsViewController: UIViewController {
 
-    var results: [Story] = []
     var page = 1
-    let storiesViewController = StoriesTableViewController()
+    fileprivate let storiesViewController = StoriesTableViewController()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -23,4 +22,11 @@ class SearchResultsViewController: UIViewController {
         storiesViewController.didMove(toParentViewController: self)
     }
     
+    func loadStories(_ stories: [Story], appendStories: Bool, scrollToTop: Bool, showHUD: Bool) {
+        storiesViewController.loadStories(stories, appendStories: appendStories, scrollToTop: scrollToTop, showHUD: showHUD)
+    }
+    
+    func addInfiniteScroll(_ action: @escaping () -> Void) {
+        storiesViewController.addInfiniteScroll(action)
+    }
 }

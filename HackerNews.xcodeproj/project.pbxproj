@@ -28,6 +28,7 @@
 		172E0E352221F28D00DB0764 /* StoriesTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 172E0E342221F28D00DB0764 /* StoriesTableViewController.swift */; };
 		172E0E3722230D4F00DB0764 /* SavedStoriesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 172E0E3622230D4F00DB0764 /* SavedStoriesViewController.swift */; };
 		172E0E3922231F2700DB0764 /* ArrayExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 172E0E3822231F2700DB0764 /* ArrayExtensions.swift */; };
+		172E0E3B22235B8200DB0764 /* Throttler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 172E0E3A22235B8200DB0764 /* Throttler.swift */; };
 		174A9A221AE19F05008CB6FC /* Label.swift in Sources */ = {isa = PBXBuildFile; fileRef = 174A9A211AE19F05008CB6FC /* Label.swift */; };
 		1751B5D01AEE0A4B000ADF55 /* DateTools.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 1751B5CF1AEE0A4B000ADF55 /* DateTools.bundle */; };
 		1758333D2220EB730075216E /* SearchViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1758333C2220EB730075216E /* SearchViewController.swift */; };
@@ -102,6 +103,7 @@
 		172E0E342221F28D00DB0764 /* StoriesTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoriesTableViewController.swift; sourceTree = "<group>"; };
 		172E0E3622230D4F00DB0764 /* SavedStoriesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SavedStoriesViewController.swift; sourceTree = "<group>"; };
 		172E0E3822231F2700DB0764 /* ArrayExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArrayExtensions.swift; sourceTree = "<group>"; };
+		172E0E3A22235B8200DB0764 /* Throttler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Throttler.swift; sourceTree = "<group>"; };
 		174A9A211AE19F05008CB6FC /* Label.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Label.swift; sourceTree = "<group>"; };
 		1751B5CF1AEE0A4B000ADF55 /* DateTools.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = DateTools.bundle; sourceTree = "<group>"; };
 		1758333C2220EB730075216E /* SearchViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchViewController.swift; sourceTree = "<group>"; };
@@ -173,11 +175,12 @@
 		0CABDA8B1B4B6A2900B0C1C4 /* Controllers */ = {
 			isa = PBXGroup;
 			children = (
-				17119D801CD6B3A100939C85 /* Downloader.swift */,
+				175833422220F7A70075216E /* APIClient.swift */,
 				17922A211B005CF1001460B2 /* Cache.swift */,
 				1714DC041CB73EBB0059E88E /* DataSource.swift */,
+				17119D801CD6B3A100939C85 /* Downloader.swift */,
 				1768BEC91B7EC35000497790 /* ErrorController.swift */,
-				175833422220F7A70075216E /* APIClient.swift */,
+				172E0E3A22235B8200DB0764 /* Throttler.swift */,
 				174A9A241AE1A001008CB6FC /* ViewControllers */,
 			);
 			name = Controllers;
@@ -589,6 +592,7 @@
 				17FB84DB1AE20CB600C87786 /* CommentsViewController.swift in Sources */,
 				0C2CF6141AEF21E70055ADC8 /* Private.swift in Sources */,
 				0C1EE00F1AE0B3E8009BD94E /* Global.swift in Sources */,
+				172E0E3B22235B8200DB0764 /* Throttler.swift in Sources */,
 				172E0E332221D7B900DB0764 /* HNPWARouter.swift in Sources */,
 				176654A71AE08B7500B97098 /* StoryCell.swift in Sources */,
 				0CD3C88C1AD781DF005CC6C1 /* AppDelegate.swift in Sources */,
