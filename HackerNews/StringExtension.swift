@@ -15,6 +15,13 @@ extension String {
         let quotedString = "\"" + string + "\""
         return "<a href=\(quotedString)>\(text)</a>"
     }
+    
+    var isValidURL: Bool {
+        guard let url = Foundation.URL(string: self) else {
+            return false
+        }
+        return UIApplication.shared.canOpenURL(url)
+    }
 }
 
 extension NSAttributedString {

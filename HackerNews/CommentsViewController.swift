@@ -68,8 +68,14 @@ class CommentsViewController: UIViewController {
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
+        prepareHeader(story: story)
+    }
+    
+    func prepareHeader(story: Story) {
+        header.prepare(story)
         treeView.tableHeaderView = header
-        header.frame = CGRect(origin: CGPoint.zero, size: header.systemLayoutSizeFitting(UILayoutFittingCompressedSize))
+        header.frame = CGRect(origin: CGPoint.zero,
+                              size: header.systemLayoutSizeFitting(UILayoutFittingCompressedSize))
     }
     
     func getFullStory(showHUD: Bool) {
@@ -83,8 +89,9 @@ class CommentsViewController: UIViewController {
                 self.treeView.pullToRefreshView.stopAnimating()
             }
             .then { (story) -> Void in
-                self.story = story
+                self.story = story                
                 self.treeView.reloadData()
+                self.prepareHeader(story: story)
             }
             .catch { (error) in
                 ErrorController.showErrorNotification(error)
@@ -179,6 +186,7 @@ extension CommentsViewController: UITableViewDataSource, UITableViewDelegate {
         setCommentIsExpanded(!isExpanded, forIndexPath: indexPath)
         tableView.reloadData()
     }
+
 }
 
 extension CommentsViewController: UITextViewDelegate {

@@ -242,8 +242,17 @@ struct Story: ResponseObjectSerializable, DataSerializable, JSONSerializable {
         self.time = json["time"].intValue
         self.title = json["title"].stringValue
         self.kind = kind // rethink this one. important, even?
-        self.URLString = json["url"].string
-        self.URL = Foundation.URL(string: json["url"].string ?? "")
+
+        if let urlString = json["url"].string,
+            let url = Foundation.URL(string: urlString),
+             urlString.isValidURL {
+            self.URLString = urlString
+            self.URL = url
+        } else {
+            self.URLString = nil
+            self.URL = nil
+        }
+
         self.children = json["comments"].arrayValue.map { Comment(json: $0, level: 1) } .filter { !$0.deleted }
         self.date = Date(timeIntervalSince1970: TimeInterval(self.time))
         self.updated = json["updated"].stringValue // don't think i use this
