@@ -1,0 +1,20 @@
+{
+  "name": "js",
+  "version": "1.0.0",
+  "description": "",
+  "main": "mercury_wrapper.js",
+  "dependencies": {
+    "@postlight/mercury-parser": "^2.0.0",
+    "webpack": "^4.29.6"
+  },
+  "devDependencies": {
+    "webpack-cli": "^3.3.0"
+  },
+  "scripts": {
+    "test": "echo no test defined",
+    "build": "webpack --progress --colors --display-error-details"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
