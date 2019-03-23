@@ -49,6 +49,8 @@
 		177CF3011CD6A12700F373CD /* SwiftyJSON.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 177CF2FE1CD6A12700F373CD /* SwiftyJSON.framework */; };
 		178327981B1C09BE003C580A /* CommentsHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 178327971B1C09BE003C580A /* CommentsHeaderView.swift */; };
 		1783279A1B1C0C84003C580A /* StoryActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 178327991B1C0C84003C580A /* StoryActivity.swift */; };
+		178AF7BC2246CEBF008D572F /* MercuryParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 178AF7BB2246CEBF008D572F /* MercuryParser.swift */; };
+		178AF7BE2246D173008D572F /* outputs in Resources */ = {isa = PBXBuildFile; fileRef = 178AF7BD2246D173008D572F /* outputs */; };
 		17922A1C1B005B9B001460B2 /* Story.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17922A1B1B005B9B001460B2 /* Story.swift */; };
 		17922A1E1B005BA1001460B2 /* Comment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17922A1D1B005BA1001460B2 /* Comment.swift */; };
 		17922A201B005BAD001460B2 /* MercuryArticle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17922A1F1B005BAD001460B2 /* MercuryArticle.swift */; };
@@ -126,6 +128,8 @@
 		177CF2FE1CD6A12700F373CD /* SwiftyJSON.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftyJSON.framework; path = Carthage/Build/iOS/SwiftyJSON.framework; sourceTree = "<group>"; };
 		178327971B1C09BE003C580A /* CommentsHeaderView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CommentsHeaderView.swift; sourceTree = "<group>"; };
 		178327991B1C0C84003C580A /* StoryActivity.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StoryActivity.swift; sourceTree = "<group>"; };
+		178AF7BB2246CEBF008D572F /* MercuryParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MercuryParser.swift; sourceTree = "<group>"; };
+		178AF7BD2246D173008D572F /* outputs */ = {isa = PBXFileReference; lastKnownFileType = folder; name = outputs; path = js/outputs; sourceTree = SOURCE_ROOT; };
 		17922A1B1B005B9B001460B2 /* Story.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Story.swift; sourceTree = "<group>"; };
 		17922A1D1B005BA1001460B2 /* Comment.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Comment.swift; sourceTree = "<group>"; };
 		17922A1F1B005BAD001460B2 /* MercuryArticle.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MercuryArticle.swift; sourceTree = "<group>"; };
@@ -180,6 +184,7 @@
 				1714DC041CB73EBB0059E88E /* DataSource.swift */,
 				17119D801CD6B3A100939C85 /* Downloader.swift */,
 				1768BEC91B7EC35000497790 /* ErrorController.swift */,
+				178AF7BB2246CEBF008D572F /* MercuryParser.swift */,
 				172E0E3A22235B8200DB0764 /* Throttler.swift */,
 				174A9A241AE1A001008CB6FC /* ViewControllers */,
 			);
@@ -232,6 +237,7 @@
 		0CD3C8891AD781DF005CC6C1 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				178AF7BD2246D173008D572F /* outputs */,
 				170B18441B52502D00ECE833 /* readability_article.css */,
 				0CD3C88A1AD781DF005CC6C1 /* Info.plist */,
 			);
@@ -448,6 +454,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				178AF7BE2246D173008D572F /* outputs in Resources */,
 				0CD3C8931AD781DF005CC6C1 /* Images.xcassets in Resources */,
 				0CD671AA1EA5628B00166DAE /* LaunchScreen.storyboard in Resources */,
 				1751B5D01AEE0A4B000ADF55 /* DateTools.bundle in Resources */,
@@ -603,6 +610,7 @@
 				17183A3A1AE202CC007F7163 /* ProgressHUD.swift in Sources */,
 				1768BEC81B7EBF6A00497790 /* HNAppearance.m in Sources */,
 				178327981B1C09BE003C580A /* CommentsHeaderView.swift in Sources */,
+				178AF7BC2246CEBF008D572F /* MercuryParser.swift in Sources */,
 				0C1EE0111AE0C0B4009BD94E /* ArticleViewController.swift in Sources */,
 				1714DC051CB73EBB0059E88E /* DataSource.swift in Sources */,
 				17FB84D91AE20B7500C87786 /* Appearance.swift in Sources */,

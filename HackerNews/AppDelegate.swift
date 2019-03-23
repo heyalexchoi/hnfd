@@ -35,6 +35,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 searchNavigationController]
             window.rootViewController = tabBarController
             window.makeKeyAndVisible()
+            
+            let length = MercuryParser().jsCode.count
+            print("mercuryparser jscode length: \(length)")
         }
         
         let urlCache = Foundation.URLCache(memoryCapacity: 20 * 1024 * 1024, diskCapacity: 20 * 1024 * 1024, diskPath: nil)        
