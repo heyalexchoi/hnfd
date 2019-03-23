@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "@postlight/mercury-parser": "^2.0.0"
+  },
+  "scripts": {
+    "copy_mercury_dist": "cp -r ./node_modules/@postlight/mercury-parser/dist ./outputs/@postlight/mercury-parser/dist"
+  }
+}

@@ -23,3 +23,6 @@ Pods
 *.DS_Store
 
 *.xcworkspace
+
+# js
+node_modules
