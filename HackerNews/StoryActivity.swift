@@ -35,9 +35,10 @@ class StoryActivity: UIActivity {
     }
     
     override func perform() {
-//        if let story = story {
-////            SavedStoriesController.sharedController.saveStory(story)
-////            TO DO: mark the story as pinned
-//        }
+        guard let story = story else {
+            return
+        }
+        SharedState.shared.addPinnedStory(id: story.id)
+        NotificationCenter.default.post(name: .onStorySaved, object: story)
     }
 }
