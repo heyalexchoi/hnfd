@@ -60,6 +60,7 @@
 		17E621151AED4C0B00FF84AC /* WebViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17E621141AED4C0B00FF84AC /* WebViewController.swift */; };
 		17F20FF11B7EE6E7005EB2FF /* HNFDError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17F20FF01B7EE6E7005EB2FF /* HNFDError.swift */; };
 		17FA1CC8224B23A90041127A /* Notifications.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17FA1CC7224B23A90041127A /* Notifications.swift */; };
+		17FA1CCA224B2A500041127A /* TabBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17FA1CC9224B2A500041127A /* TabBarController.swift */; };
 		17FB84D91AE20B7500C87786 /* Appearance.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17FB84D81AE20B7500C87786 /* Appearance.swift */; };
 		17FB84DB1AE20CB600C87786 /* CommentsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17FB84DA1AE20CB600C87786 /* CommentsViewController.swift */; };
 		17FB84DF1AE21A1C00C87786 /* CommentCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17FB84DE1AE21A1C00C87786 /* CommentCell.swift */; };
@@ -138,6 +139,7 @@
 		17E621141AED4C0B00FF84AC /* WebViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WebViewController.swift; sourceTree = "<group>"; };
 		17F20FF01B7EE6E7005EB2FF /* HNFDError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HNFDError.swift; sourceTree = "<group>"; };
 		17FA1CC7224B23A90041127A /* Notifications.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Notifications.swift; sourceTree = "<group>"; };
+		17FA1CC9224B2A500041127A /* TabBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBarController.swift; sourceTree = "<group>"; };
 		17FB84D81AE20B7500C87786 /* Appearance.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Appearance.swift; sourceTree = "<group>"; };
 		17FB84DA1AE20CB600C87786 /* CommentsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CommentsViewController.swift; sourceTree = "<group>"; };
 		17FB84DE1AE21A1C00C87786 /* CommentCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CommentCell.swift; sourceTree = "<group>"; };
@@ -316,6 +318,7 @@
 				0CD3C88D1AD781DF005CC6C1 /* StoriesViewController.swift */,
 				17E621141AED4C0B00FF84AC /* WebViewController.swift */,
 				172E0E3622230D4F00DB0764 /* SavedStoriesViewController.swift */,
+				17FA1CC9224B2A500041127A /* TabBarController.swift */,
 			);
 			name = ViewControllers;
 			sourceTree = "<group>";
@@ -608,6 +611,7 @@
 				178327981B1C09BE003C580A /* CommentsHeaderView.swift in Sources */,
 				0C1EE0111AE0C0B4009BD94E /* ArticleViewController.swift in Sources */,
 				1714DC051CB73EBB0059E88E /* DataSource.swift in Sources */,
+				17FA1CCA224B2A500041127A /* TabBarController.swift in Sources */,
 				17FB84D91AE20B7500C87786 /* Appearance.swift in Sources */,
 				0CEE87D61DCAB8F100FD3AE9 /* ResponseObjectSerializer.swift in Sources */,
 				17CC031E1AFEA88D005719A7 /* TextView.swift in Sources */,

@@ -17,22 +17,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         window = UIWindow(frame: UIScreen.main.bounds)
         if let window = window {
-            let tabBarController = UITabBarController()
-            let newsNavigationController = UINavigationController(rootViewController: StoriesViewController(type: .News))
-//            let newestNavigationController = UINavigationController(rootViewController: StoriesViewController(type: .Newest))
-            let showNavigationController = UINavigationController(rootViewController: StoriesViewController(type: .Show))
-            let askNavigationController = UINavigationController(rootViewController: StoriesViewController(type: .Ask))
-//            let jobNavigationController = UINavigationController(rootViewController: StoriesViewController(type: .Job))
-            let savedNavigationController = UINavigationController(rootViewController: SavedStoriesViewController())
-            let searchNavigationController = UINavigationController(rootViewController: SearchViewController())
-            tabBarController.viewControllers = [
-                newsNavigationController,
-                askNavigationController,
-//                newestNavigationController,
-                showNavigationController,
-//                jobNavigationController,
-                savedNavigationController,
-                searchNavigationController]
+            let tabBarController = TabBarController()
             window.rootViewController = tabBarController
             window.makeKeyAndVisible()
         }

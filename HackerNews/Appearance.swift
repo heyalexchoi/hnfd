@@ -24,6 +24,13 @@ struct TextAttributes {
     static func URLAttributes(_ URL: Foundation.URL) -> [String: AnyObject] {
         return [DTLinkAttribute: URL as AnyObject]
     }
+    
+    static func attributesWithFontAndColor(font: UIFont, color: UIColor) -> [String: Any] {
+        return [
+            NSFontAttributeName: font,
+            NSForegroundColorAttributeName: color
+        ]
+    }
 }
 
 struct Appearance {
@@ -35,8 +42,15 @@ struct Appearance {
         UIBarButtonItem.appearance().setTitleTextAttributes(TextAttributes.textAttributes, for: UIControlState())
         UIApplication.shared.statusBarStyle = .lightContent
         
-        UITabBarItem.appearance().setTitleTextAttributes(TextAttributes.textAttributes, for: .selected)
-        UITabBarItem.appearance().setTitleTextAttributes(TextAttributes.textAttributes, for: .normal)
+        // tab bar unselected
+        UITabBarItem.appearance().setTitleTextAttributes(
+            TextAttributes.attributesWithFontAndColor(font: .textFont(), color: UIColor.separatorColor()),
+            for: .normal)
+        // tab bar selected
+        UITabBarItem.appearance().setTitleTextAttributes(
+            TextAttributes.attributesWithFontAndColor(font: .textFont(), color: UIColor.textColor()),
+            for: .selected)
+
         UITabBar.appearance().barTintColor = UIColor.backgroundColor()
         UITabBar.appearance().isTranslucent = false
         
