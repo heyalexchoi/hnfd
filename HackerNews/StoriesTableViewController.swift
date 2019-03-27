@@ -38,7 +38,7 @@ class StoriesTableViewController: UIViewController {
         NotificationCenter.default.addObserver(self, selector: #selector(onStorySaved(notification:)), name: .onStorySaved, object: nil)
     }
     
-    func onStorySaved(notification: Notification) {
+    @objc func onStorySaved(notification: Notification) {
         guard let story = notification.object as? Story else {
             return
         }

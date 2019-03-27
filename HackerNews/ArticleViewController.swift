@@ -28,7 +28,7 @@ class ArticleViewController: UIViewController {
         
         navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .action, target: self, action: #selector(ArticleViewController.actionButtonDidPress))
         
-        NotificationCenter.default.addObserver(self, selector: #selector(ArticleViewController.saveReadingProgress), name: NSNotification.Name.UIApplicationWillResignActive, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(ArticleViewController.saveReadingProgress), name: UIApplication.willResignActiveNotification, object: nil)
         
         getMercuryArticle()
         hidesBottomBarWhenPushed = true
@@ -78,7 +78,7 @@ class ArticleViewController: UIViewController {
 
 extension ArticleViewController {
     
-    func saveReadingProgress() {
+    @objc func saveReadingProgress() {
         article?.readingProgress = readingProgress
         article?.save()
     }
@@ -112,7 +112,7 @@ extension ArticleViewController {
         webView.loadHTMLString(html, baseURL: nil)
     }
     
-    func actionButtonDidPress() {
+    @objc func actionButtonDidPress() {
         guard let articleURL = articleURL else { return }
         let storyActivity = StoryActivity()
         present(UIActivityViewController(activityItems: [articleURL, story], applicationActivities: [storyActivity]), animated: true, completion: nil)
@@ -210,7 +210,7 @@ extension ArticleViewController {
 
 extension ArticleViewController: UIWebViewDelegate {
     
-    func webView(_ webView: UIWebView, shouldStartLoadWith request: URLRequest, navigationType: UIWebViewNavigationType) -> Bool {
+    func webView(_ webView: UIWebView, shouldStartLoadWith request: URLRequest, navigationType: UIWebView.NavigationType) -> Bool {
         if let URL = request.url , htmlLoaded {
             presentWebViewController(URL)
             return false

@@ -48,7 +48,7 @@ class StoryCell: UITableViewCell {
     let articleCommentsContainersPadding: CGFloat = 15
     let commentsContainerWidth: CGFloat = 75
     
-    override init(style: UITableViewCellStyle, reuseIdentifier: String?) {
+    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         
         backgroundColor = UIColor.backgroundColor()
@@ -161,19 +161,19 @@ class StoryCell: UITableViewCell {
         pinnedImageView.isHidden = !isPinned
     }
     
-    func articleButtonDidPress() {
+    @objc func articleButtonDidPress() {
         delegate?.cellDidSelectStoryArticle(self)
     }
     
-    func commentsButtonDidPress() {
+    @objc func commentsButtonDidPress() {
         delegate?.cellDidSelectStoryComments(self)
     }
     
-    func didSwipeLeft() {
+    @objc func didSwipeLeft() {
         delegate?.cellDidSwipeLeft(self)
     }
     
-    func didSwipeRight() {
+    @objc func didSwipeRight() {
         delegate?.cellDidSwipeRight(self)
     }
 }

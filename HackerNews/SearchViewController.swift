@@ -53,10 +53,10 @@ class SearchViewController: UIViewController {
 
         view.backgroundColor = UIColor.backgroundColor()
         
-        addChildViewController(storiesViewController)
+        addChild(storiesViewController)
         view.addSubviewsWithAutoLayout(storiesViewController.view)
         _ = storiesViewController.view.anchorAllEdgesToView(view)
-        storiesViewController.didMove(toParentViewController: self)
+        storiesViewController.didMove(toParent: self)
         
         resultsTableController = SearchResultsViewController()
         

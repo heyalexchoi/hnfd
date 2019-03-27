@@ -75,7 +75,7 @@ class CommentsViewController: UIViewController {
         header.prepare(story)
         treeView.tableHeaderView = header
         header.frame = CGRect(origin: CGPoint.zero,
-                              size: header.systemLayoutSizeFitting(UILayoutFittingCompressedSize))
+                              size: header.systemLayoutSizeFitting(UIView.layoutFittingCompressedSize))
     }
     
     func getFullStory(showHUD: Bool) {
@@ -98,7 +98,7 @@ class CommentsViewController: UIViewController {
         }
     }
     
-    func actionButtonDidPress() {
+    @objc func actionButtonDidPress() {
         var items: [Any] = [story]
         if let URL = story.URL {
             items.append(URL)
