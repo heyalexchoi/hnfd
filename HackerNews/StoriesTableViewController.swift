@@ -10,7 +10,6 @@
 class StoriesTableViewController: UIViewController {
     
     fileprivate var stories = [Story]()
-    fileprivate var pinnedStoryIds = [Int]()
     
     fileprivate let tableView = UITableView(frame: CGRect.zero, style: .plain)
     
@@ -35,6 +34,15 @@ class StoriesTableViewController: UIViewController {
             "H:|[tableView]|",
             "V:|[tableView]|"], views: [
                 "tableView": tableView])
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(onStorySaved(notification:)), name: .onStorySaved, object: nil)
+    }
+    
+    func onStorySaved(notification: Notification) {
+        guard let story = notification.object as? Story else {
+            return
+        }
+        reload(story: story)
     }
     
     override func viewWillAppear(_ animated: Bool) {

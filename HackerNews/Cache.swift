@@ -197,8 +197,9 @@ extension Cache {
 class SharedState {
     
     static let shared = SharedState()
-    var pinnedStoryIds = [Int]()
-    let cache = Cache.shared
+    
+    private let cache = Cache.shared
+    private(set) var pinnedStoryIds = [Int]()
     
     init() {
         cache.getPinnedStoryIds { [weak self] (result: Result<[Int]>) in

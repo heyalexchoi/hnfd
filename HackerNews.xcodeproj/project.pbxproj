@@ -59,6 +59,7 @@
 		17DEB0461CB1C86100D3246E /* AutolayoutExtensions.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 17DEB0451CB1C86100D3246E /* AutolayoutExtensions.framework */; };
 		17E621151AED4C0B00FF84AC /* WebViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17E621141AED4C0B00FF84AC /* WebViewController.swift */; };
 		17F20FF11B7EE6E7005EB2FF /* HNFDError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17F20FF01B7EE6E7005EB2FF /* HNFDError.swift */; };
+		17FA1CC8224B23A90041127A /* Notifications.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17FA1CC7224B23A90041127A /* Notifications.swift */; };
 		17FB84D91AE20B7500C87786 /* Appearance.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17FB84D81AE20B7500C87786 /* Appearance.swift */; };
 		17FB84DB1AE20CB600C87786 /* CommentsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17FB84DA1AE20CB600C87786 /* CommentsViewController.swift */; };
 		17FB84DF1AE21A1C00C87786 /* CommentCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17FB84DE1AE21A1C00C87786 /* CommentCell.swift */; };
@@ -136,6 +137,7 @@
 		17DEB0451CB1C86100D3246E /* AutolayoutExtensions.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AutolayoutExtensions.framework; path = Carthage/Build/iOS/AutolayoutExtensions.framework; sourceTree = "<group>"; };
 		17E621141AED4C0B00FF84AC /* WebViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WebViewController.swift; sourceTree = "<group>"; };
 		17F20FF01B7EE6E7005EB2FF /* HNFDError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HNFDError.swift; sourceTree = "<group>"; };
+		17FA1CC7224B23A90041127A /* Notifications.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Notifications.swift; sourceTree = "<group>"; };
 		17FB84D81AE20B7500C87786 /* Appearance.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Appearance.swift; sourceTree = "<group>"; };
 		17FB84DA1AE20CB600C87786 /* CommentsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CommentsViewController.swift; sourceTree = "<group>"; };
 		17FB84DE1AE21A1C00C87786 /* CommentCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CommentCell.swift; sourceTree = "<group>"; };
@@ -328,6 +330,7 @@
 				17922A1D1B005BA1001460B2 /* Comment.swift */,
 				17922A1F1B005BAD001460B2 /* MercuryArticle.swift */,
 				175997811B52419B00E3F263 /* DateFormatter.swift */,
+				17FA1CC7224B23A90041127A /* Notifications.swift */,
 			);
 			name = Models;
 			sourceTree = "<group>";
@@ -623,6 +626,7 @@
 				176156CA1BF7F001001D6ACA /* UIImageExtension.swift in Sources */,
 				17B1A0F71F1FC22000A9B75A /* CommentTreeDataSource.swift in Sources */,
 				17922A1C1B005B9B001460B2 /* Story.swift in Sources */,
+				17FA1CC8224B23A90041127A /* Notifications.swift in Sources */,
 				172E0E352221F28D00DB0764 /* StoriesTableViewController.swift in Sources */,
 				176156C51BF7EFAA001D6ACA /* UIColorExtension.swift in Sources */,
 				0CEE87D11DCAB83300FD3AE9 /* HNFDRouter.swift in Sources */,
@@ -749,7 +753,7 @@
 					"$(PROJECT_DIR)/Carthage/Build/iOS",
 				);
 				INFOPLIST_FILE = HackerNews/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.alexchoi.hnfd;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -772,7 +776,7 @@
 					"$(PROJECT_DIR)/Carthage/Build/iOS",
 				);
 				INFOPLIST_FILE = HackerNews/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.alexchoi.hnfd;
 				PRODUCT_NAME = "$(TARGET_NAME)";
