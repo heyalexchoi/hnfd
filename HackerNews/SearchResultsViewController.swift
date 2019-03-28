@@ -16,10 +16,10 @@ class SearchResultsViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        addChildViewController(storiesViewController)
+        addChild(storiesViewController)
         view.addSubviewsWithAutoLayout(storiesViewController.view)
         _ = storiesViewController.view.anchorAllEdgesToView(view)
-        storiesViewController.didMove(toParentViewController: self)
+        storiesViewController.didMove(toParent: self)
     }
     
     func loadStories(_ stories: [Story], appendStories: Bool, scrollToTop: Bool, showHUD: Bool) {

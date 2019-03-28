@@ -23,7 +23,7 @@ class CommentCell: UITableViewCell {
     
     fileprivate let textViewRightPadding: CGFloat = 15
     
-    override init(style: UITableViewCellStyle, reuseIdentifier: String?) {
+    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         indentationWidthConstraint = indentation.anchorWidthToConstant(15)
         textViewHeightConstraint = textView.anchorHeightToConstant(0)
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -67,7 +67,7 @@ class CommentCell: UITableViewCell {
     
     func estimateHeight(attributedBodyText: NSAttributedString, byText: String, date: Date, level: Int, isExpanded: Bool, width: CGFloat) -> CGFloat {
         prepare(attributedBodyText: attributedBodyText, byText: byText, date: date, level: level, width: width, isExpanded: isExpanded, textViewDelegate: nil)
-        return contentView.systemLayoutSizeFitting(UILayoutFittingCompressedSize).height
+        return contentView.systemLayoutSizeFitting(UIView.layoutFittingCompressedSize).height
     }
     
     func prepare(attributedBodyText: NSAttributedString,
@@ -98,7 +98,7 @@ class CommentCell: UITableViewCell {
         let isExpandedText = isExpanded ? "[-]" : "[+]"
         let isExpandedAttributedText = NSMutableAttributedString(string: isExpandedText,
                                                                  attributes: TextAttributes.textAttributes)
-        isExpandedAttributedText.addAttributes([NSFontAttributeName: UIFont.symbolFont()],
+        isExpandedAttributedText.addAttributes([NSAttributedString.Key.font: UIFont.symbolFont()],
                                                range: NSRange(location: 1, length: 1))
         return isExpandedAttributedText
     }

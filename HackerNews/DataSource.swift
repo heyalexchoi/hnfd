@@ -153,7 +153,7 @@ extension DataSource {
     
     @discardableResult
     static func fullySync(storiesType type: StoriesType, page: Int, timeout: TimeInterval) -> Promise<Void> {
-        return Promise { (fulfill: @escaping () -> Void, reject: @escaping (Error) -> Void) in
+        return Promise<Void> { (fulfill, reject) in
             
             _ = after(interval: timeout)
                 .then(execute: { (_) -> Void in
@@ -164,8 +164,8 @@ extension DataSource {
             .then(execute: { (stories) -> Promise<Void> in
                 return fullySync(stories: stories, timeout: timeout)
             })
-            .then(execute: { () -> Void in
-                fulfill()
+            .then(execute: { (_) -> Void in
+                fulfill(())
             })
             .catch(execute: { (error) in
                 reject(error)
@@ -175,7 +175,7 @@ extension DataSource {
     
     @discardableResult
     static func fullySync(stories: [Story], timeout: TimeInterval) -> Promise<Void> {
-        return Promise { (fulfill: @escaping () -> Void, reject: @escaping (Error) -> Void) in
+        return Promise<Void> { (fulfill, reject) in
             
             _ = after(interval: timeout)
                 .then(execute: { (_) -> Void in
@@ -186,7 +186,7 @@ extension DataSource {
                 fullySync(story: story)
             }
             
-            fulfill()
+            fulfill(())
         }
     }
     

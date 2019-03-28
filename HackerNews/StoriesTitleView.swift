@@ -39,7 +39,7 @@ class StoriesTitleView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func handleTap() {
+    @objc func handleTap() {
         tapHandler?()
     }
     

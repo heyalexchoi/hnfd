@@ -21,7 +21,8 @@ class Label: UILabel {
     override var text: String? {
         didSet {
             if let text = text {
-                let attributedString = NSAttributedString(string: text, attributes: defaultTextAttributes)
+                let attributedString = NSAttributedString(string: text,
+                                                          attributes: defaultTextAttributes)
                 attributedText = attributedString
             } else {
                 attributedText = nil
@@ -29,7 +30,7 @@ class Label: UILabel {
         }
     }
     
-    func setText(_ string: String?, attributes: [String: AnyObject]) {
+    func setText(_ string: String?, attributes: [NSAttributedString.Key: AnyObject]) {
         if let string = string {
             attributedText = NSAttributedString(string: string, attributes: attributes)
         } else {

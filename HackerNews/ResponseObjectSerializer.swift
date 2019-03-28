@@ -80,7 +80,7 @@ struct ResponseObjectSerializer {
         
         self.responseProcessingQueue.addOperation({ () -> Void in
             
-            let swiftyJSONArray = JSON(json: any).arrayValue
+            let swiftyJSONArray = JSON(any).arrayValue
             
             var serializedArray = [T]()
             
@@ -100,7 +100,7 @@ struct ResponseObjectSerializer {
         
         self.responseProcessingQueue.addOperation({ () -> Void in
             
-            let swiftyJSON = JSON(json: any)
+            let swiftyJSON = JSON(any)
             let serialized = T(json: swiftyJSON)
             
             completionReturnQueue.addOperation {
