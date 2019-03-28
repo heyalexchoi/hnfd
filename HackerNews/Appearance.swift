@@ -11,24 +11,25 @@ import TSMessages
 
 struct TextAttributes {
     
-    static let textAttributes = [convertFromNSAttributedStringKey(NSAttributedString.Key.font): UIFont.textFont(), convertFromNSAttributedStringKey(NSAttributedString.Key.foregroundColor): UIColor.textColor()]
-    static let detailAttributes = [convertFromNSAttributedStringKey(NSAttributedString.Key.font): UIFont.detailFont(), convertFromNSAttributedStringKey(NSAttributedString.Key.foregroundColor): UIColor.textColor()]
-    static let textReaderAttributes = [convertFromNSAttributedStringKey(NSAttributedString.Key.font): UIFont.textReaderFont(), convertFromNSAttributedStringKey(NSAttributedString.Key.foregroundColor): UIColor.textColor()]
-    static let titleAttributes = [convertFromNSAttributedStringKey(NSAttributedString.Key.font): UIFont.titleFont(), convertFromNSAttributedStringKey(NSAttributedString.Key.foregroundColor): UIColor.textColor()]
-    static let largeTitleAttributes = [convertFromNSAttributedStringKey(NSAttributedString.Key.font): UIFont.largeTitleFont(), convertFromNSAttributedStringKey(NSAttributedString.Key.foregroundColor): UIColor.textColor()]
-    static let centerAlignment: [String: AnyObject] = {
+    static let textAttributes = [NSAttributedString.Key.font: UIFont.textFont(), NSAttributedString.Key.foregroundColor: UIColor.textColor()]
+    static let detailAttributes = [NSAttributedString.Key.font: UIFont.detailFont(), NSAttributedString.Key.foregroundColor: UIColor.textColor()]
+    static let textReaderAttributes = [NSAttributedString.Key.font: UIFont.textReaderFont(), NSAttributedString.Key.foregroundColor: UIColor.textColor()]
+    static let titleAttributes = [NSAttributedString.Key.font: UIFont.titleFont(), NSAttributedString.Key.foregroundColor: UIColor.textColor()]
+    static let largeTitleAttributes = [NSAttributedString.Key.font: UIFont.largeTitleFont(), NSAttributedString.Key.foregroundColor: UIColor.textColor()]
+    static let centerAlignment: [NSAttributedString.Key: AnyObject] = {
         let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.alignment = .center
-        return [convertFromNSAttributedStringKey(NSAttributedString.Key.paragraphStyle): paragraphStyle]
+        return [NSAttributedString.Key.paragraphStyle: paragraphStyle]
     }()
-    static func URLAttributes(_ URL: Foundation.URL) -> [String: AnyObject] {
-        return [DTLinkAttribute: URL as AnyObject]
+    static func URLAttributes(_ URL: Foundation.URL) -> [NSAttributedString.Key: AnyObject] {
+        let convertedDTLinkAttribute = NSAttributedString.Key(DTLinkAttribute)
+        return [convertedDTLinkAttribute: URL as AnyObject]
     }
     
-    static func attributesWithFontAndColor(font: UIFont, color: UIColor) -> [String: Any] {
+    static func attributesWithFontAndColor(font: UIFont, color: UIColor) -> [NSAttributedString.Key: Any] {
         return [
-            convertFromNSAttributedStringKey(NSAttributedString.Key.font): font,
-            convertFromNSAttributedStringKey(NSAttributedString.Key.foregroundColor): color
+            NSAttributedString.Key.font: font,
+            NSAttributedString.Key.foregroundColor: color
         ]
     }
 }
@@ -37,18 +38,18 @@ struct Appearance {
     
     static func setAppearances() {
         UINavigationBar.appearance().setBackgroundImage(UIImage(color: UIColor.backgroundColor()), for: .default)
-        UINavigationBar.appearance().titleTextAttributes = convertToOptionalNSAttributedStringKeyDictionary(TextAttributes.titleAttributes)
+        UINavigationBar.appearance().titleTextAttributes = TextAttributes.titleAttributes
         UINavigationBar.appearance().tintColor = UIColor.textColor()
-        UIBarButtonItem.appearance().setTitleTextAttributes(convertToOptionalNSAttributedStringKeyDictionary(TextAttributes.textAttributes), for: UIControl.State())
+        UIBarButtonItem.appearance().setTitleTextAttributes(TextAttributes.textAttributes, for: UIControl.State())
         UIApplication.shared.statusBarStyle = .lightContent
         
         // tab bar unselected
         UITabBarItem.appearance().setTitleTextAttributes(
-            convertToOptionalNSAttributedStringKeyDictionary(TextAttributes.attributesWithFontAndColor(font: .textFont(), color: UIColor.separatorColor())),
+            TextAttributes.attributesWithFontAndColor(font: .textFont(), color: UIColor.separatorColor()),
             for: .normal)
         // tab bar selected
         UITabBarItem.appearance().setTitleTextAttributes(
-            convertToOptionalNSAttributedStringKeyDictionary(TextAttributes.attributesWithFontAndColor(font: .textFont(), color: UIColor.textColor())),
+           TextAttributes.attributesWithFontAndColor(font: .textFont(), color: .textColor()),
             for: .selected)
 
         UITabBar.appearance().barTintColor = UIColor.backgroundColor()
@@ -57,16 +58,4 @@ struct Appearance {
         HNAppearance.setAppearances() // for appearances that weren't accessible from swift
     }
 
-}
-
-
-// Helper function inserted by Swift 4.2 migrator.
-fileprivate func convertFromNSAttributedStringKey(_ input: NSAttributedString.Key) -> String {
-	return input.rawValue
-}
-
-// Helper function inserted by Swift 4.2 migrator.
-fileprivate func convertToOptionalNSAttributedStringKeyDictionary(_ input: [String: Any]?) -> [NSAttributedString.Key: Any]? {
-	guard let input = input else { return nil }
-	return Dictionary(uniqueKeysWithValues: input.map { key, value in (NSAttributedString.Key(rawValue: key), value)})
 }

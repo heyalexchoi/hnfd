@@ -12,7 +12,7 @@ class StoriesTitleView: UIView {
         didSet {
             let attachment = NSTextAttachment()
             attachment.image = UIImage.downChevron()
-            let attributedTitle = NSMutableAttributedString(string: title ?? "", attributes: convertToOptionalNSAttributedStringKeyDictionary(TextAttributes.titleAttributes))
+            let attributedTitle = NSMutableAttributedString(string: title ?? "", attributes: TextAttributes.titleAttributes)
             attributedTitle.append(NSAttributedString(string: "  "))
             attributedTitle.append(NSAttributedString(attachment: attachment))
             label.attributedText = attributedTitle
@@ -50,10 +50,4 @@ class StoriesTitleView: UIView {
         }
     }
     
-}
-
-// Helper function inserted by Swift 4.2 migrator.
-fileprivate func convertToOptionalNSAttributedStringKeyDictionary(_ input: [String: Any]?) -> [NSAttributedString.Key: Any]? {
-	guard let input = input else { return nil }
-	return Dictionary(uniqueKeysWithValues: input.map { key, value in (NSAttributedString.Key(rawValue: key), value)})
 }

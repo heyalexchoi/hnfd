@@ -97,25 +97,9 @@ class CommentCell: UITableViewCell {
     fileprivate func isExpandedAttributedText(isExpanded: Bool) -> NSAttributedString {
         let isExpandedText = isExpanded ? "[-]" : "[+]"
         let isExpandedAttributedText = NSMutableAttributedString(string: isExpandedText,
-                                                                 attributes: convertToOptionalNSAttributedStringKeyDictionary(TextAttributes.textAttributes))
-        isExpandedAttributedText.addAttributes(convertToNSAttributedStringKeyDictionary([convertFromNSAttributedStringKey(NSAttributedString.Key.font): UIFont.symbolFont()]),
+                                                                 attributes: TextAttributes.textAttributes)
+        isExpandedAttributedText.addAttributes([NSAttributedString.Key.font: UIFont.symbolFont()],
                                                range: NSRange(location: 1, length: 1))
         return isExpandedAttributedText
     }
-}
-
-// Helper function inserted by Swift 4.2 migrator.
-fileprivate func convertToOptionalNSAttributedStringKeyDictionary(_ input: [String: Any]?) -> [NSAttributedString.Key: Any]? {
-	guard let input = input else { return nil }
-	return Dictionary(uniqueKeysWithValues: input.map { key, value in (NSAttributedString.Key(rawValue: key), value)})
-}
-
-// Helper function inserted by Swift 4.2 migrator.
-fileprivate func convertToNSAttributedStringKeyDictionary(_ input: [String: Any]) -> [NSAttributedString.Key: Any] {
-	return Dictionary(uniqueKeysWithValues: input.map { key, value in (NSAttributedString.Key(rawValue: key), value)})
-}
-
-// Helper function inserted by Swift 4.2 migrator.
-fileprivate func convertFromNSAttributedStringKey(_ input: NSAttributedString.Key) -> String {
-	return input.rawValue
 }

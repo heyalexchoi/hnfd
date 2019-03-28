@@ -26,15 +26,9 @@ class TextView: UITextView {
     override var text: String? {
         didSet {
             if let text = text {
-                let attributedString = NSAttributedString(string: text, attributes: convertToOptionalNSAttributedStringKeyDictionary(TextAttributes.textReaderAttributes))
+                let attributedString = NSAttributedString(string: text, attributes: TextAttributes.textReaderAttributes)
                 attributedText = attributedString
             }
         }
     }
-}
-
-// Helper function inserted by Swift 4.2 migrator.
-fileprivate func convertToOptionalNSAttributedStringKeyDictionary(_ input: [String: Any]?) -> [NSAttributedString.Key: Any]? {
-	guard let input = input else { return nil }
-	return Dictionary(uniqueKeysWithValues: input.map { key, value in (NSAttributedString.Key(rawValue: key), value)})
 }

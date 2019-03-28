@@ -21,7 +21,8 @@ class Label: UILabel {
     override var text: String? {
         didSet {
             if let text = text {
-                let attributedString = NSAttributedString(string: text, attributes: convertToOptionalNSAttributedStringKeyDictionary(defaultTextAttributes))
+                let attributedString = NSAttributedString(string: text,
+                                                          attributes: defaultTextAttributes)
                 attributedText = attributedString
             } else {
                 attributedText = nil
@@ -29,17 +30,11 @@ class Label: UILabel {
         }
     }
     
-    func setText(_ string: String?, attributes: [String: AnyObject]) {
+    func setText(_ string: String?, attributes: [NSAttributedString.Key: AnyObject]) {
         if let string = string {
-            attributedText = NSAttributedString(string: string, attributes: convertToOptionalNSAttributedStringKeyDictionary(attributes))
+            attributedText = NSAttributedString(string: string, attributes: attributes)
         } else {
             attributedText = nil
         }
     }
-}
-
-// Helper function inserted by Swift 4.2 migrator.
-fileprivate func convertToOptionalNSAttributedStringKeyDictionary(_ input: [String: Any]?) -> [NSAttributedString.Key: Any]? {
-	guard let input = input else { return nil }
-	return Dictionary(uniqueKeysWithValues: input.map { key, value in (NSAttributedString.Key(rawValue: key), value)})
 }

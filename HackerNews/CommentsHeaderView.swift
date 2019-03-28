@@ -64,7 +64,7 @@ class CommentsHeaderView: UIView {
     func prepare(_ story: Story) {
         titleLabel.setText(story.title, attributes: TextAttributes.titleAttributes)
         if let URL = story.URL {
-            linkLabel.attributedText = NSAttributedString(string: URL.absoluteString, attributes: convertToOptionalNSAttributedStringKeyDictionary(merge(TextAttributes.URLAttributes(URL), TextAttributes.textAttributes, TextAttributes.centerAlignment)))
+            linkLabel.attributedText = NSAttributedString(string: URL.absoluteString, attributes: merge(TextAttributes.URLAttributes(URL), TextAttributes.textAttributes, TextAttributes.centerAlignment))
         } else {
             linkLabel.text = nil
         }
@@ -82,10 +82,4 @@ class CommentsHeaderView: UIView {
             widthConstraint.constant = superview.bounds.width
         }
     }
-}
-
-// Helper function inserted by Swift 4.2 migrator.
-fileprivate func convertToOptionalNSAttributedStringKeyDictionary(_ input: [String: Any]?) -> [NSAttributedString.Key: Any]? {
-	guard let input = input else { return nil }
-	return Dictionary(uniqueKeysWithValues: input.map { key, value in (NSAttributedString.Key(rawValue: key), value)})
 }
