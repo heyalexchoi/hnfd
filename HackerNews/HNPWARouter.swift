@@ -25,13 +25,19 @@ enum HNPWARouter: URLRequestConvertible {
         switch self {
         case .item(let id):
             return "/v0/item/\(id).json"
-        case .stories(let type, let page):
-            return "/v0/\(type.rawValue)/\(page).json"
+        // switched to reportedly less performant endpoint to workaround an api issue resulting in stale data
+        // https://twitter.com/_davideast/status/1173927341480800258
+        case .stories(let type, _):
+            return "/v0/\(type.rawValue).json"
         }
     }
     
     var parameters: [String: Any] {
         switch self {
+        // switched to reportedly less performant endpoint to workaround an api issue resulting in stale data
+        // https://twitter.com/_davideast/status/1173927341480800258
+        case .stories(_, let page):
+            return ["page": page]
         default:
             return [:]
         }
