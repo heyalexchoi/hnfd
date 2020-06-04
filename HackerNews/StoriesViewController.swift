@@ -59,7 +59,7 @@ extension StoriesViewController {
             storiesViewController.showHUD()
         }
         DataSource.getStories(withType: storiesType, page: page)
-        .then { [weak self] (stories) -> Void in
+        .done { [weak self] (stories) -> Void in
             self?.storiesViewController.loadStories(stories, appendStories: appendStories, scrollToTop: scrollToTop, showHUD: showHUD)
             self?.page = page + 1
         }
