@@ -97,11 +97,11 @@ extension ArticleViewController {
         ProgressHUD.showAdded(to: view, animated: true)
         DataSource.getArticle(story, completion: { [weak self] (result) -> Void in
             ProgressHUD.hide(for: self?.view, animated: true)
-            
-            if let article = result.value {
+            switch result {
+            case .success(let article):
                 self?.article = article
-            } else {
-                ErrorController.showErrorNotification(result.error)
+            case .failure(let error):
+                ErrorController.showErrorNotification(error)
             }
             self?.finishLoadingArticle()
             })

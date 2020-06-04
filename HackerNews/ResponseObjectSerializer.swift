@@ -53,7 +53,7 @@ struct ResponseObjectSerializer {
     }
     
     /* works with alamofire's request request response json to turn json objects <Any> into a ResponseObjectSerializable model object. Work is performed on response processing queue and completion block results are returned on completion return queue */
-    static func serialize<T: ResponseObjectSerializable>(response: Alamofire.DataResponse<Any, Error>, completion: @escaping (Result<T, Error>) -> Void) {
+    static func serialize<T: ResponseObjectSerializable>(response: Alamofire.AFDataResponse<Any>, completion: @escaping (Result<T, Error>) -> Void) {
         
         switch response.result {
         case .success(let json):

@@ -136,7 +136,7 @@ extension DataSource {
     
     // MARK: - Articles
     
-    static func getArticle(_ story: Story, refresh: Bool = false, completion: ((_ result: Result<MercuryArticle>) -> Void)?) {
+    static func getArticle(_ story: Story, refresh: Bool = false, completion: ((_ result: Result<MercuryArticle, Error>) -> Void)?) {
         guard let URLString = story.URLString else {
             completion?(Result.failure(HNFDError.storyHasNoArticleURL))
             return
@@ -156,40 +156,37 @@ extension DataSource {
     
     @discardableResult
     static func fullySync(storiesType type: StoriesType, page: Int, timeout: TimeInterval) -> Promise<Void> {
-        return Promise<Void> { (fulfill, reject) in
+        return Promise<Void> { seal in
             
-            _ = after(interval: timeout)
-                .then(execute: { (_) -> Void in
-                    reject(HNFDError.timeout)
-                })
+            let timeoutPromise = after(seconds: timeout)
             
-            _ = getStories(withType: type, page: page, timeout: timeout)
-            .then(execute: { (stories) -> Promise<Void> in
+            let syncChain = getStories(withType: type, page: page, timeout: timeout)
+            .then( { (stories) -> Promise<Void> in
                 return fullySync(stories: stories, timeout: timeout)
             })
-            .then(execute: { (_) -> Void in
-                fulfill(())
-            })
-            .catch(execute: { (error) in
-                reject(error)
-            })
+            .done { (_) -> Void in
+                seal.fulfill(())
+            }
+            .recover { error in
+                seal.reject(error)
+            }.asVoid()
+            
+            race(syncChain, timeoutPromise).done {
+                seal.reject(HNFDError.timeout)
+            }
         }
     }
     
     @discardableResult
     static func fullySync(stories: [Story], timeout: TimeInterval) -> Promise<Void> {
-        return Promise<Void> { (fulfill, reject) in
-            
-            _ = after(interval: timeout)
-                .then(execute: { (_) -> Void in
-                    reject(HNFDError.timeout)
-                })
-            
+        return Promise<Void> { seal in
+            after(seconds: timeout).done {
+                seal.reject(HNFDError.timeout)
+            }            
             for story in stories {
                 fullySync(story: story)
             }
-            
-            fulfill(())
+            seal.fulfill(())
         }
     }
     

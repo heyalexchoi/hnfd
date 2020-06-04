@@ -14,21 +14,25 @@ import PromiseKit
 typealias Result = Swift.Result
 
 struct Downloader {
-    
-    static let backgroundSessionIdentifier =  "com.hnfd.background"
-    
-    static let backgroundManager: Alamofire.Session = {
-        let configuration = URLSessionConfiguration.background(withIdentifier: backgroundSessionIdentifier)
-        let manager =  Alamofire.Session(configuration: configuration)
-        return manager
-    }()
+    // just converted to alamofire 5, for swift 5. apparently alamofire does not yet support
+    // background downloads https://github.com/Alamofire/Alamofire/issues/2743
+
+//    static let backgroundSessionIdentifier =  "com.hnfd.background"
+//
+//    static let backgroundManager: Alamofire.Session = {
+//        let configuration = URLSessionConfiguration.background(withIdentifier: backgroundSessionIdentifier)
+//        let manager =  Alamofire.Session(configuration: configuration)
+//        return manager
+//    }()
     
     static func download(_ request: URLRequestConvertible, destinationURL: URL) -> DownloadRequest {
         let downloadDestination: DownloadRequest.Destination = { (_, _) -> (destinationURL: URL, options: DownloadRequest.Options) in
             return (destinationURL,  [.createIntermediateDirectories, .removePreviousFile])
         }
-        
-        let downloadRequest = backgroundManager.download(request, to: downloadDestination)
+        // just converted to alamofire 5, for swift 5. apparently alamofire does not yet support
+        // background downloads https://github.com/Alamofire/Alamofire/issues/2743
+//        let downloadRequest = backgroundManager.download(request, to: downloadDestination)
+        let downloadRequest = AF.download(request, to: downloadDestination)
         debugPrint(downloadRequest)
         return downloadRequest
     }

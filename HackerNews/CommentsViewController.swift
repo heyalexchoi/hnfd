@@ -43,7 +43,7 @@ class CommentsViewController: UIViewController {
         }
         
         treeView.separatorInset = UIEdgeInsets.zero
-        treeView.separatorColor = UIColor.separatorColor()
+        treeView.separatorColor = UIColor.hnSeparatorColor()
         treeView.backgroundColor = UIColor.backgroundColor()
         treeView.register(CommentCell.self, forCellReuseIdentifier: CommentCell.identifier)
         treeView.dataSource = self
@@ -84,11 +84,11 @@ class CommentsViewController: UIViewController {
         }
 
         _ = DataSource.getStory(story.id, timeout: 2)
-            .always {
+            .ensure {
                 ProgressHUD.hideAllHUDs(for: self.treeView, animated: true)
                 self.treeView.pullToRefreshView.stopAnimating()
             }
-            .then { (story) -> Void in
+            .done { (story) -> Void in
                 self.story = story                
                 self.treeView.reloadData()
                 self.prepareHeader(story: story)

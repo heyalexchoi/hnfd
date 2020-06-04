@@ -115,7 +115,7 @@ class SearchViewController: UIViewController {
     
     func loadMostPopular(page: Int, appendStories: Bool, showHUD: Bool) {
         search(query: "", page: page)
-            .then { [weak self] (stories) -> Void in
+            .done { [weak self] (stories) -> Void in
                 self?.items = stories
                 self?.storiesViewController.loadStories(stories, appendStories: appendStories, scrollToTop: false, showHUD: showHUD)
                 self?.page = page
@@ -127,15 +127,16 @@ class SearchViewController: UIViewController {
 extension SearchViewController {
     
     func search(query: String, page: Int) -> Promise<[Story]> {
-        return Promise { (fulfill: @escaping ([Story]) -> Void, reject: @escaping (Error) -> Void) in
+        return Promise { seal in
             let request = HNAlgoliaSearchRouter.search(query: query, page: page, perPage: 10)
-            _ = APIClient.request(request) { [weak self] (result: Result<HNAlgoliaSearchResponseWrapper>) in
-                guard let stories = result.value?.stories else {
-                    reject(result.error!)
-                    return
+            _ = APIClient.request(request) { [weak self] (result: Result<HNAlgoliaSearchResponseWrapper, Error>) in
+                switch result {
+                case .success(let searchResponse):
+                    seal.fulfill(searchResponse.stories)
+                    self?.lastQuery = (term: query, page: page)
+                case .failure(let error):
+                    seal.reject(error)
                 }
-                fulfill(stories)
-                self?.lastQuery = (term: query, page: page)
             }
         }
     }
@@ -188,7 +189,7 @@ extension SearchViewController: UISearchResultsUpdating {
         
         print("--- query: \(query)")
         search(query: query, page: page)
-            .then { [weak self] (stories) -> Void in
+            .done { [weak self] (stories) -> Void in
                 self?.resultsTableController.loadStories(stories, appendStories: shouldAppend, scrollToTop: shouldScrollToTop, showHUD: shouldShowHUD)
                 self?.resultsTableController.page = page
         }
