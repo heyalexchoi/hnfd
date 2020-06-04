@@ -49,32 +49,31 @@ extension DataSource {
             return getPinnedStories(page: page)
         }
         
-        return Promise { (fulfill: @escaping ([Story]) -> Void, reject: @escaping (Error) -> Void) in
-            
-            _ = after(interval: timeout)
-                .then(execute: { (_) -> Promise<[Story]> in
+        return Promise { seal in
+            _ = after(seconds: timeout)
+                .then { (_) -> Promise<[Story]> in
                     return cache.getStories(withType: type, page: page)
-                })
-                .then(execute: { (stories) -> Void in
-                    fulfill(stories)
-                })
-                .catch(execute: { (error) in
-                    reject(error)
-                })
+                }
+                .done { stories in
+                    seal.fulfill(stories)
+                }
+                .catch { error in
+                    seal.reject(error)
+                }
             
             getStories(withType: type)
-            .then(execute: { (stories) -> Void in
-                fulfill(stories)
-            })
-            .catch(execute: { (error) in
+            .done { (stories) -> Void in
+                seal.fulfill(stories)
+            }
+            .catch { error in
                 cache.getStories(withType: type, page: page)
-                .then(execute: { (stories) -> Void in
-                    fulfill(stories)
-                })
-                .catch(execute: { (error) in
-                    reject(error)
-                })
-            })
+                .done { stories in
+                    seal.fulfill(stories)
+                }
+                .catch { error in
+                    seal.reject(error)
+                }
+            }
         }
     }
     
@@ -97,7 +96,6 @@ extension DataSource {
             return cache.getStory(id: id)
         }
         return Promise { seal in
-//            (fulfill: @escaping (Story) -> Void, reject: @escaping (Error) -> Void) in
             _ = after(seconds: timeout)
                 .then { (_) -> Promise<Story> in
                     return cache.getStory(id: id)
