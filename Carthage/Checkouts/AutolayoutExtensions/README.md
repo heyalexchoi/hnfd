@@ -1,1 +1,0 @@
-Work in progress. Still only meant to be used by me. I will come back later to update the readme when I know more about how I want to share this.
