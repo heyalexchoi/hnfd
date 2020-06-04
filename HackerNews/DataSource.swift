@@ -14,15 +14,19 @@ struct DataSource {
     
     static let cache = Cache.shared
     static let reachability: Reachability? = {
-        guard let reachability = Reachability() else {
+        do {
+            return try Reachability()
+        } catch {
             ErrorController.showErrorNotification(HNFDError.unableToCreateReachability)
             return nil
         }
-        return reachability
     }()
     
     static var shouldMakeNetworkRequest: Bool {
-        return reachability?.isReachable ?? true // prevent requests without connection. also entry point to prevent network requests for any other reasons
+        guard let reachability = reachability else {
+            return true
+        }
+        return reachability.connection != .unavailable // prevent requests without connection. also entry point to prevent network requests for any other reasons
     }
 }
 
@@ -74,7 +78,7 @@ extension DataSource {
         }
     }
     
-    static func getStory(_ id: Int, refresh: Bool = false, completion: ((_ result: Result<Story>) -> Void)?) {
+    static func getStory(_ id: Int, refresh: Bool = false, completion: ((_ result: Result<Story, Error>) -> Void)?) {
         // will use cached story unless refresh requested (and network available)
         guard shouldMakeNetworkRequest && (!Story.isCached(id) || refresh) else {
             cache.getStory(id, completion: { (result) in
@@ -92,30 +96,31 @@ extension DataSource {
         guard shouldMakeNetworkRequest else {
             return cache.getStory(id: id)
         }
-        return Promise { (fulfill: @escaping (Story) -> Void, reject: @escaping (Error) -> Void) in
-            _ = after(interval: timeout)
-                .then(execute: { (_) -> Promise<Story> in
+        return Promise { seal in
+//            (fulfill: @escaping (Story) -> Void, reject: @escaping (Error) -> Void) in
+            _ = after(seconds: timeout)
+                .then { (_) -> Promise<Story> in
                     return cache.getStory(id: id)
-                })
-                .then(execute: { (story) -> Void in
-                    fulfill(story)
-                })
-                .catch(execute: { (error) in
-                    reject(error)
-                })
+                }
+                .done { story in
+                    seal.fulfill(story)
+                }
+                .catch { error in
+                    seal.reject(error)
+                }
             
             Downloader.downloadStory(id: id)
-                .then(execute: { (story) -> Void in
-                    fulfill(story)
-                })
-                .catch(execute: { (error) in
+                .done { story in
+                    seal.fulfill(story)
+                }
+                .catch({ (error) in
                     cache.getStory(id: id)
-                        .then(execute: { (story) -> Void in
-                            fulfill(story)
-                        })
-                        .catch(execute: { (error) in
-                            reject(error)
-                        })
+                        .done { story in
+                            seal.fulfill(story)
+                        }
+                        .catch { error in
+                            seal.reject(error)
+                        }
                 })
         }
     }

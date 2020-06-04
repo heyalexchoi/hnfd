@@ -108,26 +108,24 @@ struct Cache {
     }
     
     func getStories(ids: [Int], timeout: TimeInterval = 2) -> Promise<[Story]> {
-        return Promise { (fulfill: @escaping ([Story]) -> Void, reject: @escaping (Error) -> Void) in
-            
-            _ = after(interval: timeout).then(execute: { (_) -> Void in
-                reject(HNFDError.timeout)
-            })
+        return Promise { seal in
+            let timeoutPromise = after(seconds: timeout)
             
             let promises = ids.map({ (id) -> Promise<Story> in
                 return getStory(id: id)
             })
-            
             let combinedPromises = when(resolved: promises)
-                
-            _ = combinedPromises
-                .then(execute: { (results: [PromiseKit.Result<Story>]) -> Void in
+                .done { (results: [PromiseKit.Result<Story>]) -> Void in
                 var stories = [Story]()
                 for case let .fulfilled(story) in results {
                     stories.append(story)
                 }
-                fulfill(stories.orderBy(ids: ids))
-            })
+                seal.fulfill(stories.orderBy(ids: ids))
+            }
+            
+            race(timeoutPromise, combinedPromises).done {
+                seal.reject(HNFDError.timeout)
+            }
         }
     }
     
@@ -148,13 +146,14 @@ struct Cache {
     }
     
     func getStory(id: Int) -> Promise<Story> {
-        return Promise { (fulfill: @escaping (Story) -> Void, reject: @escaping (Error) -> Void) in
+        return Promise { seal in
             getStory(id, completion: { (result) in
-                guard let story = result.value else {
-                    reject(result.error!)
-                    return
+                switch result {
+                case .success(let story):
+                    seal.fulfill(story)
+                case .failure(let error):
+                    seal.reject(error)
                 }
-                fulfill(story)
             })
         }
     }
@@ -204,7 +203,12 @@ class SharedState {
     
     init() {
         cache.getPinnedStoryIds { [weak self] (result: Result<[Int], Error>) in
-            self?.pinnedStoryIds = result.value ?? [Int]()
+            switch result {
+            case .success(let ids):
+                self?.pinnedStoryIds = ids
+            case .failure:
+                self?.pinnedStoryIds = [Int]()
+            }
         }
     }
     
