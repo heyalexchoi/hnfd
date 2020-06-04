@@ -68,13 +68,14 @@ extension Downloader {
     }
     
     static func downloadStory(id: Int) -> Promise<Story> {
-        return Promise { (fulfill: @escaping (Story) -> Void, reject: @escaping (Error) -> Void) in
+        return Promise { seal in
             downloadStory(id) { (result) in
-                guard let story = result.value else {
-                    reject(result.error!)
-                    return
+                switch result {
+                case .success(let story):
+                    seal.fulfill(story)
+                case .failure(let error):
+                    seal.reject(error)
                 }
-                fulfill(story)
             }
         }
     }
@@ -86,14 +87,15 @@ extension Downloader {
     }
     
     static func downloadStories(withType type: StoriesType, page: Int) -> Promise<[Story]> {
-        return Promise { (fulfill: @escaping ([Story]) -> Void, reject: @escaping (Error) -> Void) in
-            downloadStories(type, page: page, completion: { (result) in
-                guard let stories = result.value else {
-                    reject(result.error!)
-                    return
+        return Promise { seal in
+            downloadStories(type, page: page) { (result) in
+                switch result {
+                case .success(let stories):
+                    seal.fulfill(stories)
+                case .failure(let error):
+                    seal.reject(error)
                 }
-                fulfill(stories)
-            })
+            }
         }
     }
     
