@@ -20,9 +20,6 @@ extension UIFont {
     
     class func textReaderFont() -> UIFont {
         return UIFont(name: "Avenir-Book", size: 18)!
-//        return UIFont.systemFontOfSize(18, weight: UIFontWeightLight)
-//             return UIFont.systemFontOfSize(18, weight: UIFontWeightThin)
-//        return UIFont.preferredFontForTextStyle(UIFontTextStyleBody)
     }
     
     class func titleFont() -> UIFont {

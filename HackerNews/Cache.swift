@@ -30,11 +30,22 @@ struct Cache {
     }()
     
     func fileURL(forKey key: String) -> URL {
-        return cacheURL.appendingPathComponent(key)
+        return cacheURL.appendingPathComponent(cleanKey(key))
     }
     
     private func data(forKey key: String) throws -> Data {
         return try Data(contentsOf: fileURL(forKey: key))
+    }
+    
+    func cleanKey(_ key: String) -> String {
+        var invalidCharacters = CharacterSet(charactersIn: ":/")
+        invalidCharacters.formUnion(.newlines)
+        invalidCharacters.formUnion(.illegalCharacters)
+        invalidCharacters.formUnion(.controlCharacters)
+
+        return key
+            .components(separatedBy: invalidCharacters)
+            .joined(separator: "")
     }
     
     func getObject<T: ResponseObjectSerializable>(forKey key: String, completion: @escaping (_ result: Result<T, Error>) -> Void) {
@@ -51,7 +62,7 @@ struct Cache {
     func getObjects<T: ResponseObjectSerializable>(forKey key: String, completion: @escaping (_ result: Result<[T], Error>) -> Void) {
         backgroundQueue.addOperation {
             do {
-                let data = try self.data(forKey: key)
+                let data = try self.data(forKey:  key)
                 ResponseObjectSerializer.serialize(data: data, completion: completion)
             } catch let error {
                 self.complete(error: error, completion: completion)
@@ -174,6 +185,24 @@ struct Cache {
     
     func setArticle(_ article: MercuryArticle) {
         setObject(forKey: article.cacheKey, object: article)
+    }
+    
+    // MARK: - article reading progress
+    func setReadingProgress(article: MercuryArticle, readingProgress: CGFloat) {
+        setObject(forKey: article.readingProgressCacheKey, object: readingProgress)
+    }
+    
+    func getReadingProgress(article: MercuryArticle) -> Promise<CGFloat> {
+        return Promise { seal in
+            self.getObject(forKey: article.readingProgressCacheKey, completion: { (result: Result<CGFloat, Error>) in
+                switch result {
+                case .success(let progress):
+                    seal.fulfill(progress)
+                case .failure(let error):
+                    seal.reject(error)
+                }
+            })
+        }
     }
 }
 

@@ -33,7 +33,6 @@ struct Downloader {
         // background downloads https://github.com/Alamofire/Alamofire/issues/2743
 //        let downloadRequest = backgroundManager.download(request, to: downloadDestination)
         let downloadRequest = AF.download(request, to: downloadDestination)
-        debugPrint(downloadRequest)
         return downloadRequest
     }
 }

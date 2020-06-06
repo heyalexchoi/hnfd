@@ -15,8 +15,26 @@ protocol ResponseObjectSerializable {
     init?(json: JSON)
 }
 
+extension CGFloat: ResponseObjectSerializable {
+    init?(json: JSON) {
+        let unwrapped = json["value"].floatValue
+        self.init(unwrapped)
+    }
+}
+
 protocol DataSerializable {
     var asData: Data { get }
+}
+
+extension CGFloat: DataSerializable {
+    var asData: Data {
+        let wrapped = ["value": self]
+        if let data = try? JSONSerialization.data(withJSONObject: wrapped) {
+            return data
+        }
+        debugPrint("data serializable failed to serialize to JSON: \(self)")
+        return Data()
+    }
 }
 
 protocol JSONSerializable {

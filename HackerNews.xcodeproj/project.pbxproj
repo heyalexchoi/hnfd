@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		0C1EE00F1AE0B3E8009BD94E /* Global.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C1EE00E1AE0B3E8009BD94E /* Global.swift */; };
-		0C1EE0111AE0C0B4009BD94E /* ArticleViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C1EE0101AE0C0B4009BD94E /* ArticleViewController.swift */; };
 		0C2CF6141AEF21E70055ADC8 /* Private.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C2CF6131AEF21E70055ADC8 /* Private.swift */; };
 		0CC1A8121E0B38AB00CAF389 /* PromiseKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0CC1A8111E0B38AB00CAF389 /* PromiseKit.framework */; };
 		0CD3C88C1AD781DF005CC6C1 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CD3C88B1AD781DF005CC6C1 /* AppDelegate.swift */; };
@@ -29,6 +28,8 @@
 		172E0E3722230D4F00DB0764 /* SavedStoriesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 172E0E3622230D4F00DB0764 /* SavedStoriesViewController.swift */; };
 		172E0E3922231F2700DB0764 /* ArrayExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 172E0E3822231F2700DB0764 /* ArrayExtensions.swift */; };
 		172E0E3B22235B8200DB0764 /* Throttler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 172E0E3A22235B8200DB0764 /* Throttler.swift */; };
+		173B1AD6248B847000DFAC5D /* ArticleViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C1EE0101AE0C0B4009BD94E /* ArticleViewController.swift */; };
+		173B1AD8248B849A00DFAC5D /* WKWebViewExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 173B1AD4248B7F0400DFAC5D /* WKWebViewExtensions.swift */; };
 		174A9A221AE19F05008CB6FC /* Label.swift in Sources */ = {isa = PBXBuildFile; fileRef = 174A9A211AE19F05008CB6FC /* Label.swift */; };
 		1751B5D01AEE0A4B000ADF55 /* DateTools.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 1751B5CF1AEE0A4B000ADF55 /* DateTools.bundle */; };
 		1758333D2220EB730075216E /* SearchViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1758333C2220EB730075216E /* SearchViewController.swift */; };
@@ -106,6 +107,7 @@
 		172E0E3622230D4F00DB0764 /* SavedStoriesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SavedStoriesViewController.swift; sourceTree = "<group>"; };
 		172E0E3822231F2700DB0764 /* ArrayExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArrayExtensions.swift; sourceTree = "<group>"; };
 		172E0E3A22235B8200DB0764 /* Throttler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Throttler.swift; sourceTree = "<group>"; };
+		173B1AD4248B7F0400DFAC5D /* WKWebViewExtensions.swift */ = {isa = PBXFileReference; explicitFileType = sourcecode.swift; path = WKWebViewExtensions.swift; sourceTree = "<group>"; };
 		174A9A211AE19F05008CB6FC /* Label.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Label.swift; sourceTree = "<group>"; };
 		1751B5CF1AEE0A4B000ADF55 /* DateTools.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = DateTools.bundle; sourceTree = "<group>"; };
 		1758333C2220EB730075216E /* SearchViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchViewController.swift; sourceTree = "<group>"; };
@@ -349,6 +351,7 @@
 				176156C41BF7EFAA001D6ACA /* UIColorExtension.swift */,
 				176156CF1BF7F05B001D6ACA /* UIViewControllerExtension.swift */,
 				172E0E3822231F2700DB0764 /* ArrayExtensions.swift */,
+				173B1AD4248B7F0400DFAC5D /* WKWebViewExtensions.swift */,
 			);
 			name = Extensions;
 			sourceTree = "<group>";
@@ -610,15 +613,16 @@
 				17183A3A1AE202CC007F7163 /* ProgressHUD.swift in Sources */,
 				1768BEC81B7EBF6A00497790 /* HNAppearance.m in Sources */,
 				178327981B1C09BE003C580A /* CommentsHeaderView.swift in Sources */,
-				0C1EE0111AE0C0B4009BD94E /* ArticleViewController.swift in Sources */,
 				1714DC051CB73EBB0059E88E /* DataSource.swift in Sources */,
 				17FA1CCA224B2A500041127A /* TabBarController.swift in Sources */,
+				173B1AD6248B847000DFAC5D /* ArticleViewController.swift in Sources */,
 				17FB84D91AE20B7500C87786 /* Appearance.swift in Sources */,
 				0CEE87D61DCAB8F100FD3AE9 /* ResponseObjectSerializer.swift in Sources */,
 				17CC031E1AFEA88D005719A7 /* TextView.swift in Sources */,
 				176156D01BF7F05B001D6ACA /* UIViewControllerExtension.swift in Sources */,
 				172E0E3922231F2700DB0764 /* ArrayExtensions.swift in Sources */,
 				174A9A221AE19F05008CB6FC /* Label.swift in Sources */,
+				173B1AD8248B849A00DFAC5D /* WKWebViewExtensions.swift in Sources */,
 				17F20FF11B7EE6E7005EB2FF /* HNFDError.swift in Sources */,
 				1758333D2220EB730075216E /* SearchViewController.swift in Sources */,
 				172E0E3722230D4F00DB0764 /* SavedStoriesViewController.swift in Sources */,
