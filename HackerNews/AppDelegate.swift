@@ -27,7 +27,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         Appearance.setAppearances()
         
-        UIApplication.shared.setMinimumBackgroundFetchInterval(3600) // 1 hour must pass before another background fetch will be initiated
+//        UIApplication.shared.setMinimumBackgroundFetchInterval(3600) // 1 hour must pass before another background fetch will be initiated
         
         return true
     }

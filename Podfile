@@ -15,7 +15,7 @@ target 'HackerNews' do
 
   pod 'DateTools'
   pod 'SVPullToRefresh'
-  pod 'DTCoreText', :git => 'https://github.com/davbeck/DTCoreText.git'
+  pod 'DTCoreText', '1.6.23'
   pod 'NYXImagesKit'
   pod 'UIImage+Additions'
   pod 'UIImage-Helpers'

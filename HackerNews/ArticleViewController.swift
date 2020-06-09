@@ -131,6 +131,7 @@ extension ArticleViewController {
             .done { [weak self] (height) in
                 self?.setWebViewContentOffsetToMatchReadingProgress(webDocumentHeight: height)
             }
+            .cauterize()
     }
     
     func setWebViewContentOffsetToMatchReadingProgress(webDocumentHeight: CGFloat) {

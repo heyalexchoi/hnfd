@@ -1,16 +1,22 @@
 PODS:
   - Colours (5.8.0)
   - DateTools (1.7.0)
-  - DTCoreText (1.6.15):
+  - DTCoreText (1.6.23):
+    - DTCoreText/Core (= 1.6.23)
     - DTFoundation/Core (~> 1.7.5)
     - DTFoundation/DTAnimatedGIF (~> 1.7.5)
     - DTFoundation/DTHTMLParser (~> 1.7.5)
     - DTFoundation/UIKit (~> 1.7.5)
-  - DTFoundation/Core (1.7.7)
-  - DTFoundation/DTAnimatedGIF (1.7.7)
-  - DTFoundation/DTHTMLParser (1.7.7):
+  - DTCoreText/Core (1.6.23):
+    - DTFoundation/Core (~> 1.7.5)
+    - DTFoundation/DTAnimatedGIF (~> 1.7.5)
+    - DTFoundation/DTHTMLParser (~> 1.7.5)
+    - DTFoundation/UIKit (~> 1.7.5)
+  - DTFoundation/Core (1.7.14)
+  - DTFoundation/DTAnimatedGIF (1.7.14)
+  - DTFoundation/DTHTMLParser (1.7.14):
     - DTFoundation/Core
-  - DTFoundation/UIKit (1.7.7):
+  - DTFoundation/UIKit (1.7.14):
     - DTFoundation/Core
   - HexColors (2.3.0)
   - MBProgressHUD (0.9.1)
@@ -24,7 +30,7 @@ PODS:
 DEPENDENCIES:
   - Colours
   - DateTools
-  - DTCoreText (from `https://github.com/davbeck/DTCoreText.git`)
+  - DTCoreText (= 1.6.23)
   - MBProgressHUD
   - NYXImagesKit
   - SVPullToRefresh
@@ -33,16 +39,11 @@ DEPENDENCIES:
   - UIImage-Helpers
 
 EXTERNAL SOURCES:
-  DTCoreText:
-    :git: https://github.com/davbeck/DTCoreText.git
   TSMessages:
     :commit: 7ef3990de3c626e8f3e50bfabb53f76997e374ce
     :git: https://github.com/KrauseFx/TSMessages.git
 
 CHECKOUT OPTIONS:
-  DTCoreText:
-    :commit: 968e1808a11d35aa64b47ad0dd3ce11f698b7a41
-    :git: https://github.com/davbeck/DTCoreText.git
   TSMessages:
     :commit: 7ef3990de3c626e8f3e50bfabb53f76997e374ce
     :git: https://github.com/KrauseFx/TSMessages.git
@@ -50,8 +51,8 @@ CHECKOUT OPTIONS:
 SPEC CHECKSUMS:
   Colours: c186cc76afa2ca86f5ca5e68f610f9be17b48337
   DateTools: 53288ee8b905fdc75897a1e6b5cc0144b14cba60
-  DTCoreText: fc230af3d5ee6e53275cb0cd2cbe8abf71750dc4
-  DTFoundation: c9b3362b83f0017389082ec067ede719826a579d
+  DTCoreText: 67023bb51b26711d5f640c851f4845aea14c24c9
+  DTFoundation: 25aa19bb7c6e225b1dfae195604fb8cf1da0ab4c
   HexColors: 6ad3947c3447a055a3aa8efa859def096351fe5f
   MBProgressHUD: c47f2c166c126cf2ce36498d80f33e754d4e93ad
   NYXImagesKit: 8163e3335a40eaa173ca5bbbf81fafb57d3947eb
@@ -60,6 +61,6 @@ SPEC CHECKSUMS:
   UIImage+Additions: 6181430b139099649e56171d58a52d6c37d57e42
   UIImage-Helpers: 06b04a42bdd222844035602e87e936765c80f620
 
-PODFILE CHECKSUM: e78c0f66df389126466e26f36ce79129f1c9cf81
+PODFILE CHECKSUM: f1813e3605fe4499ceb0a2e703be53e200fb3a72
 
 COCOAPODS: 1.2.1

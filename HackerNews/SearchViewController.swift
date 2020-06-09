@@ -120,6 +120,7 @@ class SearchViewController: UIViewController {
                 self?.storiesViewController.loadStories(stories, appendStories: appendStories, scrollToTop: false, showHUD: showHUD)
                 self?.page = page
         }
+        .cauterize()
     }
     
 }
@@ -193,6 +194,7 @@ extension SearchViewController: UISearchResultsUpdating {
                 self?.resultsTableController.loadStories(stories, appendStories: shouldAppend, scrollToTop: shouldScrollToTop, showHUD: shouldShowHUD)
                 self?.resultsTableController.page = page
         }
+        .cauterize()
     }
     
     func updateSearchResults(for searchController: UISearchController) {
