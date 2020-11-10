@@ -35,7 +35,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, performFetchWithCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
         // just prefetch the first 25 top stories
         DataSource.fullySync(storiesType: .News, page: 1, timeout: 25)
-        .then { () -> (Void) in
+        .done { () -> (Void) in
             completionHandler(.newData)
         }
         .catch { (error) in
@@ -44,7 +44,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
     
     func application(_ application: UIApplication, handleEventsForBackgroundURLSession identifier: String, completionHandler: @escaping () -> Void) {
-        Downloader.backgroundManager.backgroundCompletionHandler = completionHandler // wat
+        // just converted to alamofire 5, for swift 5. apparently alamofire does not yet support
+        // background downloads https://github.com/Alamofire/Alamofire/issues/2743
+//        Downloader.backgroundManager.backgroundCompletionHandler = completionHandler // wat
     }
 
     func applicationWillResignActive(_ application: UIApplication) {

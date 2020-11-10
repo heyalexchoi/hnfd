@@ -15,8 +15,26 @@ protocol ResponseObjectSerializable {
     init?(json: JSON)
 }
 
+extension CGFloat: ResponseObjectSerializable {
+    init?(json: JSON) {
+        let unwrapped = json["value"].floatValue
+        self.init(unwrapped)
+    }
+}
+
 protocol DataSerializable {
     var asData: Data { get }
+}
+
+extension CGFloat: DataSerializable {
+    var asData: Data {
+        let wrapped = ["value": self]
+        if let data = try? JSONSerialization.data(withJSONObject: wrapped) {
+            return data
+        }
+        debugPrint("data serializable failed to serialize to JSON: \(self)")
+        return Data()
+    }
 }
 
 protocol JSONSerializable {
@@ -31,7 +49,7 @@ struct ResponseObjectSerializer {
     // MARK: - Serialize Download Responses
     
     /* works with alamofire's request request response json to turn json objects <Any> into a ResponseObjectSerializable model object. Work is performed on response processing queue and completion block results are returned on completion return queue */
-    static func serialize<T: ResponseObjectSerializable>(response: Alamofire.DownloadResponse<Any>, completion: @escaping (Result<T>) -> Void) {
+    static func serialize<T: ResponseObjectSerializable>(response: Alamofire.AFDownloadResponse<Any>, completion: @escaping (Result<T, Error>) -> Void) {
         
         switch response.result {
         case .success(let json):
@@ -42,7 +60,7 @@ struct ResponseObjectSerializer {
     }
     
     /* works with alamofire's request request response json to turn json objects <Any> into a an array of ResponseObjectSerializable model objects. Work is performed on response processing queue and completion block results are returned on completion return queue */
-    static func serialize<T: ResponseObjectSerializable>(response: Alamofire.DownloadResponse<Any>, completion: @escaping (Result<[T]>) -> Void) {
+    static func serialize<T: ResponseObjectSerializable>(response: Alamofire.AFDownloadResponse<Any>, completion: @escaping (Result<[T], Error>) -> Void) {
         
         switch response.result {
         case .success(let json):
@@ -53,7 +71,7 @@ struct ResponseObjectSerializer {
     }
     
     /* works with alamofire's request request response json to turn json objects <Any> into a ResponseObjectSerializable model object. Work is performed on response processing queue and completion block results are returned on completion return queue */
-    static func serialize<T: ResponseObjectSerializable>(response: Alamofire.DataResponse<Any>, completion: @escaping (Result<T>) -> Void) {
+    static func serialize<T: ResponseObjectSerializable>(response: Alamofire.AFDataResponse<Any>, completion: @escaping (Result<T, Error>) -> Void) {
         
         switch response.result {
         case .success(let json):
@@ -64,7 +82,7 @@ struct ResponseObjectSerializer {
     }
     
     /* works with alamofire's request request response json to turn json objects <Any> into a an array of ResponseObjectSerializable model objects. Work is performed on response processing queue and completion block results are returned on completion return queue */
-    static func serialize<T: ResponseObjectSerializable>(response: Alamofire.DataResponse<Any>, completion: @escaping (Result<[T]>) -> Void) {
+    static func serialize<T: ResponseObjectSerializable>(response: Alamofire.DataResponse<Any, Error>, completion: @escaping (Result<[T], Error>) -> Void) {
         
         switch response.result {
         case .success(let json):
@@ -76,7 +94,7 @@ struct ResponseObjectSerializer {
     
     // MARK: - Serialize type 'Any' json objects
     
-    static func serialize<T: ResponseObjectSerializable>(any: Any, completion: @escaping (Result<[T]>) -> Void) {
+    static func serialize<T: ResponseObjectSerializable>(any: Any, completion: @escaping (Result<[T], Error>) -> Void) {
         
         self.responseProcessingQueue.addOperation({ () -> Void in
             
@@ -96,7 +114,7 @@ struct ResponseObjectSerializer {
         })
     }
     
-    static func serialize<T: ResponseObjectSerializable>(any: Any, completion: @escaping (Result<T>) -> Void) {
+    static func serialize<T: ResponseObjectSerializable>(any: Any, completion: @escaping (Result<T, Error>) -> Void) {
         
         self.responseProcessingQueue.addOperation({ () -> Void in
             
@@ -116,7 +134,7 @@ struct ResponseObjectSerializer {
     
     // MARK: - Serialize Data
     
-    static func serialize<T: ResponseObjectSerializable>(data: Data, completion: @escaping (Result<T>) -> Void) {
+    static func serialize<T: ResponseObjectSerializable>(data: Data, completion: @escaping (Result<T, Error>) -> Void) {
         
         self.responseProcessingQueue.addOperation({ () -> Void in
             do {
@@ -128,7 +146,7 @@ struct ResponseObjectSerializer {
         })
     }
     
-    static func serialize<T: ResponseObjectSerializable>(data: Data, completion: @escaping (Result<[T]>) -> Void) {
+    static func serialize<T: ResponseObjectSerializable>(data: Data, completion: @escaping (Result<[T], Error>) -> Void) {
         
         self.responseProcessingQueue.addOperation({ () -> Void in
             do {
@@ -142,7 +160,7 @@ struct ResponseObjectSerializer {
     
     // MARK: - Errors
     
-    static func complete<T: Any>(error: Error, completion: @escaping (Result<T>) -> Void) {
+    static func complete<T: Any>(error: Error, completion: @escaping (Result<T, Error>) -> Void) {
         self.completionReturnQueue.addOperation {
             completion(Result.failure(error))
         }

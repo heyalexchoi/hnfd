@@ -31,7 +31,7 @@ class CommentsHeaderView: UIView {
             addSubview(subview)
         }
         
-        bottomBorder.backgroundColor = UIColor.separatorColor()
+        bottomBorder.backgroundColor = UIColor.hnSeparatorColor()
         
         _ = addConstraints(withVisualFormats: [
             "V:|-15-[titleLabel]-10-[detailLabel]-10-[linkLabel][linkLabelTextViewSpacing][textView]-15-[bottomBorder(==1)]|",

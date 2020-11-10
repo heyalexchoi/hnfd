@@ -17,6 +17,7 @@ enum HNFDError: Error {
     case responseObjectSerializableFailedToInitialize(unserializedObject: Any)
     case timeout
     case noMoreContent
+    case generic(message: String)
     
     var description: String {
         switch self {
@@ -32,6 +33,8 @@ enum HNFDError: Error {
             return "HNFD request timed out."
         case .noMoreContent:
             return "There is no more content"
+        case .generic(let message):
+            return message
         }
     }
     

@@ -19,7 +19,7 @@ extension UIColor {
         return UIColor.charcoal()
     }
     
-    class func separatorColor() -> UIColor {
+    class func hnSeparatorColor() -> UIColor {
         return UIColor.coolGray()
     }
     

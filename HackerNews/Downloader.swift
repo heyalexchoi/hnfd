@@ -11,25 +11,28 @@ import Alamofire
 import SwiftyJSON
 import PromiseKit
 
-typealias Result = Alamofire.Result
+typealias Result = Swift.Result
 
 struct Downloader {
-    
-    static let backgroundSessionIdentifier =  "com.hnfd.background"
-    
-    static let backgroundManager: Alamofire.SessionManager = {
-        let configuration = URLSessionConfiguration.background(withIdentifier: backgroundSessionIdentifier)
-        let manager =  Alamofire.SessionManager(configuration: configuration)
-        return manager
-    }()
+    // just converted to alamofire 5, for swift 5. apparently alamofire does not yet support
+    // background downloads https://github.com/Alamofire/Alamofire/issues/2743
+
+//    static let backgroundSessionIdentifier =  "com.hnfd.background"
+//
+//    static let backgroundManager: Alamofire.Session = {
+//        let configuration = URLSessionConfiguration.background(withIdentifier: backgroundSessionIdentifier)
+//        let manager =  Alamofire.Session(configuration: configuration)
+//        return manager
+//    }()
     
     static func download(_ request: URLRequestConvertible, destinationURL: URL) -> DownloadRequest {
-        let downloadDestination: DownloadRequest.DownloadFileDestination = { (_, _) -> (destinationURL: URL, options: DownloadRequest.DownloadOptions) in
+        let downloadDestination: DownloadRequest.Destination = { (_, _) -> (destinationURL: URL, options: DownloadRequest.Options) in
             return (destinationURL,  [.createIntermediateDirectories, .removePreviousFile])
         }
-        
-        let downloadRequest = backgroundManager.download(request, to: downloadDestination)
-        debugPrint(downloadRequest)
+        // just converted to alamofire 5, for swift 5. apparently alamofire does not yet support
+        // background downloads https://github.com/Alamofire/Alamofire/issues/2743
+//        let downloadRequest = backgroundManager.download(request, to: downloadDestination)
+        let downloadRequest = AF.download(request, to: downloadDestination)
         return downloadRequest
     }
 }
@@ -37,17 +40,18 @@ struct Downloader {
 
 extension Downloader {
     /* Downloads file for request to destination URL, and serializes result to provided response object serializable type */
-    @discardableResult static func download<T: ResponseObjectSerializable>(_ request: URLRequestConvertible, destinationURL: URL, completion: ((_ result: Result<T>) -> Void)?) -> DownloadRequest {
+    @discardableResult static func download<T: ResponseObjectSerializable>(_ request: URLRequestConvertible, destinationURL: URL, completion: ((_ result: Result<T, Error>) -> Void)?) -> DownloadRequest {
         return download(request, destinationURL: destinationURL)
             .validate()
             // .downloadProgress can also be inserted here
             .responseJSON(completionHandler: { (response) in
                 guard let completion = completion else { return }
                 ResponseObjectSerializer.serialize(response: response, completion: completion)
+                ResponseObjectSerializer.serialize(response: response, completion: completion)
             })
     }
     /* Downloads file for request to destination URL, and serializes result to provided response object serializable type */
-    @discardableResult static func download<T: ResponseObjectSerializable>(_ request: URLRequestConvertible, destinationURL: URL, completion: ((_ result: Result<[T]>) -> Void)?) -> DownloadRequest {
+    @discardableResult static func download<T: ResponseObjectSerializable>(_ request: URLRequestConvertible, destinationURL: URL, completion: ((_ result: Result<[T], Error>) -> Void)?) -> DownloadRequest {
         return download(request, destinationURL: destinationURL)
             .validate()
             // .downloadProgress can also be inserted here
@@ -60,43 +64,45 @@ extension Downloader {
 // MARK: - Story
 extension Downloader {
     
-    @discardableResult static func downloadStory(_ id: Int, completion: ((_ result: Result<Story>) -> Void)?) -> DownloadRequest {
+    @discardableResult static func downloadStory(_ id: Int, completion: ((_ result: Result<Story, Error>) -> Void)?) -> DownloadRequest {
         let request = HNPWARouter.item(id: id)
         let fileURL = DataSource.cache.fileURL(forKey: Story.cacheKey(id))
         return download(request, destinationURL: fileURL, completion: completion)
     }
     
     static func downloadStory(id: Int) -> Promise<Story> {
-        return Promise { (fulfill: @escaping (Story) -> Void, reject: @escaping (Error) -> Void) in
+        return Promise { seal in
             downloadStory(id) { (result) in
-                guard let story = result.value else {
-                    reject(result.error!)
-                    return
+                switch result {
+                case .success(let story):
+                    seal.fulfill(story)
+                case .failure(let error):
+                    seal.reject(error)
                 }
-                fulfill(story)
             }
         }
     }
     
-    @discardableResult static func downloadStories(_ type: StoriesType, page: Int, completion: ((_ result: Result<[Story]>) -> Void)?) -> DownloadRequest {
+    @discardableResult static func downloadStories(_ type: StoriesType, page: Int, completion: ((_ result: Result<[Story], Error>) -> Void)?) -> DownloadRequest {
         let request = HNPWARouter.stories(type: type, page: page)
         let fileURL = DataSource.cache.fileURL(forKey: type.cacheKey(page: page))
         return download(request, destinationURL: fileURL, completion: completion)
     }
     
     static func downloadStories(withType type: StoriesType, page: Int) -> Promise<[Story]> {
-        return Promise { (fulfill: @escaping ([Story]) -> Void, reject: @escaping (Error) -> Void) in
-            downloadStories(type, page: page, completion: { (result) in
-                guard let stories = result.value else {
-                    reject(result.error!)
-                    return
+        return Promise { seal in
+            downloadStories(type, page: page) { (result) in
+                switch result {
+                case .success(let stories):
+                    seal.fulfill(stories)
+                case .failure(let error):
+                    seal.reject(error)
                 }
-                fulfill(stories)
-            })
+            }
         }
     }
     
-    @discardableResult static func download(stories ids: [Int], completion: ((_ result: Result<[Story]>) -> Void)?) -> [DownloadRequest] {
+    @discardableResult static func download(stories ids: [Int], completion: ((_ result: Result<[Story], Error>) -> Void)?) -> [DownloadRequest] {
         // could proably promisekit this
         
         let startTime = Date()
@@ -118,14 +124,13 @@ extension Downloader {
         }
         
         return ids.map { (id) -> DownloadRequest in
-            return downloadStory(id, completion: { (result: Result<Story>) in
-                guard let story = result.value else {
+            return downloadStory(id, completion: { (result: Result<Story, Error>) in
+                switch result {
+                case .success(let story):
+                    stories.append(story)
+                case .failure:
                     failureCount += 1
-                    completeIfFinished()
-                    return
                 }
-                
-                stories.append(story)
                 completeIfFinished()
             })
         }
@@ -134,7 +139,7 @@ extension Downloader {
 // MARK: - Article
 extension Downloader {
     
-    @discardableResult static func downloadArticle(URLString: String, completion: ((_ result: Result<MercuryArticle>) -> Void)?) -> DownloadRequest {
+    @discardableResult static func downloadArticle(URLString: String, completion: ((_ result: Result<MercuryArticle, Error>) -> Void)?) -> DownloadRequest {
         let request = MercuryRouter.article(URLString: URLString)
         let fileURL = DataSource.cache.fileURL(forKey: MercuryArticle.cacheKeyForURLString(URLString))
         return download(request, destinationURL: fileURL, completion: completion)

@@ -5,6 +5,8 @@
 //  Created by alexchoi on 4/17/15.
 //  Copyright (c) 2015 Alex Choi. All rights reserved.
 //
+import WebKit
+import PromiseKit
 
 class ArticleViewController: UIViewController {
     
@@ -12,13 +14,10 @@ class ArticleViewController: UIViewController {
     let story: Story
     let articleURL: URL?
     
-    let webView = UIWebView()
+    let webView = WKWebView()
     
     var shouldScroll = true
-    var readingProgress: CGFloat {
-        return webView.scrollView.contentOffset.y / webView.scrollView.contentSize.height
-    }
-    
+        
     var htmlLoaded = false
     
     init(story: Story) {
@@ -51,8 +50,7 @@ class ArticleViewController: UIViewController {
         webView.isHidden = true
         webView.isOpaque = false
         webView.backgroundColor = UIColor.clear
-        
-        webView.delegate = self
+        webView.navigationDelegate = self
         
         for view in [webView] {
             view.translatesAutoresizingMaskIntoConstraints = false
@@ -68,26 +66,90 @@ class ArticleViewController: UIViewController {
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         saveReadingProgress()
-    }
-    
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-        scrollToReadingProgress()
-    }
+    }    
 }
 
 extension ArticleViewController {
     
     @objc func saveReadingProgress() {
-        article?.readingProgress = readingProgress
-        article?.save()
+        var hoistedWindowScrollY: CGFloat = 0
+        getWindowScrollY()
+            .then { [weak self] windowScrollY -> Promise<CGFloat> in
+                hoistedWindowScrollY = windowScrollY
+                guard let strongSelf = self else {
+                    throw HNFDError.generic(message: "trying to access property of article view controller but it does not exist")
+                }
+                return strongSelf.getWebDocumentHeight()
+            }
+            .done { [weak self] webDocumentHeight in
+                guard let article = self?.article else {
+                    return
+                }
+                let readingProgress = hoistedWindowScrollY / webDocumentHeight
+                print("saving reading progress: \(readingProgress)")
+                Cache.shared.setReadingProgress(article: article, readingProgress: readingProgress)
+            }
+            .cauterize()
+    }
+    
+    func getWindowScrollY() -> Promise<CGFloat> {
+        return Promise { seal in
+            webView.evaluate(javascriptString: "window.scrollY")
+                .done { (scrollY) in
+                    guard let scrollY = scrollY as? CGFloat else {
+                        throw HNFDError.generic(message: "unable to cast window.scrollY to CGFloat")
+                    }
+                    seal.fulfill(scrollY)
+            }
+                .cauterize()
+        }
+    }
+    
+    func getWebDocumentHeight() -> Promise<CGFloat> {
+        return Promise { seal in
+            webView.evaluate(javascriptString: "document.readyState")
+            .then { [weak self] (readyState) -> Promise<Any> in
+                guard let readyState = readyState as? String,
+                    let strongSelf = self,
+                    readyState == "complete" else {
+                    throw HNFDError.generic(message: "webView document.readyState is not complete")
+                }
+                return strongSelf.webView.evaluate(javascriptString: "document.body.scrollHeight")
+            }
+            .done { scrollHeight in
+                guard let scrollHeight = scrollHeight as? CGFloat else {
+                    throw HNFDError.generic(message: "unable to cast document.body.scrollHeight to CGFloat")
+                }
+                seal.fulfill(scrollHeight)
+            }
+            .cauterize()
+        }
     }
     
     func scrollToReadingProgress() {
-        if webView.scrollView.contentSize.height > webView.scrollView.bounds.size.height
+        getWebDocumentHeight()
+            .done { [weak self] (height) in
+                self?.setWebViewContentOffsetToMatchReadingProgress(webDocumentHeight: height)
+            }
+    }
+    
+    func setWebViewContentOffsetToMatchReadingProgress(webDocumentHeight: CGFloat) {
+        print("web doc height: \(webDocumentHeight)")
+        print("scrollview height: \(webView.scrollView.bounds.size.height)")
+        print("should scroll: \(shouldScroll)")
+
+        if webDocumentHeight > webView.scrollView.bounds.size.height
             && shouldScroll,
             let article = article {
-            webView.scrollView.setContentOffset(CGPoint(x:0, y: article.readingProgress * webView.scrollView.contentSize.height), animated: false)
+            Cache.shared.getReadingProgress(article: article)
+                .done { [weak self] readingProgress in
+                    print("reading progress: \(readingProgress)")
+                    let scrollYDestination = readingProgress * webDocumentHeight
+                    self?.webView.evaluate(javascriptString: "window.scrollTo(0,\(scrollYDestination))")
+                    print("scrolling to destination Y: \(scrollYDestination)")
+
+            }
+            .cauterize()
             shouldScroll = false
         }
         webView.isHidden = false
@@ -97,11 +159,11 @@ extension ArticleViewController {
         ProgressHUD.showAdded(to: view, animated: true)
         DataSource.getArticle(story, completion: { [weak self] (result) -> Void in
             ProgressHUD.hide(for: self?.view, animated: true)
-            
-            if let article = result.value {
+            switch result {
+            case .success(let article):
                 self?.article = article
-            } else {
-                ErrorController.showErrorNotification(result.error)
+            case .failure(let error):
+                ErrorController.showErrorNotification(error)
             }
             self?.finishLoadingArticle()
             })
@@ -132,10 +194,11 @@ extension ArticleViewController {
         var customCSS =
         "body {"
         customCSS +=
-            "font-size: \(UIFont.textReaderFont().pointSize);" +
-            "font-family: \(UIFont.textReaderFont().fontName);" +
-            "background-color: \(backgroundColorHexString);" +
+        "font-size: \(UIFont.textReaderFont().pointSize);" +
+        "font-family: \(UIFont.textReaderFont().fontName);" +
+        "background-color: \(backgroundColorHexString);" +
         "color: \(textColorHexString);"
+        
         customCSS +=
         "}"
         customCSS +=
@@ -153,6 +216,12 @@ extension ArticleViewController {
     var body: String {
         
         if let article = article {
+            // WKWebView tries to scale content and doesn't respect the font size we give without this special header
+            // https://stackoverflow.com/questions/45998220/the-font-looks-like-smaller-in-wkwebview-than-in-uiwebview
+            // also would not respect css value -webkit-text-size-adjust, webkit-text-size-adjust, or text-size-adjust
+            // https://forums.developer.apple.com/thread/128293
+
+            let header = "<header><meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no'></header>"
             var articleInfo =
                 "<div class='article_info'>" +
             "<h1>\(article.title)</h1>"
@@ -175,7 +244,7 @@ extension ArticleViewController {
                 "<div><a href='\(article.URLString)'> \(article.URLString) </a></div>" +
             "</div>"
             
-            let body = "<body>" + articleInfo + article.content + "</body>"
+            let body = "<body>" + header + articleInfo + article.content + "</body>"
             
             return body
             
@@ -208,18 +277,18 @@ extension ArticleViewController {
     }
 }
 
-extension ArticleViewController: UIWebViewDelegate {
-    
-    func webView(_ webView: UIWebView, shouldStartLoadWith request: URLRequest, navigationType: UIWebView.NavigationType) -> Bool {
-        if let URL = request.url , htmlLoaded {
-            presentWebViewController(URL)
-            return false
-        }
-        return true
-    }
-    
-    func webViewDidFinishLoad(_ webView: UIWebView) {
+extension ArticleViewController: WKNavigationDelegate {
+    func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
         htmlLoaded = true
         scrollToReadingProgress()
+    }
+    
+    func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
+        let policy: WKNavigationActionPolicy = htmlLoaded ? .cancel : .allow
+        decisionHandler(policy)
+        if policy == .cancel && navigationAction.navigationType == .linkActivated,
+            let url = navigationAction.request.url {
+            presentWebViewController(url)
+        }
     }
 }

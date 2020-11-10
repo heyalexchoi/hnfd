@@ -45,7 +45,7 @@ struct Appearance {
         
         // tab bar unselected
         UITabBarItem.appearance().setTitleTextAttributes(
-            TextAttributes.attributesWithFontAndColor(font: .textFont(), color: UIColor.separatorColor()),
+            TextAttributes.attributesWithFontAndColor(font: .textFont(), color: UIColor.hnSeparatorColor()),
             for: .normal)
         // tab bar selected
         UITabBarItem.appearance().setTitleTextAttributes(

@@ -14,15 +14,19 @@ struct DataSource {
     
     static let cache = Cache.shared
     static let reachability: Reachability? = {
-        guard let reachability = Reachability() else {
+        do {
+            return try Reachability()
+        } catch {
             ErrorController.showErrorNotification(HNFDError.unableToCreateReachability)
             return nil
         }
-        return reachability
     }()
     
     static var shouldMakeNetworkRequest: Bool {
-        return reachability?.isReachable ?? true // prevent requests without connection. also entry point to prevent network requests for any other reasons
+        guard let reachability = reachability else {
+            return true
+        }
+        return reachability.connection != .unavailable // prevent requests without connection. also entry point to prevent network requests for any other reasons
     }
 }
 
@@ -45,36 +49,35 @@ extension DataSource {
             return getPinnedStories(page: page)
         }
         
-        return Promise { (fulfill: @escaping ([Story]) -> Void, reject: @escaping (Error) -> Void) in
-            
-            _ = after(interval: timeout)
-                .then(execute: { (_) -> Promise<[Story]> in
+        return Promise { seal in
+            _ = after(seconds: timeout)
+                .then { (_) -> Promise<[Story]> in
                     return cache.getStories(withType: type, page: page)
-                })
-                .then(execute: { (stories) -> Void in
-                    fulfill(stories)
-                })
-                .catch(execute: { (error) in
-                    reject(error)
-                })
+                }
+                .done { stories in
+                    seal.fulfill(stories)
+                }
+                .catch { error in
+                    seal.reject(error)
+                }
             
             getStories(withType: type)
-            .then(execute: { (stories) -> Void in
-                fulfill(stories)
-            })
-            .catch(execute: { (error) in
+            .done { (stories) -> Void in
+                seal.fulfill(stories)
+            }
+            .catch { error in
                 cache.getStories(withType: type, page: page)
-                .then(execute: { (stories) -> Void in
-                    fulfill(stories)
-                })
-                .catch(execute: { (error) in
-                    reject(error)
-                })
-            })
+                .done { stories in
+                    seal.fulfill(stories)
+                }
+                .catch { error in
+                    seal.reject(error)
+                }
+            }
         }
     }
     
-    static func getStory(_ id: Int, refresh: Bool = false, completion: ((_ result: Result<Story>) -> Void)?) {
+    static func getStory(_ id: Int, refresh: Bool = false, completion: ((_ result: Result<Story, Error>) -> Void)?) {
         // will use cached story unless refresh requested (and network available)
         guard shouldMakeNetworkRequest && (!Story.isCached(id) || refresh) else {
             cache.getStory(id, completion: { (result) in
@@ -92,30 +95,30 @@ extension DataSource {
         guard shouldMakeNetworkRequest else {
             return cache.getStory(id: id)
         }
-        return Promise { (fulfill: @escaping (Story) -> Void, reject: @escaping (Error) -> Void) in
-            _ = after(interval: timeout)
-                .then(execute: { (_) -> Promise<Story> in
+        return Promise { seal in
+            _ = after(seconds: timeout)
+                .then { (_) -> Promise<Story> in
                     return cache.getStory(id: id)
-                })
-                .then(execute: { (story) -> Void in
-                    fulfill(story)
-                })
-                .catch(execute: { (error) in
-                    reject(error)
-                })
+                }
+                .done { story in
+                    seal.fulfill(story)
+                }
+                .catch { error in
+                    seal.reject(error)
+                }
             
             Downloader.downloadStory(id: id)
-                .then(execute: { (story) -> Void in
-                    fulfill(story)
-                })
-                .catch(execute: { (error) in
+                .done { story in
+                    seal.fulfill(story)
+                }
+                .catch({ (error) in
                     cache.getStory(id: id)
-                        .then(execute: { (story) -> Void in
-                            fulfill(story)
-                        })
-                        .catch(execute: { (error) in
-                            reject(error)
-                        })
+                        .done { story in
+                            seal.fulfill(story)
+                        }
+                        .catch { error in
+                            seal.reject(error)
+                        }
                 })
         }
     }
@@ -133,7 +136,7 @@ extension DataSource {
     
     // MARK: - Articles
     
-    static func getArticle(_ story: Story, refresh: Bool = false, completion: ((_ result: Result<MercuryArticle>) -> Void)?) {
+    static func getArticle(_ story: Story, refresh: Bool = false, completion: ((_ result: Result<MercuryArticle, Error>) -> Void)?) {
         guard let URLString = story.URLString else {
             completion?(Result.failure(HNFDError.storyHasNoArticleURL))
             return
@@ -153,40 +156,37 @@ extension DataSource {
     
     @discardableResult
     static func fullySync(storiesType type: StoriesType, page: Int, timeout: TimeInterval) -> Promise<Void> {
-        return Promise<Void> { (fulfill, reject) in
+        return Promise<Void> { seal in
             
-            _ = after(interval: timeout)
-                .then(execute: { (_) -> Void in
-                    reject(HNFDError.timeout)
-                })
+            let timeoutPromise = after(seconds: timeout)
             
-            _ = getStories(withType: type, page: page, timeout: timeout)
-            .then(execute: { (stories) -> Promise<Void> in
+            let syncChain = getStories(withType: type, page: page, timeout: timeout)
+            .then( { (stories) -> Promise<Void> in
                 return fullySync(stories: stories, timeout: timeout)
             })
-            .then(execute: { (_) -> Void in
-                fulfill(())
-            })
-            .catch(execute: { (error) in
-                reject(error)
-            })
+            .done { (_) -> Void in
+                seal.fulfill(())
+            }
+            .recover { error in
+                seal.reject(error)
+            }.asVoid()
+            
+            race(syncChain, timeoutPromise).done {
+                seal.reject(HNFDError.timeout)
+            }
         }
     }
     
     @discardableResult
     static func fullySync(stories: [Story], timeout: TimeInterval) -> Promise<Void> {
-        return Promise<Void> { (fulfill, reject) in
-            
-            _ = after(interval: timeout)
-                .then(execute: { (_) -> Void in
-                    reject(HNFDError.timeout)
-                })
-            
+        return Promise<Void> { seal in
+            after(seconds: timeout).done {
+                seal.reject(HNFDError.timeout)
+            }            
             for story in stories {
                 fullySync(story: story)
             }
-            
-            fulfill(())
+            seal.fulfill(())
         }
     }
     

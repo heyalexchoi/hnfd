@@ -23,8 +23,6 @@ struct MercuryArticle: ResponseObjectSerializable {
     let wordCount: Int
     let totalPages: Int
     let renderedPages: Int
-
-    var readingProgress: CGFloat
     
     /* 2016-12-26T05:00:00.000Z */
     let readabilityDateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
@@ -46,7 +44,6 @@ struct MercuryArticle: ResponseObjectSerializable {
         dek = json["dek"].stringValue
         leadImageURL = URL(string: json["lead_image_url"].stringValue)
         datePublished = DateFormatter.dateFromString(json["date_published"].stringValue, format: readabilityDateFormat)
-        readingProgress = CGFloat(json["reading_progress"].floatValue)
     }
     
     var asJSON: Any {
@@ -61,8 +58,7 @@ struct MercuryArticle: ResponseObjectSerializable {
             "totalPages": totalPages,
             "dek": dek,
             "lead_image_url": leadImageURL?.absoluteString ?? "",
-            "date_published": datePublished != nil ? DateFormatter.stringFromDate(datePublished!, format: readabilityDateFormat) : "",
-            "reading_progress": readingProgress
+            "date_published": datePublished != nil ? DateFormatter.stringFromDate(datePublished!, format: readabilityDateFormat) : ""
         ]
     }
     
@@ -80,6 +76,11 @@ extension MercuryArticle {
     
     var cacheKey: String {
         return type(of: self).cacheKeyForURLString(URLString)
+    }
+    
+    var readingProgressCacheKey: String {
+        print("key: \("article_reading_progress_\(URLString)")")
+        return "article_reading_progress_\(URLString)"
     }
 }
 

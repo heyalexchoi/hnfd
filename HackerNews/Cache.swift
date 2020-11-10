@@ -30,14 +30,25 @@ struct Cache {
     }()
     
     func fileURL(forKey key: String) -> URL {
-        return cacheURL.appendingPathComponent(key)
+        return cacheURL.appendingPathComponent(cleanKey(key))
     }
     
     private func data(forKey key: String) throws -> Data {
         return try Data(contentsOf: fileURL(forKey: key))
     }
     
-    func getObject<T: ResponseObjectSerializable>(forKey key: String, completion: @escaping (_ result: Result<T>) -> Void) {
+    func cleanKey(_ key: String) -> String {
+        var invalidCharacters = CharacterSet(charactersIn: ":/")
+        invalidCharacters.formUnion(.newlines)
+        invalidCharacters.formUnion(.illegalCharacters)
+        invalidCharacters.formUnion(.controlCharacters)
+
+        return key
+            .components(separatedBy: invalidCharacters)
+            .joined(separator: "")
+    }
+    
+    func getObject<T: ResponseObjectSerializable>(forKey key: String, completion: @escaping (_ result: Result<T, Error>) -> Void) {
         backgroundQueue.addOperation {
             do {
                 let data = try self.data(forKey: key)
@@ -48,10 +59,10 @@ struct Cache {
         }
     }
     
-    func getObjects<T: ResponseObjectSerializable>(forKey key: String, completion: @escaping (_ result: Result<[T]>) -> Void) {
+    func getObjects<T: ResponseObjectSerializable>(forKey key: String, completion: @escaping (_ result: Result<[T], Error>) -> Void) {
         backgroundQueue.addOperation {
             do {
-                let data = try self.data(forKey: key)
+                let data = try self.data(forKey:  key)
                 ResponseObjectSerializer.serialize(data: data, completion: completion)
             } catch let error {
                 self.complete(error: error, completion: completion)
@@ -86,18 +97,19 @@ struct Cache {
     
     // MARK: - STORIES
     
-    func getStories(_ type: StoriesType, page: Int, completion: @escaping (_ result: Result<[Story]>) -> Void) {
+    func getStories(_ type: StoriesType, page: Int, completion: @escaping (_ result: Result<[Story], Error>) -> Void) {
         getObjects(forKey: type.cacheKey(page: page), completion: completion)
     }
     
     func getStories(withType type: StoriesType, page: Int) -> Promise<[Story]> {
-        return Promise { (fulfill: @escaping ([Story]) -> Void, reject: @escaping (Error) -> Void) in
+        return Promise { seal in
             getStories(type, page: page, completion: { (result) in
-                guard let stories = result.value else {
-                    reject(result.error!)
-                    return
+                switch result {
+                case .success(let stories):
+                    seal.fulfill(stories)
+                case .failure(let error):
+                    seal.reject(error)
                 }
-                fulfill(stories)
             })
         }
     }
@@ -107,32 +119,30 @@ struct Cache {
     }
     
     func getStories(ids: [Int], timeout: TimeInterval = 2) -> Promise<[Story]> {
-        return Promise { (fulfill: @escaping ([Story]) -> Void, reject: @escaping (Error) -> Void) in
-            
-            _ = after(interval: timeout).then(execute: { (_) -> Void in
-                reject(HNFDError.timeout)
-            })
+        return Promise { seal in
+            let timeoutPromise = after(seconds: timeout)
             
             let promises = ids.map({ (id) -> Promise<Story> in
                 return getStory(id: id)
             })
-            
             let combinedPromises = when(resolved: promises)
-                
-            _ = combinedPromises
-                .then(execute: { (results: [PromiseKit.Result<Story>]) -> Void in
+                .done { (results: [PromiseKit.Result<Story>]) -> Void in
                 var stories = [Story]()
                 for case let .fulfilled(story) in results {
                     stories.append(story)
                 }
-                fulfill(stories.orderBy(ids: ids))
-            })
+                seal.fulfill(stories.orderBy(ids: ids))
+            }
+            
+            race(timeoutPromise, combinedPromises).done {
+                seal.reject(HNFDError.timeout)
+            }
         }
     }
     
     // MARK: - PINNED STORIES
     
-    func getPinnedStoryIds(completion: @escaping (_ result: Result<[Int]>) -> Void) {
+    func getPinnedStoryIds(completion: @escaping (_ result: Result<[Int], Error>) -> Void) {
         getObjects(forKey: Story.pinnedIdsCacheKey, completion: completion)
     }
     
@@ -142,18 +152,19 @@ struct Cache {
     
     // MARK: - STORY
     
-    func getStory(_ id: Int, completion: @escaping (_ result: Result<Story>) -> Void) {
+    func getStory(_ id: Int, completion: @escaping (_ result: Result<Story, Error>) -> Void) {
         getObject(forKey: Story.cacheKey(id), completion: completion)
     }
     
     func getStory(id: Int) -> Promise<Story> {
-        return Promise { (fulfill: @escaping (Story) -> Void, reject: @escaping (Error) -> Void) in
+        return Promise { seal in
             getStory(id, completion: { (result) in
-                guard let story = result.value else {
-                    reject(result.error!)
-                    return
+                switch result {
+                case .success(let story):
+                    seal.fulfill(story)
+                case .failure(let error):
+                    seal.reject(error)
                 }
-                fulfill(story)
             })
         }
     }
@@ -164,7 +175,7 @@ struct Cache {
     
     // MARK: - ARTICLES
     
-    func getArticle(_ story: Story, completion: @escaping (_ result: Result<MercuryArticle>) -> Void) {
+    func getArticle(_ story: Story, completion: @escaping (_ result: Result<MercuryArticle, Error>) -> Void) {
         guard let cacheKey = story.articleCacheKey else {
             completion(Result.failure(HNFDError.storyHasNoArticleURL))
             return
@@ -175,11 +186,29 @@ struct Cache {
     func setArticle(_ article: MercuryArticle) {
         setObject(forKey: article.cacheKey, object: article)
     }
+    
+    // MARK: - article reading progress
+    func setReadingProgress(article: MercuryArticle, readingProgress: CGFloat) {
+        setObject(forKey: article.readingProgressCacheKey, object: readingProgress)
+    }
+    
+    func getReadingProgress(article: MercuryArticle) -> Promise<CGFloat> {
+        return Promise { seal in
+            self.getObject(forKey: article.readingProgressCacheKey, completion: { (result: Result<CGFloat, Error>) in
+                switch result {
+                case .success(let progress):
+                    seal.fulfill(progress)
+                case .failure(let error):
+                    seal.reject(error)
+                }
+            })
+        }
+    }
 }
 
 extension Cache {
     
-    func complete<T: Any>(error: Error, completion: @escaping (Result<T>) -> Void) {
+    func complete<T: Any>(error: Error, completion: @escaping (Result<T, Error>) -> Void) {
         self.completionReturnQueue.addOperation {
             completion(Result.failure(error))
         }
@@ -202,8 +231,13 @@ class SharedState {
     private(set) var pinnedStoryIds = [Int]()
     
     init() {
-        cache.getPinnedStoryIds { [weak self] (result: Result<[Int]>) in
-            self?.pinnedStoryIds = result.value ?? [Int]()
+        cache.getPinnedStoryIds { [weak self] (result: Result<[Int], Error>) in
+            switch result {
+            case .success(let ids):
+                self?.pinnedStoryIds = ids
+            case .failure:
+                self?.pinnedStoryIds = [Int]()
+            }
         }
     }
     
