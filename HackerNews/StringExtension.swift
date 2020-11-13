@@ -20,6 +20,7 @@ extension String {
         guard let url = Foundation.URL(string: self) else {
             return false
         }
+        // has to be called on main thread
         return UIApplication.shared.canOpenURL(url)
     }
 }

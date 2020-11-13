@@ -244,8 +244,7 @@ struct Story: ResponseObjectSerializable, DataSerializable, JSONSerializable {
         self.kind = kind // rethink this one. important, even?
 
         if let urlString = json["url"].string,
-            let url = Foundation.URL(string: urlString),
-             urlString.isValidURL {
+            let url = Foundation.URL(string: urlString) {
             self.URLString = urlString
             self.URL = url
         } else {
